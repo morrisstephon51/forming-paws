@@ -1,0 +1,37 @@
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  if (!userData.user) redirect('/login')
+
+  const { data: dogs, error } = await supabase
+    .from('dogs')
+    .select('id, name, sex, birth_date, breeds(name)')
+    .eq('owner_id', userData.user.id)
+
+  if (error) throw error
+
+  return (
+    <main className="mx-auto max-w-2xl p-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Your dogs</h1>
+        <Link href="/dogs/new" className="bg-gray-900 text-white px-4 py-2 rounded">
+          Add a dog
+        </Link>
+      </div>
+      <ul className="mt-6 flex flex-col gap-3">
+        {dogs?.map((dog) => (
+          <li key={dog.id}>
+            <Link href={`/dogs/${dog.id}`} className="block border p-4 rounded hover:bg-gray-50">
+              {dog.name} — {dog.sex}
+            </Link>
+          </li>
+        ))}
+        {dogs?.length === 0 && <p className="text-gray-500">No dogs yet.</p>}
+      </ul>
+    </main>
+  )
+}
