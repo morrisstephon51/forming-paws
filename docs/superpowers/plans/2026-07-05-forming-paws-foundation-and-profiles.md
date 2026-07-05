@@ -378,7 +378,7 @@ git commit -m "Add owners and breeds tables with RLS, seed breed list"
 - Test: `tests/unit/signup-validation.test.ts`
 
 **Interfaces:**
-- Produces: `createClient()` (browser, from `lib/supabase/client.ts`) and `createClient()` (server, from `lib/supabase/server.ts`, async — must be awaited) — every later page that needs Supabase imports one of these two. Also produces the `signupSchema` zod schema (exported from `app/(auth)/signup/page.tsx`) enforcing the 18+ attestation.
+- Produces: `createClient()` (browser, from `lib/supabase/client.ts`) and `createClient()` (server, from `lib/supabase/server.ts`, async — must be awaited) — every later page that needs Supabase imports one of these two. Also produces the `signupSchema` zod schema (exported from `app/(auth)/signup/schema.ts`, not `page.tsx` — Next.js's page-export-shape check rejects named exports from any `page.tsx`, including `'use client'` ones, so the schema was split into its own file; `page.tsx` imports it from `./schema`) enforcing the 18+ attestation.
 
 - [ ] **Step 1: Write `lib/supabase/client.ts`**
 
