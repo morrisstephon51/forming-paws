@@ -16,4 +16,40 @@ describe('stripImageMetadata', () => {
 
     expect(strippedMetadata.exif).toBeUndefined()
   })
+
+  it('applies EXIF orientation (rotation) before stripping metadata', async () => {
+    // Create a rectangular (non-square) image so rotation is dimensionally detectable.
+    // Unrotated raw pixel dimensions: 100x50 (width x height).
+    // EXIF orientation 6 means "rotate 90deg CW to display correctly" — sharp's
+    // .rotate() should physically rotate the pixels, swapping width/height.
+    const withOrientation = await sharp({
+      create: { width: 100, height: 50, channels: 3, background: { r: 0, g: 128, b: 255 } },
+    })
+      .withMetadata({ orientation: 6 })
+      .jpeg()
+      .toBuffer()
+
+    const stripped = await stripImageMetadata(withOrientation)
+    const strippedMetadata = await sharp(stripped).metadata()
+
+    // After applying orientation 6, the physical pixel dimensions should be swapped: 50x100.
+    expect(strippedMetadata.width).toBe(50)
+    expect(strippedMetadata.height).toBe(100)
+    expect(strippedMetadata.exif).toBeUndefined()
+  })
+
+  it('resizes images larger than MAX_DIMENSION without throwing', async () => {
+    const largeImage = await sharp({
+      create: { width: 3000, height: 1500, channels: 3, background: { r: 10, g: 20, b: 30 } },
+    })
+      .jpeg()
+      .toBuffer()
+
+    const stripped = await stripImageMetadata(largeImage)
+    const strippedMetadata = await sharp(stripped).metadata()
+
+    expect(strippedMetadata.width).toBeLessThanOrEqual(2000)
+    expect(strippedMetadata.height).toBeLessThanOrEqual(2000)
+    expect(Math.max(strippedMetadata.width!, strippedMetadata.height!)).toBeLessThanOrEqual(2000)
+  })
 })
