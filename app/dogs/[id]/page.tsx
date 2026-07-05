@@ -27,6 +27,8 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     .eq('dog_id', id)
     .order('uploaded_at', { ascending: false })
 
+  const { data: isVerified } = await supabase.rpc('dog_is_baseline_verified', { p_dog_id: id })
+
   const photoUrls = await Promise.all(
     (photos ?? []).map(async (p) => {
       const { data } = await supabase.storage
@@ -39,6 +41,15 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   return (
     <main className="mx-auto max-w-2xl p-8">
       <h1 className="text-2xl font-bold">{dog.name}</h1>
+      {isVerified ? (
+        <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mt-1">
+          ✓ Baseline health verified
+        </span>
+      ) : (
+        <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mt-1">
+          Health verification pending
+        </span>
+      )}
       <p className="text-gray-600">
         {(dog.breeds as unknown as { name: string })?.name} · {dog.sex} · born {dog.birth_date}
       </p>
