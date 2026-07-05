@@ -340,7 +340,7 @@ Call `mcp__claude_ai_Supabase__apply_migration` with `name: "owners_and_breeds"`
 ]
 ```
 
-(50 seed breeds covering the AKC's most-registered list plus a "Mixed Breed / Not Listed" catch-all — expand later without a schema change, since it's just data.)
+(52 seed breeds covering the AKC's most-registered list plus a "Mixed Breed / Not Listed" catch-all — expand later without a schema change, since it's just data.)
 
 - [ ] **Step 4: Seed `breeds` from the JSON file and verify RLS**
 
@@ -350,7 +350,7 @@ Then verify RLS with two checks via `execute_sql`:
 ```sql
 select count(*) from public.breeds;
 ```
-Expected: `50`.
+Expected: `52`.
 
 ```sql
 select tablename, policyname, cmd from pg_policies where tablename in ('owners', 'breeds') order by tablename;
