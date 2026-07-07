@@ -5,9 +5,13 @@ import { revalidatePath } from 'next/cache'
 
 export async function reviewDocument(
   docId: string,
-  decision: 'verified' | 'rejected',
+  decision: string,
   notes: string
 ) {
+  if (decision !== 'verified' && decision !== 'rejected') {
+    throw new Error('Invalid decision')
+  }
+
   const supabase = await createClient()
   const { error } = await supabase
     .from('health_documents')

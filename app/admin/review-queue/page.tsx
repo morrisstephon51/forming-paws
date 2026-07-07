@@ -2,7 +2,12 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { reviewDocument } from './actions'
 
-export default async function ReviewQueuePage() {
+export default async function ReviewQueuePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error: reviewError } = await searchParams
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) redirect('/login')
@@ -23,6 +28,11 @@ export default async function ReviewQueuePage() {
   return (
     <main className="mx-auto max-w-2xl p-8">
       <h1 className="text-2xl font-bold">Health document review queue</h1>
+      {reviewError && (
+        <p className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
+          Failed to save review: {reviewError}
+        </p>
+      )}
       <ul className="mt-6 flex flex-col gap-4">
         {pendingDocs?.map((doc) => (
           <li key={doc.id} className="border p-4 rounded">
@@ -32,11 +42,17 @@ export default async function ReviewQueuePage() {
             <form
               action={async (formData: FormData) => {
                 'use server'
-                await reviewDocument(
-                  doc.id,
-                  formData.get('decision') as 'verified' | 'rejected',
-                  String(formData.get('notes') || '')
-                )
+                try {
+                  await reviewDocument(
+                    doc.id,
+                    String(formData.get('decision') || ''),
+                    String(formData.get('notes') || '')
+                  )
+                } catch (err) {
+                  redirect(
+                    `/admin/review-queue?error=${encodeURIComponent(err instanceof Error ? err.message : 'Unknown error')}`
+                  )
+                }
               }}
               className="mt-2 flex gap-2 items-center"
             >
