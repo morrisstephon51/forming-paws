@@ -161,10 +161,11 @@ function sendMsg(){
   localStorage.setItem(key, JSON.stringify(msgs));
   $("chatText").value = "";
   renderChat(msgs);
+  const replyChatId = chatWith;
   setTimeout(() => {
     msgs.push({who:"them", t:"Sounds great — let's set up a meet at a neutral spot. I'll bring the vet records! 🐾"});
     localStorage.setItem(key, JSON.stringify(msgs));
-    renderChat(msgs);
+    if (chatWith === replyChatId) renderChat(msgs);
   }, 1200);
 }
 $("chatSend").addEventListener("click", sendMsg);
