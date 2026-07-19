@@ -55,8 +55,8 @@ function render(){
     <div class="dog-card" data-id="${d.id}">
       ${photoDiv(d, "dog-photo")}
       <div class="dog-body">
-        <div class="dog-name">${d.name} <span class="dog-sex">${d.sex === "M" ? "♂" : "♀"}</span></div>
-        <div class="dog-meta">${d.breed} · ${d.age} yrs · ${d.weight} lb</div>
+        <div class="dog-name">${escapeHtml(d.name)} <span class="dog-sex">${d.sex === "M" ? "♂" : "♀"}</span></div>
+        <div class="dog-meta">${escapeHtml(d.breed)} · ${d.age} yrs · ${d.weight} lb</div>
         <div class="dog-actions">
           ${actionBtn(d)}
           <button class="btn btn-outline btn-view" data-id="${d.id}">View</button>
@@ -104,13 +104,13 @@ function openModal(id){
     <button class="modal-close" id="mClose">✕</button>
     ${photoDiv(d, "dog-photo")}
     <div class="modal-body">
-      <h2>${d.name} <span class="dog-sex">${d.sex === "M" ? "♂" : "♀"}</span></h2>
-      <div class="dog-meta">${d.breed} · ${d.age} yrs · ${d.weight} lb · ~${d.dist} miles away</div>
-      <p style="font-size:.95rem">${d.bio}</p>
-      <div class="chips">${d.temperament.map(t => `<span class="chip">${t}</span>`).join("")}</div>
+      <h2>${escapeHtml(d.name)} <span class="dog-sex">${d.sex === "M" ? "♂" : "♀"}</span></h2>
+      <div class="dog-meta">${escapeHtml(d.breed)} · ${d.age} yrs · ${d.weight} lb · ~${d.dist} miles away</div>
+      <p style="font-size:.95rem">${escapeHtml(d.bio)}</p>
+      <div class="chips">${d.temperament.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join("")}</div>
       <div class="health-list">
         <div style="font-weight:800;padding-bottom:6px">🩺 Health vault</div>
-        ${d.health.map(([n, s]) => `<div><span>${n}</span><span class="${s}">${s === "ok" ? "Verified ✓" : "Pending…"}</span></div>`).join("")}
+        ${d.health.map(([n, s]) => `<div><span>${escapeHtml(n)}</span><span class="${s}">${s === "ok" ? "Verified ✓" : "Pending…"}</span></div>`).join("")}
       </div>
       <div class="dog-actions">${actionBtn(d)}</div>
       ${d.verified ? "" : `<p style="font-size:.8rem;color:var(--ink-soft);margin-top:12px">Matching unlocks once this dog's baseline health documents are verified. Owner has been referred to a partner vet.</p>`}
@@ -145,8 +145,11 @@ function openChat(id){
   $("chat").classList.add("open");
   $("chatText").focus();
 }
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
 function renderChat(msgs){
-  $("chatMsgs").innerHTML = msgs.map(m => `<div class="msg ${m.who}">${m.t}</div>`).join("");
+  $("chatMsgs").innerHTML = msgs.map(m => `<div class="msg ${m.who}">${escapeHtml(m.t)}</div>`).join("");
   $("chatMsgs").scrollTop = $("chatMsgs").scrollHeight;
 }
 function sendMsg(){
@@ -158,10 +161,11 @@ function sendMsg(){
   localStorage.setItem(key, JSON.stringify(msgs));
   $("chatText").value = "";
   renderChat(msgs);
+  const replyChatId = chatWith;
   setTimeout(() => {
     msgs.push({who:"them", t:"Sounds great — let's set up a meet at a neutral spot. I'll bring the vet records! 🐾"});
     localStorage.setItem(key, JSON.stringify(msgs));
-    renderChat(msgs);
+    if (chatWith === replyChatId) renderChat(msgs);
   }, 1200);
 }
 $("chatSend").addEventListener("click", sendMsg);
