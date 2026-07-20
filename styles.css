@@ -157,3 +157,9 @@ em{font-style:normal;color:var(--brand)}
   .nav-links a:not(.btn){display:none}
   .hero{padding:52px 6vw 40px}
 }
+
+/* WAITLIST */
+.wl-form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:760px;margin:22px auto 0}
+.wl-form input{flex:1;min-width:180px;padding:13px 16px;border-radius:999px;border:none;font-size:.95rem}
+.wl-form input:focus-visible{outline:3px solid rgba(255,255,255,.6)}
+.wl-msg{margin-top:14px;font-weight:700;min-height:1.4em}
