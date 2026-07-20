@@ -163,9 +163,11 @@ function sendMsg(){
   renderChat(msgs);
   const replyChatId = chatWith;
   setTimeout(() => {
-    msgs.push({who:"them", t:"Sounds great — let's set up a meet at a neutral spot. I'll bring the vet records! 🐾"});
-    localStorage.setItem(key, JSON.stringify(msgs));
-    if (chatWith === replyChatId) renderChat(msgs);
+    // Re-read from storage so messages sent within the 1.2s window are not overwritten.
+    const latest = JSON.parse(localStorage.getItem(key) || "[]");
+    latest.push({who:"them", t:"Sounds great — let's set up a meet at a neutral spot. I'll bring the vet records! 🐾"});
+    localStorage.setItem(key, JSON.stringify(latest));
+    if (chatWith === replyChatId) renderChat(latest);
   }, 1200);
 }
 $("chatSend").addEventListener("click", sendMsg);

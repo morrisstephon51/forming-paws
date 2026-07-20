@@ -75,11 +75,50 @@
   </div>
 </section>
 
-<section class="section cta-band">
-  <h2>Ready to meet your dog's match?</h2>
-  <p>Browse verified dogs in the demo — no signup needed.</p>
-  <a href="app.html" class="btn btn-light">Open the App</a>
+<section class="section cta-band" id="waitlist">
+  <h2>Be a Founding Member</h2>
+  <p>Join the waitlist — the first 20 owners in our launch city get health verification <strong>free for life</strong>.</p>
+  <form class="wl-form" id="wlForm">
+    <input type="email" id="wlEmail" placeholder="Your email" required>
+    <input type="text" id="wlCity" placeholder="Your city">
+    <input type="text" id="wlBreed" placeholder="Your dog's breed (optional)">
+    <button type="submit" class="btn btn-light" id="wlBtn">Join the Waitlist</button>
+  </form>
+  <p class="wl-msg" id="wlMsg"></p>
+  <p style="opacity:.8;font-size:.85rem;margin-top:14px">Or <a href="app.html" style="text-decoration:underline">try the demo</a> first — no signup needed.</p>
 </section>
+
+<script>
+const SUPABASE_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
+document.getElementById("wlForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("wlBtn"), msg = document.getElementById("wlMsg");
+  btn.disabled = true; btn.textContent = "Joining…"; msg.textContent = "";
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY },
+      body: JSON.stringify({
+        email: document.getElementById("wlEmail").value.trim(),
+        city: document.getElementById("wlCity").value.trim() || null,
+        dog_breed: document.getElementById("wlBreed").value.trim() || null
+      })
+    });
+    if (res.ok || res.status === 201) {
+      msg.textContent = "🎉 You're on the list! We'll email you when we launch in your area.";
+      document.getElementById("wlForm").reset();
+    } else if (res.status === 409) {
+      msg.textContent = "You're already on the waitlist — see you at launch! 🐾";
+    } else {
+      msg.textContent = "Something went wrong — please try again in a minute.";
+    }
+  } catch (err) {
+    msg.textContent = "Couldn't reach the server — check your connection and try again.";
+  }
+  btn.disabled = false; btn.textContent = "Join the Waitlist";
+});
+</script>
 
 <footer class="footer">
   <div>🐾 <strong>Forming Paws</strong> — a nonprofit initiative for healthy, responsible dog breeding.</div>
