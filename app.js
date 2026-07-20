@@ -100,6 +100,7 @@ function toggleInterest(id){
 /* ---------- modal ---------- */
 function openModal(id){
   const d = DOGS.find(x => x.id === id);
+  if (!d) return;
   $("modal").innerHTML = `
     <button class="modal-close" id="mClose">✕</button>
     ${photoDiv(d, "dog-photo")}
@@ -149,7 +150,7 @@ function escapeHtml(s){
   return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
 function renderChat(msgs){
-  $("chatMsgs").innerHTML = msgs.map(m => `<div class="msg ${m.who}">${escapeHtml(m.t)}</div>`).join("");
+  $("chatMsgs").innerHTML = msgs.map(m => `<div class="msg ${ m.who === "me" ? "me" : "them"}">${escapeHtml(m.t)}</div>`).join("");
   $("chatMsgs").scrollTop = $("chatMsgs").scrollHeight;
 }
 function sendMsg(){
