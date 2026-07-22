@@ -1725,26 +1725,44 @@ git commit -m "Add end-to-end test for signup, dog profile creation, and health 
 
 ---
 
-### Task 11: Deploy to Vercel
+### Task 11: Deploy to Netlify — SKIPPED (2026-07-22)
+
+**Decision:** Not deploying to Netlify (or any hosted platform) for now — building and running locally only, nothing wired to an external deploy target. Revisit hosting once there's something worth putting in front of real users.
+
+**Context (historical):** Switched from Vercel to Netlify 2026-07-08 — the Vercel account hit a billing/usage cap. Netlify's Node.js Functions runtime runs the `app/api/upload/photo/route.ts` handler (which depends on the native `sharp` binary) unchanged, unlike Cloudflare Pages' Workers runtime, which can't run native binaries.
 
 **Files:**
-- No new files — this task wires up hosting for what already exists.
+- Create: `netlify.toml` (build command, publish dir, `@netlify/plugin-nextjs`)
 
-- [ ] **Step 1: Deploy via the Vercel MCP tool**
+- [ ] **Step 1: Install the Next.js runtime plugin**
 
-Call `mcp__claude_ai_Vercel__deploy_to_vercel` for the `~/forming-paws` project, team `cam6stef` (`team_WVUs0dt3XqTpZcSa2ssH6LMF`).
+Run: `npm install -D @netlify/plugin-nextjs`
 
-- [ ] **Step 2: Set production environment variables**
+- [ ] **Step 2: Write `netlify.toml`**
 
-In the Vercel project settings (or via the deploy tool's env config), set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the same values as `.env.local` from Task 2.
+```toml
+[build]
+  command = "npm run build"
 
-- [ ] **Step 3: Verify the production deployment**
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
 
-Call `mcp__claude_ai_Vercel__get_deployment` and confirm status is `READY`, then visit the deployed URL and confirm the homepage loads.
+- [ ] **Step 3: Connect the repo and deploy**
 
-- [ ] **Step 4: Update the vault Command Center**
+Via the Netlify CLI (`netlify init` from `~/forming-paws`, linking the GitHub repo) or the Netlify dashboard's "Import from Git" flow. Requires a Netlify account/login — confirm one exists before this step.
 
-Add the new Forming Paws Vercel URL and Supabase project to `~/Desktop/kai/09-SYSTEM/Command Center.md`'s "Live Websites & Apps" and "Active Projects" tables, and commit that change in the `kai` vault repo.
+- [ ] **Step 4: Set production environment variables**
+
+In the Netlify site's Environment variables settings, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the same values as `.env.local` from Task 2.
+
+- [ ] **Step 5: Verify the production deployment**
+
+Run `netlify status` / check the Netlify dashboard for a successful deploy, then visit the deployed URL and confirm the homepage loads.
+
+- [ ] **Step 6: Update the vault Command Center**
+
+Add the new Forming Paws Netlify URL and Supabase project to `~/Desktop/kai/09-SYSTEM/Command Center.md`'s "Live Websites & Apps" and "Active Projects" tables, and commit that change in the `kai` vault repo.
 
 ---
 
