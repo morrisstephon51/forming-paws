@@ -8,6 +8,7 @@ import { signupSchema } from './schema'
 export default function SignupPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const [confirmationPending, setConfirmationPending] = useState(false)
 
   async function handleSubmit(formData: FormData) {
     const parsed = signupSchema.safeParse({
@@ -23,7 +24,7 @@ export default function SignupPage() {
     }
 
     const supabase = createClient()
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: { data: { display_name: parsed.data.displayName } },
@@ -34,7 +35,23 @@ export default function SignupPage() {
       return
     }
 
+    if (!data.session) {
+      setConfirmationPending(true)
+      return
+    }
+
     router.push('/dashboard')
+  }
+
+  if (confirmationPending) {
+    return (
+      <main className="mx-auto max-w-sm p-8">
+        <h1 className="text-2xl font-bold">Check your email</h1>
+        <p className="mt-4 text-gray-600">
+          We sent you a confirmation link. Click it, then log in to continue.
+        </p>
+      </main>
+    )
   }
 
   return (
