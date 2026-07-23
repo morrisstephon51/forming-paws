@@ -3,11 +3,11 @@ import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
 const VALID_DOC_TYPES = ['vet_exam', 'vaccination', 'ofa', 'dna_panel']
-const ALLOWED_MIME_TYPES: Record<string, string> = {
-  'application/pdf': 'pdf',
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-}
+const ALLOWED_MIME_TYPES = new Map([
+  ['application/pdf', 'pdf'],
+  ['image/jpeg', 'jpg'],
+  ['image/png', 'png'],
+])
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   if (file.size > MAX_FILE_BYTES) {
     return NextResponse.json({ error: 'File exceeds 5MB limit' }, { status: 400 })
   }
-  const extension = ALLOWED_MIME_TYPES[file.type]
+  const extension = ALLOWED_MIME_TYPES.get(file.type)
   if (!extension) {
     return NextResponse.json({ error: 'File must be a PDF, JPEG, or PNG' }, { status: 400 })
   }
