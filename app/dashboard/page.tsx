@@ -1,11 +1,18 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import LocationSettings from './LocationSettings'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) redirect('/login')
+
+  const { data: owner } = await supabase
+    .from('owners')
+    .select('location_label')
+    .eq('id', userData.user.id)
+    .single()
 
   const { data: dogs, error } = await supabase
     .from('dogs')
@@ -18,10 +25,19 @@ export default async function DashboardPage() {
     <main className="mx-auto max-w-2xl p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Your dogs</h1>
-        <Link href="/dogs/new" className="bg-gray-900 text-white px-4 py-2 rounded">
-          Add a dog
-        </Link>
+        <div className="flex gap-3 items-center">
+          <Link href="/browse" className="text-sm underline text-gray-600">
+            Browse
+          </Link>
+          <Link href="/matches" className="text-sm underline text-gray-600">
+            Matches
+          </Link>
+          <Link href="/dogs/new" className="bg-gray-900 text-white px-4 py-2 rounded">
+            Add a dog
+          </Link>
+        </div>
       </div>
+      <LocationSettings currentLabel={owner?.location_label ?? null} />
       <ul className="mt-6 flex flex-col gap-3">
         {dogs?.map((dog) => (
           <li key={dog.id}>
