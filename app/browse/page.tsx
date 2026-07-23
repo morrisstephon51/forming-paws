@@ -10,6 +10,8 @@ function calculateAge(birthDate: string): number {
   return Math.floor(diffMs / (365.25 * 24 * 60 * 60 * 1000))
 }
 
+const VALID_SEXES = ['male', 'female']
+
 type BrowseDogRow = {
   id: string
   name: string
@@ -49,7 +51,7 @@ export default async function BrowsePage({
 
   const { data: dogs, error } = await supabase.rpc('browse_dogs', {
     p_breed_id: params.breedId ? Number(params.breedId) : null,
-    p_sex: params.sex || null,
+    p_sex: VALID_SEXES.includes(params.sex ?? '') ? params.sex : null,
     p_verified_only: params.verifiedOnly === 'true',
     p_min_age_years: params.minAge ? Number(params.minAge) : null,
     p_max_age_years: params.maxAge ? Number(params.maxAge) : null,
