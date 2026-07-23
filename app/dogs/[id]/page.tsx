@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import ExpressInterestForm from './ExpressInterestForm'
 
 export default async function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -7,13 +8,36 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) redirect('/login')
 
-  const { data: dog, error } = await supabase
+  const { data: ownDog } = await supabase
     .from('dogs')
-    .select('id, name, sex, birth_date, weight_lbs, temperament_notes, breeds(name)')
+    .select('id, owner_id, name, sex, birth_date, weight_lbs, temperament_notes, breeds(name)')
     .eq('id', id)
-    .single()
+    .maybeSingle()
 
-  if (error || !dog) notFound()
+  const isOwnDog = !!ownDog
+
+  let dog: {
+    id: string
+    owner_id: string
+    name: string
+    sex: string
+    birth_date: string
+    temperament_notes?: string | null
+    breedName: string
+  }
+
+  if (ownDog) {
+    dog = { ...ownDog, breedName: (ownDog.breeds as unknown as { name: string })?.name }
+  } else {
+    const { data: browsableDog, error } = await supabase
+      .from('dogs_browsable')
+      .select('id, owner_id, name, breed_name, sex, birth_date')
+      .eq('id', id)
+      .maybeSingle()
+
+    if (error || !browsableDog) notFound()
+    dog = { ...browsableDog, breedName: browsableDog.breed_name }
+  }
 
   const { data: photos } = await supabase
     .from('dog_photos')
@@ -21,22 +45,36 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     .eq('dog_id', id)
     .order('position')
 
-  const { data: healthDocs } = await supabase
-    .from('health_documents')
-    .select('id, doc_type, document_date, status')
-    .eq('dog_id', id)
-    .order('uploaded_at', { ascending: false })
+  const { data: healthDocs } = isOwnDog
+    ? await supabase
+        .from('health_documents')
+        .select('id, doc_type, document_date, status')
+        .eq('dog_id', id)
+        .order('uploaded_at', { ascending: false })
+    : { data: null }
 
   const { data: isVerified } = await supabase.rpc('dog_is_baseline_verified', { p_dog_id: id })
 
   const photoUrls = await Promise.all(
     (photos ?? []).map(async (p) => {
-      const { data } = await supabase.storage
-        .from('dog-photos')
-        .createSignedUrl(p.storage_path, 3600)
+      const { data } = await supabase.storage.from('dog-photos').createSignedUrl(p.storage_path, 3600)
       return { id: p.id, url: data?.signedUrl }
     })
   )
+
+  let myVerifiedDogs: { id: string; name: string; isVerified: boolean }[] = []
+  if (!isOwnDog) {
+    const { data: myDogs } = await supabase
+      .from('dogs')
+      .select('id, name')
+      .eq('owner_id', userData.user.id)
+    myVerifiedDogs = await Promise.all(
+      (myDogs ?? []).map(async (d) => {
+        const { data: verified } = await supabase.rpc('dog_is_baseline_verified', { p_dog_id: d.id })
+        return { id: d.id, name: d.name, isVerified: !!verified }
+      })
+    )
+  }
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -51,9 +89,11 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
         </span>
       )}
       <p className="text-gray-600">
-        {(dog.breeds as unknown as { name: string })?.name} · {dog.sex} · born {dog.birth_date}
+        {dog.breedName} · {dog.sex} · born {dog.birth_date}
       </p>
-      {dog.temperament_notes && <p className="mt-4">{dog.temperament_notes}</p>}
+      {isOwnDog && dog.temperament_notes && <p className="mt-4">{dog.temperament_notes}</p>}
+
+      {!isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />}
 
       <h2 className="mt-8 text-lg font-semibold">Photos</h2>
       <div className="mt-2 grid grid-cols-3 gap-2">
@@ -64,59 +104,65 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
           ) : null
         )}
       </div>
-      <form
-        action={`/api/upload/photo`}
-        method="POST"
-        encType="multipart/form-data"
-        className="mt-4 flex gap-2"
-      >
-        <input type="hidden" name="dogId" value={dog.id} />
-        <input type="file" name="file" accept="image/*" required />
-        <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
-          Upload photo
-        </button>
-      </form>
+      {isOwnDog && (
+        <form
+          action={`/api/upload/photo`}
+          method="POST"
+          encType="multipart/form-data"
+          className="mt-4 flex gap-2"
+        >
+          <input type="hidden" name="dogId" value={dog.id} />
+          <input type="file" name="file" accept="image/*" required />
+          <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+            Upload photo
+          </button>
+        </form>
+      )}
 
-      <h2 className="mt-8 text-lg font-semibold">Health documents</h2>
-      <ul className="mt-2 flex flex-col gap-2">
-        {healthDocs?.map((doc) => (
-          <li key={doc.id} className="flex justify-between border p-2 rounded text-sm">
-            <span>
-              {doc.doc_type} ({doc.document_date})
-            </span>
-            <span
-              className={
-                doc.status === 'verified'
-                  ? 'text-green-600'
-                  : doc.status === 'rejected'
-                    ? 'text-red-600'
-                    : 'text-yellow-600'
-              }
-            >
-              {doc.status}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <form
-        action="/api/upload/health-doc"
-        method="POST"
-        encType="multipart/form-data"
-        className="mt-4 flex flex-col gap-2 max-w-xs"
-      >
-        <input type="hidden" name="dogId" value={dog.id} />
-        <select name="docType" required className="border p-2">
-          <option value="vet_exam">Vet wellness exam</option>
-          <option value="vaccination">Vaccination record</option>
-          <option value="ofa">OFA hip/elbow certification</option>
-          <option value="dna_panel">DNA panel</option>
-        </select>
-        <input name="documentDate" type="date" required className="border p-2" />
-        <input type="file" name="file" accept="application/pdf,image/*" required />
-        <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
-          Upload document
-        </button>
-      </form>
+      {isOwnDog && (
+        <>
+          <h2 className="mt-8 text-lg font-semibold">Health documents</h2>
+          <ul className="mt-2 flex flex-col gap-2">
+            {healthDocs?.map((doc) => (
+              <li key={doc.id} className="flex justify-between border p-2 rounded text-sm">
+                <span>
+                  {doc.doc_type} ({doc.document_date})
+                </span>
+                <span
+                  className={
+                    doc.status === 'verified'
+                      ? 'text-green-600'
+                      : doc.status === 'rejected'
+                        ? 'text-red-600'
+                        : 'text-yellow-600'
+                  }
+                >
+                  {doc.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <form
+            action="/api/upload/health-doc"
+            method="POST"
+            encType="multipart/form-data"
+            className="mt-4 flex flex-col gap-2 max-w-xs"
+          >
+            <input type="hidden" name="dogId" value={dog.id} />
+            <select name="docType" required className="border p-2">
+              <option value="vet_exam">Vet wellness exam</option>
+              <option value="vaccination">Vaccination record</option>
+              <option value="ofa">OFA hip/elbow certification</option>
+              <option value="dna_panel">DNA panel</option>
+            </select>
+            <input name="documentDate" type="date" required className="border p-2" />
+            <input type="file" name="file" accept="application/pdf,image/*" required />
+            <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+              Upload document
+            </button>
+          </form>
+        </>
+      )}
     </main>
   )
 }
