@@ -105,7 +105,7 @@ document.getElementById("wlForm").addEventListener("submit", async (e) => {
         dog_breed: document.getElementById("wlBreed").value.trim() || null
       })
     });
-    if (res.ok || res.status === 201) {
+    if (res.ok) {
       msg.textContent = "🎉 You're on the list! We'll email you when we launch in your area.";
       document.getElementById("wlForm").reset();
     } else if (res.status === 409) {
