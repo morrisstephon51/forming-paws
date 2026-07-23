@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
 const VALID_DOC_TYPES = ['vet_exam', 'vaccination', 'ofa', 'dna_panel']
+const ALLOWED_MIME_TYPES: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+}
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -22,13 +27,21 @@ export async function POST(request: Request) {
   if (file.size > MAX_FILE_BYTES) {
     return NextResponse.json({ error: 'File exceeds 5MB limit' }, { status: 400 })
   }
+  const extension = ALLOWED_MIME_TYPES[file.type]
+  if (!extension) {
+    return NextResponse.json({ error: 'File must be a PDF, JPEG, or PNG' }, { status: 400 })
+  }
+
+  const parsedDate = new Date(documentDate)
+  if (!documentDate || Number.isNaN(parsedDate.getTime()) || parsedDate > new Date()) {
+    return NextResponse.json({ error: 'Invalid document date' }, { status: 400 })
+  }
 
   const { data: dog } = await supabase.from('dogs').select('owner_id').eq('id', dogId).single()
   if (!dog || dog.owner_id !== userData.user.id) {
     return NextResponse.json({ error: 'Not your dog' }, { status: 403 })
   }
 
-  const extension = file.name.split('.').pop() || 'pdf'
   const storagePath = `${dogId}/${crypto.randomUUID()}.${extension}`
   const buffer = Buffer.from(await file.arrayBuffer())
 
