@@ -12,8 +12,16 @@ export default async function MatchesPage() {
 
   const { data: matches } = await supabase
     .from('matches')
-    .select('id, matched_at, dogA:dog_a_id(id, name), dogB:dog_b_id(id, name)')
+    .select('id, matched_at, dog_a_id, dog_b_id')
     .order('matched_at', { ascending: false })
+
+  const involvedDogIds = Array.from(
+    new Set((matches ?? []).flatMap((m) => [m.dog_a_id, m.dog_b_id]))
+  )
+  const { data: dogRows } = involvedDogIds.length
+    ? await supabase.from('dogs_browsable').select('id, name').in('id', involvedDogIds)
+    : { data: [] }
+  const nameById = new Map((dogRows ?? []).map((d) => [d.id, d.name]))
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -29,14 +37,12 @@ export default async function MatchesPage() {
       </p>
       <ul className="mt-6 flex flex-col gap-3">
         {matches?.map((m) => {
-          const dogA = m.dogA as unknown as { id: string; name: string }
-          const dogB = m.dogB as unknown as { id: string; name: string }
-          const mine = myDogIds.has(dogA.id) ? dogA : dogB
-          const theirs = myDogIds.has(dogA.id) ? dogB : dogA
+          const mineId = myDogIds.has(m.dog_a_id) ? m.dog_a_id : m.dog_b_id
+          const theirsId = myDogIds.has(m.dog_a_id) ? m.dog_b_id : m.dog_a_id
           return (
             <li key={m.id} className="border p-4 rounded">
               <p className="font-medium">
-                {mine.name} ↔ {theirs.name}
+                {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
               </p>
               <p className="text-sm text-gray-500">Matched {new Date(m.matched_at).toLocaleDateString()}</p>
             </li>
