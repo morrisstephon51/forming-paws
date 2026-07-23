@@ -3,7 +3,7 @@
 **Decisions (locked 2026-07-19):**
 - **Structure:** Nonprofit path — 501(c)(3) as the destination, fiscal sponsorship as the bridge. Starting from zero (no entity, no EIN).
 - **First revenue:** Verified-badge fee — browsing free; owners pay for health-document review that unlocks matching.
-- **Launch market:** Founder's home metro (CITY TBD — set this before Day 8).
+- **Launch market:** Chicago metro (locked 2026-07-20).
 - **Founder time budget:** Under 5 hours/week. Every task below is sized to that.
 
 ## Operating rule
