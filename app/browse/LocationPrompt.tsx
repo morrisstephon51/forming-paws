@@ -1,32 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { updateMyLocation } from '@/lib/actions/location'
+import { useShareLocation } from '@/lib/hooks/useShareLocation'
 
 export default function LocationPrompt() {
-  const router = useRouter()
-  const [cityLabel, setCityLabel] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-
-  function handleShare() {
-    setError(null)
-    if (!cityLabel.trim()) {
-      setError('Enter your city first')
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setIsSaving(true)
-        updateMyLocation(position.coords.latitude, position.coords.longitude, cityLabel.trim())
-          .then(() => router.refresh())
-          .catch((err) => setError(err instanceof Error ? err.message : 'Failed to save location'))
-          .finally(() => setIsSaving(false))
-      },
-      () => setError('Location permission denied — you can still browse without distance sorting')
-    )
-  }
+  const { cityLabel, setCityLabel, error, isSaving, share } = useShareLocation()
 
   return (
     <div className="mt-4 rounded border p-4">
@@ -41,7 +18,7 @@ export default function LocationPrompt() {
           className="border p-2 text-sm flex-1"
         />
         <button
-          onClick={handleShare}
+          onClick={share}
           disabled={isSaving}
           className="bg-gray-900 text-white px-3 py-1 rounded text-sm"
         >
