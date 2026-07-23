@@ -1,4 +1,25 @@
 import { test, expect, chromium } from '@playwright/test'
+import { createClient } from '@supabase/supabase-js'
+
+// Deletes any pre-existing interest expressed by `email`'s dog(s) toward
+// `otherDogName`, so a prior run of this test doesn't leave a mutual
+// interest in place that trips the dog_interests_unique constraint on the
+// next run's "Express Interest" click. Uses a plain Node-side supabase-js
+// client (not the app's browser wrapper) since this happens outside the UI.
+async function withdrawExistingInterest(email: string, password: string, otherDogName: string) {
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+  if (signInError) throw signInError
+  const { data: myDogs } = await supabase.from('dogs').select('id, name')
+  const { data: otherDogs } = await supabase.from('dogs_browsable').select('id, name').eq('name', otherDogName)
+  const otherDogId = otherDogs?.[0]?.id
+  if (otherDogId) {
+    for (const dog of myDogs ?? []) {
+      await supabase.from('dog_interests').delete().eq('expressing_dog_id', dog.id).eq('target_dog_id', otherDogId)
+    }
+  }
+  await supabase.auth.signOut()
+}
 
 test('two verified owners browse, express mutual interest, and see a match', async () => {
   const emailA = process.env.E2E_FIXTURE_EMAIL
@@ -8,6 +29,11 @@ test('two verified owners browse, express mutual interest, and see a match', asy
   if (!emailA || !passwordA || !emailB || !passwordB) {
     throw new Error('E2E fixture env vars must be set in .env.local')
   }
+
+  // Clean up any leftover interest from a prior run of this same test so
+  // it's safe to re-run without manual DB intervention.
+  await withdrawExistingInterest(emailA, passwordA, 'Fixture Dog B')
+  await withdrawExistingInterest(emailB, passwordB, 'Fixture Dog A')
 
   const browser = await chromium.launch()
   const contextA = await browser.newContext({ baseURL: 'http://localhost:3000' })
