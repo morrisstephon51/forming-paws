@@ -21,9 +21,22 @@ export default async function ReviewQueuePage({
 
   const { data: pendingDocs } = await supabase
     .from('health_documents')
-    .select('id, doc_type, document_date, storage_path, dogs(name)')
+    .select('id, doc_type, document_date, storage_path, dog_id')
     .eq('status', 'pending_review')
     .order('uploaded_at')
+
+  const dogIds = Array.from(new Set((pendingDocs ?? []).map((d) => d.dog_id)))
+  const { data: dogRows } = dogIds.length
+    ? await supabase.from('dogs_browsable').select('id, name').in('id', dogIds)
+    : { data: [] }
+  const nameById = new Map((dogRows ?? []).map((d) => [d.id, d.name]))
+
+  const docs = await Promise.all(
+    (pendingDocs ?? []).map(async (doc) => {
+      const { data } = await supabase.storage.from('health-docs').createSignedUrl(doc.storage_path, 3600)
+      return { ...doc, dogName: nameById.get(doc.dog_id), url: data?.signedUrl }
+    })
+  )
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -34,11 +47,23 @@ export default async function ReviewQueuePage({
         </p>
       )}
       <ul className="mt-6 flex flex-col gap-4">
-        {pendingDocs?.map((doc) => (
+        {docs.map((doc) => (
           <li key={doc.id} className="border p-4 rounded">
             <p className="font-medium">
-              {(doc.dogs as unknown as { name: string })?.name} — {doc.doc_type} ({doc.document_date})
+              {doc.dogName ?? 'Unknown dog'} — {doc.doc_type} ({doc.document_date})
             </p>
+            {doc.url ? (
+              <a
+                href={doc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 underline"
+              >
+                View document
+              </a>
+            ) : (
+              <p className="text-sm text-gray-500">Document unavailable</p>
+            )}
             <form
               action={async (formData: FormData) => {
                 'use server'
@@ -66,7 +91,7 @@ export default async function ReviewQueuePage({
             </form>
           </li>
         ))}
-        {pendingDocs?.length === 0 && <p className="text-gray-500">Nothing pending review.</p>}
+        {docs.length === 0 && <p className="text-gray-500">Nothing pending review.</p>}
       </ul>
     </main>
   )
