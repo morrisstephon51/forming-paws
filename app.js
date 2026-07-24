@@ -1,7 +1,9 @@
-// Forming Paws demo — seeded data, client-side only.
-// Production build swaps this for the Supabase backend (profiles, storage, realtime chat).
+// Supabase config — publishable key, safe for client-side reads
+const SUPABASE_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
 
-const DOGS = [
+// Static fallback — used if Supabase fetch fails or returns empty
+const DOGS_FALLBACK = [
   {id:1, name:"Luna", breed:"Golden Retriever", sex:"F", age:3, weight:62, dist:4,  verified:true,  emoji:"🦮", grad:["#f6b26b","#e8734a"], temperament:["Gentle","Social","Eager to please"], health:[["Vet wellness exam","ok"],["Vaccinations","ok"],["OFA hips & elbows","ok"],["DNA panel","ok"]], bio:"Sweet-natured Golden with champion bloodlines and a full health vault. Loves water, kids, and long fetch sessions."},
   {id:2, name:"Duke", breed:"German Shepherd", sex:"M", age:4, weight:78, dist:7,  verified:true,  emoji:"🐕‍🦺", grad:["#8d6e63","#4e342e"], temperament:["Loyal","Confident","Trainable"], health:[["Vet wellness exam","ok"],["Vaccinations","ok"],["OFA hips & elbows","ok"],["Degenerative myelopathy test","ok"]], bio:"Working-line Shepherd with excellent structure and verified hip scores. Calm around other dogs, superb temperament."},
   {id:3, name:"Bella", breed:"French Bulldog", sex:"F", age:2, weight:24, dist:3,  verified:true,  emoji:"🐶", grad:["#b0a1c9","#7e6ba0"], temperament:["Playful","Affectionate","Adaptable"], health:[["Vet wellness exam","ok"],["Vaccinations","ok"],["BOAS respiratory assessment","ok"],["Spine X-ray","ok"]], bio:"Health-tested Frenchie — including the breathing assessment most listings skip. Compact, cheerful, and city-proof."},
@@ -16,17 +18,26 @@ const DOGS = [
   {id:12,name:"Tank", breed:"German Shepherd", sex:"M", age:6, weight:82, dist:42, verified:false, emoji:"🐕‍🦺", grad:["#a1887f","#5d4037"], temperament:["Protective","Mellow","Experienced"], health:[["Vet wellness exam","pend"],["Vaccinations","ok"],["OFA hips & elbows","pend"],["DM test","pend"]], bio:"Retired working dog, new to the platform. Currently completing baseline verification with a partner vet."},
 ];
 
+// Names of dogs whose owners have "liked" you (demo mechanic, stable across ID changes)
+const LIKES_YOU_NAMES = new Set(["Luna","Bella","Rocky","Rosie","Nova"]);
+
 const $ = id => document.getElementById(id);
-const interested = new Set(JSON.parse(localStorage.getItem("fp_interest") || "[]"));
-// Demo: these dogs' owners have already "liked" you, so interest becomes an instant match.
-const LIKES_YOU = new Set([1, 3, 4, 7, 11]);
+let DOGS = DOGS_FALLBACK;
+let interested = new Set(JSON.parse(localStorage.getItem("fp_interest") || "[]"));
+let LIKES_YOU = new Set();
 
 function saveInterest(){ localStorage.setItem("fp_interest", JSON.stringify([...interested])); }
 function isMatch(id){ return interested.has(id) && LIKES_YOU.has(id); }
 
 /* ---------- filters ---------- */
-const breeds = [...new Set(DOGS.map(d => d.breed))].sort();
-breeds.forEach(b => { const o = document.createElement("option"); o.value = b; o.textContent = b; $("fBreed").appendChild(o); });
+function initFilters(){
+  const breedSel = $("fBreed");
+  // Keep "All breeds" option, rebuild the rest
+  while (breedSel.options.length > 1) breedSel.remove(1);
+  const breeds = [...new Set(DOGS.map(d => d.breed))].sort();
+  breeds.forEach(b => { const o = document.createElement("option"); o.value = b; o.textContent = b; breedSel.appendChild(o); });
+}
+
 ["fBreed","fSex","fVerified"].forEach(id => $(id).addEventListener("change", render));
 $("fDist").addEventListener("input", () => { $("distVal").textContent = $("fDist").value; render(); });
 
@@ -126,21 +137,21 @@ $("modalBg").addEventListener("click", e => { if (e.target === $("modalBg")) clo
 
 /* ---------- chat ---------- */
 const CHAT_SEED = {
-  1:["Hi! Luna's owner here — saw the mutual interest 🐾","Her OFA results are in her vault, happy to walk through them."],
-  3:["Hello! Bella says hi 🐶","We're free weekends if you'd like to meet at Riverside Dog Park."],
-  4:["Rocky's dad here — he's sired two healthy litters, records are all uploaded.","What's your timeline looking like?"],
-  7:["Hi there! Rosie is such a sweetheart, excited we matched.","Her cardiac clearance just got re-verified last month."],
-  11:["Hey! Nova's owner — love your profile.","She's due for a heat cycle in about 6 weeks if timing works."],
+  "Luna":  ["Hi! Luna's owner here — saw the mutual interest 🐾","Her OFA results are in her vault, happy to walk through them."],
+  "Bella": ["Hello! Bella says hi 🐶","We're free weekends if you'd like to meet at Riverside Dog Park."],
+  "Rocky": ["Rocky's dad here — he's sired two healthy litters, records are all uploaded.","What's your timeline looking like?"],
+  "Rosie": ["Hi there! Rosie is such a sweetheart, excited we matched.","Her cardiac clearance just got re-verified last month."],
+  "Nova":  ["Hey! Nova's owner — love your profile.","She's due for a heat cycle in about 6 weeks if timing works."],
 };
 let chatWith = null;
 
 function openChat(id){
   const d = DOGS.find(x => x.id === id);
-  if (!isMatch(id)) return;
+  if (!d || !isMatch(id)) return;
   chatWith = id;
   $("chatName").textContent = `${d.name}'s owner`;
   const stored = JSON.parse(localStorage.getItem("fp_chat_" + id) || "null");
-  const msgs = stored || (CHAT_SEED[id] || ["Hi! Thanks for the match 🐾"]).map(t => ({who:"them", t}));
+  const msgs = stored || (CHAT_SEED[d.name] || ["Hi! Thanks for the match 🐾"]).map(t => ({who:"them", t}));
   if (!stored) localStorage.setItem("fp_chat_" + id, JSON.stringify(msgs));
   renderChat(msgs);
   $("chat").classList.add("open");
@@ -164,7 +175,6 @@ function sendMsg(){
   renderChat(msgs);
   const replyChatId = chatWith;
   setTimeout(() => {
-    // Re-read from storage so messages sent within the 1.2s window are not overwritten.
     const latest = JSON.parse(localStorage.getItem(key) || "[]");
     latest.push({who:"them", t:"Sounds great — let's set up a meet at a neutral spot. I'll bring the vet records! 🐾"});
     localStorage.setItem(key, JSON.stringify(latest));
@@ -175,4 +185,46 @@ $("chatSend").addEventListener("click", sendMsg);
 $("chatText").addEventListener("keydown", e => { if (e.key === "Enter") sendMsg(); });
 $("chatClose").addEventListener("click", () => $("chat").classList.remove("open"));
 
-render();
+/* ---------- bootstrap ---------- */
+async function initDogs(){
+  try {
+    const res = await fetch(
+      SUPABASE_URL + "/rest/v1/dogs?select=*&order=id",
+      { headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY } }
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = await res.json();
+    if (!Array.isArray(rows) || !rows.length) throw new Error("empty");
+    DOGS = rows.map(r => ({
+      id:          r.id,
+      name:        r.name,
+      breed:       r.breed,
+      sex:         r.sex,
+      age:         r.age_years,
+      weight:      r.weight_lbs,
+      dist:        r.dist_miles,
+      verified:    r.verified,
+      emoji:       r.emoji,
+      grad:        Array.isArray(r.grad) ? r.grad : JSON.parse(r.grad || "[]"),
+      temperament: Array.isArray(r.temperament) ? r.temperament : [],
+      health:      Array.isArray(r.health) ? r.health : JSON.parse(r.health || "[]"),
+      bio:         r.bio,
+    }));
+    // Rebuild LIKES_YOU with live IDs matched by name
+    LIKES_YOU.clear();
+    DOGS.forEach(d => { if (LIKES_YOU_NAMES.has(d.name)) LIKES_YOU.add(d.id); });
+    console.log("[fp] loaded " + DOGS.length + " dogs from Supabase");
+  } catch (e) {
+    console.warn("[fp] Supabase unavailable, using static data:", e.message);
+    DOGS = DOGS_FALLBACK;
+    // Fallback: set LIKES_YOU from static IDs
+    LIKES_YOU_NAMES.forEach(name => {
+      const d = DOGS_FALLBACK.find(x => x.name === name);
+      if (d) LIKES_YOU.add(d.id);
+    });
+  }
+  initFilters();
+  render();
+}
+
+initDogs();
