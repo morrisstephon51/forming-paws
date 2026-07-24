@@ -147,7 +147,7 @@ let chatWith = null;
 
 function openChat(id){
   const d = DOGS.find(x => x.id === id);
-  if (!isMatch(id)) return;
+  if (!d || !isMatch(id)) return;
   chatWith = id;
   $("chatName").textContent = `${d.name}'s owner`;
   const stored = JSON.parse(localStorage.getItem("fp_chat_" + id) || "null");
