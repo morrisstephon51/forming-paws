@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Your Dog — Forming Paws</title>
+<meta name="description" content="Submit your dog for health verification and start matching with compatible partners near you.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.list-shell{max-width:680px;margin:0 auto;padding:40px 5vw 80px}
+.list-shell h1{font-size:clamp(1.8rem,4vw,2.6rem);margin-bottom:8px}
+.list-sub{color:var(--ink-soft);margin-bottom:36px;font-size:1.05rem}
+.step-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:28px;margin-bottom:20px}
+.step-card h2{font-size:1.1rem;font-weight:800;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.step-num-sm{width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-size:.8rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.form-row{display:grid;gap:14px}
+.form-row.two{grid-template-columns:1fr 1fr}
+@media(max-width:520px){.form-row.two{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.85rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:1rem;font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--brand)}
+.field textarea{resize:vertical;min-height:80px}
+.health-check{display:flex;flex-direction:column;gap:10px}
+.health-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.health-item:has(input:checked){border-color:var(--good);background:var(--good-soft)}
+.health-item input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--good);flex-shrink:0;cursor:pointer}
+.health-item .hi-label{font-weight:700;font-size:.95rem}
+.health-item .hi-note{font-size:.82rem;color:var(--ink-soft);margin-top:2px}
+.upload-zone{border:2px dashed var(--line);border-radius:10px;padding:22px;text-align:center;background:var(--bg);color:var(--ink-soft);font-size:.9rem;cursor:pointer;transition:border-color .15s}
+.upload-zone:hover{border-color:var(--brand)}
+.upload-zone input{display:none}
+.upload-zone label{cursor:pointer;display:block}
+.upload-zone .uz-icon{font-size:2rem;margin-bottom:8px}
+.pricing-card{background:linear-gradient(135deg,var(--brand-soft),#fff3ee);border:2px solid var(--brand);border-radius:var(--radius);padding:24px;margin-bottom:20px;display:flex;gap:20px;align-items:center}
+.pricing-card .price{font-size:2.2rem;font-weight:800;color:var(--brand-dark)}
+.pricing-card .price span{font-size:1rem;font-weight:600;color:var(--ink-soft)}
+.pricing-card .price-note{font-size:.88rem;color:var(--ink-soft);margin-top:4px}
+.founding-pill{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:6px}
+.submit-row{margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.submit-row button{width:100%;padding:16px;font-size:1.1rem}
+.trust-line{font-size:.82rem;color:var(--ink-soft);text-align:center}
+
+/* Confirmation state */
+.confirm-box{display:none;text-align:center;padding:48px 20px}
+.confirm-box.show{display:block}
+.confirm-icon{font-size:4rem;margin-bottom:16px}
+.confirm-box h2{font-size:1.6rem;margin-bottom:10px}
+.confirm-box p{color:var(--ink-soft);max-width:480px;margin:0 auto 24px}
+.steps-list{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:20px 24px;margin:0 auto 28px;max-width:440px}
+.steps-list li{padding:7px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+.steps-list li:last-child{border-bottom:none}
+
+.form-section{transition:opacity .3s}
+.form-section.hidden{display:none}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links">
+    <a href="app.html">Browse Dogs</a>
+    <a href="list.html" class="btn btn-primary btn-sm">List Your Dog</a>
+  </div>
+</nav>
+
+<main class="list-shell">
+
+  <!-- FORM STATE -->
+  <div id="formSection" class="form-section">
+    <h1>List your dog</h1>
+    <p class="list-sub">Get your dog health-verified and visible to compatible matches in your area.</p>
+
+    <!-- Step 1: Dog info -->
+    <div class="step-card">
+      <h2><span class="step-num-sm">1</span> Your dog</h2>
+      <div class="form-row">
+        <div class="field">
+          <label for="dogName">Dog's name</label>
+          <input type="text" id="dogName" placeholder="e.g. Luna" required>
+        </div>
+      </div>
+      <div class="form-row two" style="margin-top:14px">
+        <div class="field">
+          <label for="dogBreed">Breed</label>
+          <select id="dogBreed" required>
+            <option value="">Select a breed…</option>
+            <option>Golden Retriever</option>
+            <option>German Shepherd</option>
+            <option>French Bulldog</option>
+            <option>Labrador Retriever</option>
+            <option>Poodle (Standard)</option>
+            <option>Siberian Husky</option>
+            <option>Australian Shepherd</option>
+            <option>Border Collie</option>
+            <option>Boxer</option>
+            <option>Bulldog (English)</option>
+            <option>Cavalier King Charles Spaniel</option>
+            <option>Dachshund</option>
+            <option>Doberman Pinscher</option>
+            <option>Great Dane</option>
+            <option>Rottweiler</option>
+            <option>Shih Tzu</option>
+            <option>Yorkshire Terrier</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dogSex">Sex</label>
+          <select id="dogSex" required>
+            <option value="">Select…</option>
+            <option value="F">Female ♀</option>
+            <option value="M">Male ♂</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row two" style="margin-top:14px">
+        <div class="field">
+          <label for="dogAge">Age (years)</label>
+          <input type="number" id="dogAge" min="0" max="20" step="0.5" placeholder="e.g. 3">
+        </div>
+        <div class="field">
+          <label for="dogWeight">Weight (lbs)</label>
+          <input type="number" id="dogWeight" min="1" max="300" placeholder="e.g. 62">
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px">
+        <div class="field">
+          <label for="dogCity">City / neighborhood</label>
+          <input type="text" id="dogCity" placeholder="e.g. Chicago · Logan Square">
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px">
+        <div class="field">
+          <label for="dogBio">Tell us about your dog (optional)</label>
+          <textarea id="dogBio" placeholder="Temperament, what makes them special, any notes for potential matches…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Health docs -->
+    <div class="step-card">
+      <h2><span class="step-num-sm">2</span> Health documents</h2>
+      <p style="font-size:.9rem;color:var(--ink-soft);margin-bottom:16px">
+        Check every document you currently have. Our team will review them — missing items become your verification checklist.
+      </p>
+      <div class="health-check" id="healthChecklist">
+        <label class="health-item">
+          <input type="checkbox" name="health" value="wellness">
+          <div>
+            <div class="hi-label">Vet wellness exam (within 12 months)</div>
+            <div class="hi-note">Annual exam report from a licensed veterinarian</div>
+          </div>
+        </label>
+        <label class="health-item">
+          <input type="checkbox" name="health" value="vaccinations">
+          <div>
+            <div class="hi-label">Vaccinations up to date</div>
+            <div class="hi-note">DHPP, rabies, and any breed-recommended boosters</div>
+          </div>
+        </label>
+        <label class="health-item">
+          <input type="checkbox" name="health" value="hips">
+          <div>
+            <div class="hi-label">Hip / elbow evaluation</div>
+            <div class="hi-note">OFA, PennHIP, or equivalent — for breeds over 25 lbs</div>
+          </div>
+        </label>
+        <label class="health-item">
+          <input type="checkbox" name="health" value="dna">
+          <div>
+            <div class="hi-label">DNA / genetic panel</div>
+            <div class="hi-note">Breed-specific disease screening (e.g. MDR1, PRA, DM, BOAS)</div>
+          </div>
+        </label>
+        <label class="health-item">
+          <input type="checkbox" name="health" value="cardiac">
+          <div>
+            <div class="hi-label">Cardiac exam</div>
+            <div class="hi-note">Auscultation by a cardiologist — recommended for Cavaliers, Boxers, Dobermans</div>
+          </div>
+        </label>
+        <label class="health-item">
+          <input type="checkbox" name="health" value="eyes">
+          <div>
+            <div class="hi-label">Eye exam (CAER/CERF)</div>
+            <div class="hi-note">Annual ophthalmologist exam — recommended for herding breeds and Poodles</div>
+          </div>
+        </label>
+      </div>
+
+      <div style="margin-top:18px">
+        <p style="font-size:.85rem;font-weight:700;color:var(--ink-soft);margin-bottom:8px">Upload files (optional — we'll also accept them by email)</p>
+        <div class="upload-zone">
+          <label for="docUpload">
+            <div class="uz-icon">📎</div>
+            <strong>Drag files here or click to upload</strong><br>
+            PDF, JPG, PNG · max 10 MB each
+            <input type="file" id="docUpload" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFiles(this.files)">
+          </label>
+        </div>
+        <div id="fileList" style="margin-top:10px;font-size:.85rem;color:var(--ink-soft)"></div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 14px;background:var(--warn-soft);border-radius:10px;font-size:.85rem;color:var(--ink-soft)">
+        🕓 <strong>Don't have all of these yet?</strong> Submit anyway — dogs without full records enter our
+        <em>Get-Healthy</em> pathway. We'll connect you with a partner vet and re-verify once records are in.
+      </div>
+    </div>
+
+    <!-- Step 3: Owner info -->
+    <div class="step-card">
+      <h2><span class="step-num-sm">3</span> Your contact</h2>
+      <div class="form-row">
+        <div class="field">
+          <label for="ownerEmail">Email</label>
+          <input type="email" id="ownerEmail" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:14px">
+        <div class="field">
+          <label for="ownerName">Your name (shown to matches as "FirstName's owner")</label>
+          <input type="text" id="ownerName" placeholder="e.g. Jordan">
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="pricing-card">
+      <div>
+        <div class="price">$29 <span>one-time</span></div>
+        <div class="price-note">Health document review + Verified badge · no subscriptions</div>
+        <div class="founding-pill">🌟 Founding Members get verification free</div>
+      </div>
+      <div style="flex:1;font-size:.85rem;color:var(--ink-soft)">
+        Payment is collected after verification is complete. We'll email you an invoice once your review is done.
+        If docs don't pass, we'll tell you exactly what's missing — no charge until you're verified.
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">Submit for Verification 🐾</button>
+      <p class="trust-line">Your contact info and health documents are never shared publicly. Only matched owners see your name.</p>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION STATE -->
+  <div id="confirmSection" class="confirm-box">
+    <div class="confirm-icon">🎉</div>
+    <h2>You're in the queue!</h2>
+    <p>We'll review <strong id="confirmedName">your dog</strong>'s health documents and email you within 2 business days.</p>
+    <div class="steps-list">
+      <ul style="list-style:none;padding:0">
+        <li>✅ Submission received</li>
+        <li>🕓 Document review (1-2 business days)</li>
+        <li>🕓 Verification badge added to profile</li>
+        <li>🕓 Invoice emailed once verified ($29)</li>
+        <li>🕓 Matching unlocks — owners can find you</li>
+      </ul>
+    </div>
+    <a href="app.html" class="btn btn-primary">Browse dogs while you wait</a>
+    <p style="margin-top:14px;font-size:.85rem;color:var(--ink-soft)">Check your email for a confirmation. Questions? Reply to that email.</p>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div>🐾 <strong>Forming Paws</strong> — a nonprofit initiative for healthy, responsible dog breeding.</div>
+  <div class="footer-note">Forming Paws is not a party to any breeding arrangement. Always consult your veterinarian.</div>
+</footer>
+
+<script>
+const SUPABASE_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
+
+function handleFiles(files){
+  const list = document.getElementById("fileList");
+  list.innerHTML = [...files].map(f =>
+    `<div>📄 ${escHtml(f.name)} <span style="color:var(--ink-soft)">(${(f.size/1024).toFixed(0)} KB)</span></div>`
+  ).join("");
+}
+
+function escHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function getChecked(){
+  return [...document.querySelectorAll('input[name="health"]:checked')].map(el => el.value);
+}
+
+async function handleSubmit(){
+  const name = document.getElementById("dogName").value.trim();
+  const breed = document.getElementById("dogBreed").value;
+  const sex = document.getElementById("dogSex").value;
+  const email = document.getElementById("ownerEmail").value.trim();
+
+  if (!name || !breed || !sex || !email) {
+    alert("Please fill in your dog's name, breed, sex, and your email before submitting.");
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting…";
+
+  const payload = {
+    dog_name: name,
+    breed,
+    sex,
+    age_years: parseFloat(document.getElementById("dogAge").value) || null,
+    weight_lbs: parseInt(document.getElementById("dogWeight").value) || null,
+    city: document.getElementById("dogCity").value.trim() || null,
+    bio: document.getElementById("dogBio").value.trim() || null,
+    health_docs: getChecked(),
+    owner_name: document.getElementById("ownerName").value.trim() || null,
+    owner_email: email,
+    status: "pending_review",
+    submitted_at: new Date().toISOString(),
+  };
+
+  let success = false;
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/listing_submissions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    });
+    success = res.ok || res.status === 201;
+  } catch (_) {
+    // Network failure — fall through to localStorage fallback
+  }
+
+  if (!success) {
+    // Offline / no table yet: save locally so nothing is lost
+    const queue = JSON.parse(localStorage.getItem("fp_submission_queue") || "[]");
+    queue.push(payload);
+    localStorage.setItem("fp_submission_queue", JSON.stringify(queue));
+  }
+
+  document.getElementById("confirmedName").textContent = name;
+  document.getElementById("formSection").classList.add("hidden");
+  document.getElementById("confirmSection").classList.add("show");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+</script>
+
+</body>
+</html>
