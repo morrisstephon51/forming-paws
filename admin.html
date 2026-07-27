@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Review — Forming Paws</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.admin-shell{max-width:900px;margin:0 auto;padding:40px 5vw 80px}
+.admin-shell h1{font-size:1.8rem;margin-bottom:4px}
+.admin-sub{color:var(--ink-soft);margin-bottom:32px;font-size:.95rem}
+
+/* Login */
+.login-card{max-width:400px;margin:80px auto;background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:36px}
+.login-card h2{margin-bottom:6px}
+.login-card p{color:var(--ink-soft);font-size:.9rem;margin-bottom:24px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:.82rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.field input{padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:1rem;color:var(--ink);background:#fff;transition:border-color .15s}
+.field input:focus{outline:none;border-color:var(--brand)}
+.login-err{color:#c0392b;font-size:.88rem;margin-bottom:10px;display:none}
+
+/* Queue */
+.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.queue-filters{display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{padding:6px 16px;border:1.5px solid var(--line);border-radius:999px;background:#fff;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.filter-btn:hover:not(.active){border-color:var(--brand);color:var(--brand)}
+
+.queue-empty{text-align:center;padding:60px 20px;color:var(--ink-soft)}
+.queue-empty .empty-icon{font-size:3rem;margin-bottom:12px}
+
+/* Submission card */
+.sub-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;transition:box-shadow .15s}
+.sub-card:hover{box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.sub-card.status-approved{border-left:4px solid var(--good)}
+.sub-card.status-rejected{border-left:4px solid #e74c3c}
+.sub-card.status-needs_more_docs{border-left:4px solid #f39c12}
+.sub-card.status-pending_review{border-left:4px solid var(--brand)}
+
+.sub-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.sub-name{font-size:1.1rem;font-weight:800}
+.sub-meta{font-size:.85rem;color:var(--ink-soft);margin-top:2px}
+.status-badge{padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
+.badge-pending_review{background:#fff3e0;color:#e65100}
+.badge-approved{background:var(--good-soft);color:var(--good)}
+.badge-rejected{background:#fde8e8;color:#c0392b}
+.badge-needs_more_docs{background:#fff8e1;color:#e65100}
+
+.sub-body{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:520px){.sub-body{grid-template-columns:1fr}}
+.sub-field{font-size:.88rem}
+.sub-field strong{font-weight:700;color:var(--ink-soft)}
+
+.health-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.health-tag{background:var(--good-soft);color:var(--good);font-size:.75rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.health-tag.missing{background:#fff8e1;color:#795548}
+
+.sub-actions{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.sub-actions .field{margin:0;flex:1;min-width:200px}
+.action-btns{display:flex;gap:8px;flex-wrap:wrap}
+.action-btn{padding:8px 16px;border-radius:10px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;transition:all .15s}
+.btn-approve{background:var(--good);color:#fff}
+.btn-approve:hover{background:#27875a}
+.btn-reject{background:#e74c3c;color:#fff}
+.btn-reject:hover{background:#c0392b}
+.btn-more-docs{background:#f39c12;color:#fff}
+.btn-more-docs:hover{background:#d68910}
+.action-saving{font-size:.82rem;color:var(--ink-soft);align-self:center}
+
+.logout-btn{background:none;border:1.5px solid var(--line);color:var(--ink-soft);padding:6px 14px;border-radius:8px;font-size:.85rem;cursor:pointer;transition:all .15s}
+.logout-btn:hover{border-color:var(--ink-soft);color:var(--ink)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links" id="navRight">
+    <a href="app.html">Browse Dogs</a>
+  </div>
+</nav>
+
+<!-- LOGIN STATE -->
+<div id="loginSection">
+  <div class="login-card">
+    <h2>Admin login</h2>
+    <p>Enter your Supabase account credentials to access the review queue.</p>
+    <div class="login-err" id="loginErr"></div>
+    <div class="field">
+      <label for="adminEmail">Email</label>
+      <input type="email" id="adminEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="adminPass">Password</label>
+      <input type="password" id="adminPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" id="loginBtn" style="width:100%;margin-top:8px" onclick="doLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- ADMIN QUEUE STATE -->
+<div id="adminSection" style="display:none">
+  <div class="admin-shell">
+
+    <div class="queue-header">
+      <div>
+        <h1>Review queue</h1>
+        <p class="admin-sub">Listing submissions from <em id="subCount">–</em> dog owners.</p>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+
+    <div class="queue-filters">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" data-filter="pending_review" onclick="setFilter('pending_review', this)">Pending</button>
+      <button class="filter-btn" data-filter="needs_more_docs" onclick="setFilter('needs_more_docs', this)">Needs docs</button>
+      <button class="filter-btn" data-filter="approved" onclick="setFilter('approved', this)">Approved</button>
+      <button class="filter-btn" data-filter="rejected" onclick="setFilter('rejected', this)">Rejected</button>
+    </div>
+
+    <div id="queueList" style="margin-top:24px">
+      <div class="queue-empty"><div class="empty-icon">⏳</div><p>Loading submissions…</p></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
+const SESSION_KEY = "fp_admin_session";
+
+let allSubmissions = [];
+let activeFilter = "all";
+let userToken = null;
+
+// -- Auth --
+
+async function doLogin() {
+  const btn = document.getElementById("loginBtn");
+  const err = document.getElementById("loginErr");
+  const email = document.getElementById("adminEmail").value.trim();
+  const pass = document.getElementById("adminPass").value;
+
+  if (!email || !pass) { showErr("Enter your email and password."); return; }
+
+  btn.disabled = true;
+  btn.textContent = "Signing in…";
+  err.style.display = "none";
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || "Login failed.");
+    userToken = data.access_token;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: userToken, email }));
+    showAdmin(email);
+  } catch (e) {
+    showErr(e.message);
+    btn.disabled = false;
+    btn.textContent = "Sign in";
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById("loginErr");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  userToken = null;
+  document.getElementById("loginSection").style.display = "";
+  document.getElementById("adminSection").style.display = "none";
+}
+
+function showAdmin(email) {
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("adminSection").style.display = "";
+  document.getElementById("navRight").innerHTML =
+    `<span style="font-size:.85rem;color:var(--ink-soft)">${email}</span>
+     <a href="app.html">Browse Dogs</a>`;
+  loadSubmissions();
+}
+
+// -- Submissions --
+
+async function loadSubmissions() {
+  const list = document.getElementById("queueList");
+  list.innerHTML = '<div class="queue-empty"><div class="empty-icon">⏳</div><p>Loading…</p></div>';
+  try {
+    const res = await fetch(
+      SUPABASE_URL + "/rest/v1/listing_submissions?order=submitted_at.desc",
+      { headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + userToken } }
+    );
+    if (res.status === 401) { doLogout(); return; }
+    if (!res.ok) throw new Error("Failed to load submissions.");
+    allSubmissions = await res.json();
+    renderQueue();
+  } catch (e) {
+    list.innerHTML = `<div class="queue-empty"><div class="empty-icon">❌</div><p>${e.message}</p></div>`;
+  }
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderQueue();
+}
+
+function renderQueue() {
+  const filtered = activeFilter === "all"
+    ? allSubmissions
+    : allSubmissions.filter(s => s.status === activeFilter);
+
+  document.getElementById("subCount").textContent = allSubmissions.length;
+
+  const list = document.getElementById("queueList");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="queue-empty"><div class="empty-icon">🐾</div><p>No submissions in this filter.</p></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => renderCard(s)).join("");
+}
+
+const STATUS_LABELS = {
+  pending_review: "Pending review",
+  approved: "Approved",
+  rejected: "Rejected",
+  needs_more_docs: "Needs more docs",
+};
+
+const HEALTH_DOCS_ALL = [
+  "Vet wellness exam (last 12 mo)",
+  "Vaccination records",
+  "Heartworm test",
+  "Hip/elbow OFA or PennHIP",
+  "Eye CAER exam",
+  "Genetic panel (breed-specific)",
+];
+
+function renderCard(s) {
+  const submitted = new Date(s.submitted_at).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+  const docs = s.health_docs || [];
+  const missing = HEALTH_DOCS_ALL.filter(d => !docs.includes(d));
+
+  const docTags = docs.map(d => `<span class="health-tag">${d}</span>`).join("");
+  const missingTags = missing.map(d => `<span class="health-tag missing">Missing: ${d}</span>`).join("");
+
+  return `
+<div class="sub-card status-${s.status}" id="card-${s.id}">
+  <div class="sub-top">
+    <div>
+      <div class="sub-name">${esc(s.dog_name)} — ${esc(s.breed)}</div>
+      <div class="sub-meta">${s.sex === "M" ? "Male" : "Female"} · ${s.age_years ?? "?"} yr · ${s.weight_lbs ?? "?"} lbs · ${esc(s.city || "City unknown")}</div>
+      <div class="sub-meta">Owner: ${esc(s.owner_name || "—")} &lt;${esc(s.owner_email)}&gt; · Submitted ${submitted}</div>
+    </div>
+    <span class="status-badge badge-${s.status}">${STATUS_LABELS[s.status] || s.status}</span>
+  </div>
+
+  ${s.bio ? `<p style="margin-top:12px;font-size:.9rem;color:var(--ink-soft)">${esc(s.bio)}</p>` : ""}
+
+  <div class="sub-body">
+    <div class="sub-field">
+      <strong>Health docs submitted (${docs.length}/${HEALTH_DOCS_ALL.length})</strong>
+      <div class="health-tags" style="margin-top:6px">${docTags || "<em style='font-size:.85rem;color:var(--ink-soft)'>None checked</em>"}</div>
+    </div>
+    ${missing.length ? `<div class="sub-field"><strong>Missing docs</strong><div class="health-tags" style="margin-top:6px">${missingTags}</div></div>` : ""}
+  </div>
+
+  ${s.reviewer_note ? `<div style="margin-top:12px;padding:10px 14px;background:var(--brand-soft);border-radius:10px;font-size:.88rem"><strong>Reviewer note:</strong> ${esc(s.reviewer_note)}</div>` : ""}
+
+  <div class="sub-actions">
+    <div class="field">
+      <label>Reviewer note</label>
+      <input type="text" id="note-${s.id}" placeholder="Optional note to owner…" value="${esc(s.reviewer_note || "")}">
+    </div>
+    <div class="action-btns">
+      <button class="action-btn btn-approve" onclick="updateStatus('${s.id}', 'approved')">Approve</button>
+      <button class="action-btn btn-more-docs" onclick="updateStatus('${s.id}', 'needs_more_docs')">Needs docs</button>
+      <button class="action-btn btn-reject" onclick="updateStatus('${s.id}', 'rejected')">Reject</button>
+    </div>
+    <span class="action-saving" id="saving-${s.id}"></span>
+  </div>
+</div>`;
+}
+
+async function updateStatus(id, status) {
+  const noteEl = document.getElementById("note-" + id);
+  const savingEl = document.getElementById("saving-" + id);
+  const note = noteEl ? noteEl.value.trim() : "";
+
+  savingEl.textContent = "Saving…";
+
+  try {
+    const res = await fetch(
+      SUPABASE_URL + "/rest/v1/listing_submissions?id=eq." + id,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + userToken,
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify({ status, reviewer_note: note || null, reviewed_at: new Date().toISOString() }),
+      }
+    );
+    if (!res.ok) throw new Error("Update failed.");
+    const idx = allSubmissions.findIndex(s => s.id === id);
+    if (idx > -1) {
+      allSubmissions[idx].status = status;
+      allSubmissions[idx].reviewer_note = note || null;
+      allSubmissions[idx].reviewed_at = new Date().toISOString();
+    }
+    savingEl.textContent = "Saved ✓";
+    setTimeout(() => { savingEl.textContent = ""; renderQueue(); }, 800);
+  } catch (e) {
+    savingEl.textContent = "Error: " + e.message;
+  }
+}
+
+function esc(str) {
+  if (!str) return "";
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// -- Init --
+
+document.getElementById("adminPass").addEventListener("keydown", e => {
+  if (e.key === "Enter") doLogin();
+});
+
+const saved = sessionStorage.getItem(SESSION_KEY);
+if (saved) {
+  try {
+    const { token, email } = JSON.parse(saved);
+    if (token) { userToken = token; showAdmin(email); }
+  } catch (_) {}
+}
+</script>
+
+</body>
+</html>
