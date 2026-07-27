@@ -185,7 +185,7 @@ function showAdmin(email) {
   document.getElementById("loginSection").style.display = "none";
   document.getElementById("adminSection").style.display = "";
   document.getElementById("navRight").innerHTML =
-    `<span style="font-size:.85rem;color:var(--ink-soft)">${email}</span>
+    `<span style="font-size:.85rem;color:var(--ink-soft)">${esc(email)}</span>
      <a href="app.html">Browse Dogs</a>`;
   loadSubmissions();
 }
@@ -249,7 +249,7 @@ const HEALTH_DOCS_ALL = [
 ];
 
 function renderCard(s) {
-  const submitted = new Date(s.submitted_at).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+  const submitted = s.submitted_at ? new Date(s.submitted_at).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" }) : "Unknown date";
   const docs = s.health_docs || [];
   const missing = HEALTH_DOCS_ALL.filter(d => !docs.includes(d));
 
@@ -336,6 +336,9 @@ function esc(str) {
 
 // -- Init --
 
+document.getElementById("adminEmail").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("adminPass").focus();
+});
 document.getElementById("adminPass").addEventListener("keydown", e => {
   if (e.key === "Enter") doLogin();
 });
