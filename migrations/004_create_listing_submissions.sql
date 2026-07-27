@@ -27,5 +27,4 @@ alter table public.listing_submissions enable row level security;
 create policy "submissions_insert_public"
   on public.listing_submissions
   for insert
-  using (true)
   with check (true);

@@ -275,6 +275,43 @@
 const SUPABASE_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
 const SUPABASE_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
 
+async function postToSupabase(payload) {
+  const res = await fetch(SUPABASE_URL + "/rest/v1/listing_submissions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Prefer": "return=minimal",
+    },
+    body: JSON.stringify(payload),
+  });
+  return res.ok;
+}
+
+async function syncQueue() {
+  const raw = localStorage.getItem("fp_submission_queue");
+  if (!raw) return;
+  const queue = JSON.parse(raw);
+  if (!queue.length) return;
+  const remaining = [];
+  for (const item of queue) {
+    try {
+      const ok = await postToSupabase(item);
+      if (!ok) remaining.push(item);
+    } catch (_) {
+      remaining.push(item);
+    }
+  }
+  if (remaining.length) {
+    localStorage.setItem("fp_submission_queue", JSON.stringify(remaining));
+  } else {
+    localStorage.removeItem("fp_submission_queue");
+  }
+}
+
+window.addEventListener("load", syncQueue);
+
 function handleFiles(files){
   const list = document.getElementById("fileList");
   list.innerHTML = [...files].map(f =>
@@ -320,23 +357,12 @@ async function handleSubmit(){
     health_docs: getChecked(),
     owner_name: document.getElementById("ownerName").value.trim() || null,
     owner_email: email,
-    status: "pending_review",
     submitted_at: new Date().toISOString(),
   };
 
   let success = false;
   try {
-    const res = await fetch(SUPABASE_URL + "/rest/v1/listing_submissions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + SUPABASE_KEY,
-        "Prefer": "return=minimal",
-      },
-      body: JSON.stringify(payload),
-    });
-    success = res.ok || res.status === 201;
+    success = await postToSupabase(payload);
   } catch (_) {
     // Network failure — fall through to localStorage fallback
   }
