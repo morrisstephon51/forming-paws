@@ -9,6 +9,11 @@ create table if not exists public.admin_users (
   email text primary key
 );
 
+-- Lock down admin_users: RLS enabled, no client policies → default-deny.
+-- Only service_role (Supabase dashboard / server-side) can insert/delete rows.
+-- This prevents any authenticated user from self-granting admin access via the anon key.
+alter table public.admin_users enable row level security;
+
 -- Policy: authenticated admins can read all listing submissions
 create policy "admins_select_submissions"
   on public.listing_submissions
