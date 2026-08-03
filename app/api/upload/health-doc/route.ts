@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Not your dog' }, { status: 403 })
   }
 
-  const storagePath = `${dogId}/${crypto.randomUUID()}.${extension}`
+  const storagePath = dogId + '/' + crypto.randomUUID() + '.' + extension
   const buffer = Buffer.from(await file.arrayBuffer())
 
   const { error: uploadError } = await supabase.storage
@@ -58,5 +58,5 @@ export async function POST(request: Request) {
   })
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.redirect(new URL('/dogs/' + dogId, request.url))
 }

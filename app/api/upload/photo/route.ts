@@ -45,5 +45,5 @@ export async function POST(request: Request) {
     .insert({ dog_id: dogId, storage_path: storagePath, position: count ?? 0 })
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  return NextResponse.json({ ok: true, storagePath })
+  return NextResponse.redirect(new URL('/dogs/' + dogId, request.url))
 }
