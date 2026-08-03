@@ -16,7 +16,7 @@
     <a href="#how">How It Works</a>
     <a href="#health">Health First</a>
     <a href="#roadmap">Roadmap</a>
-    <a href="app.html" class="btn btn-primary btn-sm">Open the App</a>
+    <a href="join.html" class="btn btn-primary btn-sm">Join Now</a>
   </div>
 </nav>
 
@@ -26,8 +26,8 @@
     <h1>Healthy matches.<br><span class="accent">Happy litters.</span></h1>
     <p class="hero-sub">Forming Paws connects dog owners nearby for safe, health-documented breeding matches — think of it as thoughtful matchmaking for dogs, with veterinary verification at the center of everything.</p>
     <div class="hero-cta">
-      <a href="app.html" class="btn btn-primary">Browse Dogs Near You</a>
-      <a href="#how" class="btn btn-ghost">See how it works</a>
+      <a href="join.html" class="btn btn-primary">Join as a Founding Member</a>
+      <a href="app.html" class="btn btn-ghost">Browse the demo</a>
     </div>
     <div class="hero-stats">
       <div><strong>Health-gated</strong><span>matching unlocks only after vet docs are verified</span></div>
@@ -85,7 +85,7 @@
     <button type="submit" class="btn btn-light" id="wlBtn">Join the Waitlist</button>
   </form>
   <p class="wl-msg" id="wlMsg"></p>
-  <p style="opacity:.8;font-size:.85rem;margin-top:14px">Or <a href="app.html" style="text-decoration:underline">try the demo</a> first — no signup needed.</p>
+  <p style="opacity:.8;font-size:.85rem;margin-top:14px">Ready now? <a href="join.html" style="text-decoration:underline;font-weight:700">Create your account &amp; dog profile</a> · or <a href="app.html" style="text-decoration:underline">try the demo</a> first.</p>
 </section>
 
 <script>
@@ -105,7 +105,7 @@ document.getElementById("wlForm").addEventListener("submit", async (e) => {
         dog_breed: document.getElementById("wlBreed").value.trim() || null
       })
     });
-    if (res.ok || res.status === 201) {
+    if (res.ok) {
       msg.textContent = "🎉 You're on the list! We'll email you when we launch in your area.";
       document.getElementById("wlForm").reset();
     } else if (res.status === 409) {
