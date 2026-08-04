@@ -240,12 +240,12 @@ const STATUS_LABELS = {
 };
 
 const HEALTH_DOCS_ALL = [
-  "Vet wellness exam (last 12 mo)",
-  "Vaccination records",
-  "Heartworm test",
-  "Hip/elbow OFA or PennHIP",
-  "Eye CAER exam",
-  "Genetic panel (breed-specific)",
+  "Vet wellness exam (within 12 months)",
+  "Vaccinations up to date",
+  "Hip / elbow evaluation (OFA or PennHIP)",
+  "DNA / genetic panel",
+  "Cardiac exam",
+  "Eye exam (CAER/CERF)",
 ];
 
 function renderCard(s) {
@@ -253,7 +253,7 @@ function renderCard(s) {
   const docs = s.health_docs || [];
   const missing = HEALTH_DOCS_ALL.filter(d => !docs.includes(d));
 
-  const docTags = docs.map(d => `<span class="health-tag">${d}</span>`).join("");
+  const docTags = docs.map(d => `<span class="health-tag">${esc(d)}</span>`).join("");
   const missingTags = missing.map(d => `<span class="health-tag missing">Missing: ${d}</span>`).join("");
 
   return `
