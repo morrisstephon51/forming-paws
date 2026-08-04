@@ -122,11 +122,27 @@ $("joinForm").addEventListener("submit", async (e) => {
         data: { display_name: p.name } })
     });
     const data = await res.json();
-    if (!res.ok) {
+    if (!res.ok || (data.user && data.user.identities && data.user.identities.length === 0)) {
       const m = (data.msg || data.error_description || "").toLowerCase();
-      msg.textContent = m.includes("already") ? "That email already has an account."
-        : "Signup failed: " + (data.msg || data.error_description || "please try again.");
-      msg.classList.add("err");
+      if (m.includes("already") || (data.user && data.user.identities && data.user.identities.length === 0)) {
+        // Existing account (e.g. confirmed email on another device): log in and finish the profile
+        const lr = await fetch(SB_URL + "/auth/v1/token?grant_type=password", {
+          method: "POST", headers: { "Content-Type": "application/json", "apikey": SB_KEY },
+          body: JSON.stringify({ email: $("jEmail").value.trim(), password: $("jPass").value })
+        });
+        const ld = await lr.json();
+        if (lr.ok && ld.access_token) {
+          await createRecords(ld.access_token, ld.user.id, p);
+          showSuccess("Welcome back, " + p.name.split(" ")[0] + "!",
+            p.dogName + "'s profile is live. Next: we'll email you about uploading vet records to earn the Verified badge — free for Founding Members.");
+        } else {
+          msg.textContent = "That email already has an account, but the password didn't match — use the same password you signed up with.";
+          msg.classList.add("err");
+        }
+      } else {
+        msg.textContent = "Signup failed: " + (data.msg || data.error_description || "please try again.");
+        msg.classList.add("err");
+      }
     } else if (data.access_token) {
       await createRecords(data.access_token, data.user.id, p);
       showSuccess("Welcome to Forming Paws, " + p.name.split(" ")[0] + "!",
