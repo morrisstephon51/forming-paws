@@ -7,6 +7,11 @@
 <meta name="description" content="Forming Paws is a nonprofit platform connecting dog owners for safe, health-verified breeding matches in their local area.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
 <link rel="stylesheet" href="styles.css">
+<script>
+// Signed-in members skip the marketing page and land on their dashboard
+try { var fps = JSON.parse(localStorage.getItem("fp_session") || "null");
+  if (fps && fps.access_token) location.replace("home.html"); } catch(e){}
+</script>
 </head>
 <body>
 
@@ -16,6 +21,7 @@
     <a href="#how">How It Works</a>
     <a href="#health">Health First</a>
     <a href="#roadmap">Roadmap</a>
+    <a href="login.html">Sign In</a>
     <a href="join.html" class="btn btn-primary btn-sm">Join Now</a>
   </div>
 </nav>

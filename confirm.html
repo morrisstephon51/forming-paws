@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome — Forming Paws</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.onb{max-width:520px;margin:0 auto;padding:44px 5vw 90px;text-align:center}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:34px 26px;box-shadow:var(--shadow)}
+.big{font-size:3.6rem;margin-bottom:12px}
+.panel h1{font-size:1.5rem;margin-bottom:10px}
+.panel p{color:var(--ink-soft)}
+.panel .btn{margin-top:20px}
+.fld{margin:14px 0;text-align:left}
+.fld label{display:block;font-size:.78rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.fld input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:.95rem;background:#fff}
+.msg{margin-top:12px;font-weight:600;min-height:1.3em}
+.msg.err{color:#b3261e}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links"><a href="index.html">Home</a></div>
+</nav>
+
+<main class="onb">
+  <div class="panel" id="workingPanel">
+    <div class="big">🐾</div>
+    <h1>One moment…</h1>
+    <p>Finishing your sign-in.</p>
+  </div>
+
+  <div class="panel hidden" id="welcomePanel">
+    <div class="big">🎉</div>
+    <h1 id="wTitle">Email confirmed — welcome to Forming Paws!</h1>
+    <p id="wBody">Your membership is active.</p>
+    <a href="home.html" class="btn btn-primary">Go to My Dashboard</a>
+  </div>
+
+  <div class="panel hidden" id="resetPanel">
+    <div class="big">🔑</div>
+    <h1>Choose a new password</h1>
+    <form id="resetForm">
+      <div class="fld"><label for="rPass">New password (8+ characters)</label><input id="rPass" type="password" minlength="8" required autocomplete="new-password"></div>
+      <button type="submit" class="btn btn-primary" id="rBtn">Save New Password</button>
+      <p class="msg" id="rMsg"></p>
+    </form>
+  </div>
+
+  <div class="panel hidden" id="errorPanel">
+    <div class="big">😕</div>
+    <h1>That link didn't work</h1>
+    <p id="eBody">It may have expired. Sign in, or join again to get a fresh link.</p>
+    <a href="login.html" class="btn btn-primary">Sign In</a>
+  </div>
+</main>
+
+<script src="fp-auth.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const show = id => { ["workingPanel","welcomePanel","resetPanel","errorPanel"].forEach(p => $(p).classList.add("hidden")); $(id).classList.remove("hidden"); };
+
+function pendingLoad(){ try { return JSON.parse(localStorage.getItem("fp_pending") || "null"); } catch(e){ return null; } }
+function pendingClear(){ try { localStorage.removeItem("fp_pending"); } catch(e){} }
+
+async function completeProfile(session){
+  const p = pendingLoad();
+  if (!p) return null;
+  try {
+    const u = await (await FP.api("/auth/v1/user")).json();
+    await FP.api("/rest/v1/owners?id=eq." + u.id, { method: "PATCH", body: JSON.stringify({ location_label: p.city }) });
+    const dg = await FP.api("/rest/v1/dogs", { method: "POST", body: JSON.stringify({
+      owner_id: u.id, name: p.dogName, breed_id: p.breedId, sex: p.sex,
+      birth_date: p.birth, weight_lbs: p.weight || null, temperament_notes: p.notes || null }) });
+    if (dg.ok) { pendingClear(); return p.dogName; }
+  } catch(e){}
+  return null;
+}
+
+(async function init(){
+  const cap = FP.captureHash();
+  if (cap && cap.error) {
+    $("eBody").textContent = cap.error + " — sign in, or join again to get a fresh link.";
+    show("errorPanel"); return;
+  }
+  const session = cap && cap.access_token ? cap : await FP.getSession();
+  if (!session) { show("errorPanel"); return; }
+
+  if (cap && cap.type === "recovery") { show("resetPanel"); return; }
+
+  const dogName = await completeProfile(session);
+  if (dogName) $("wBody").textContent = dogName + "'s profile is complete and your membership is active. Founding Members get health verification free for life.";
+  show("welcomePanel");
+  setTimeout(() => location.href = "home.html", 3500);
+})();
+
+$("resetForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("rBtn"), msg = $("rMsg");
+  btn.disabled = true; btn.textContent = "Saving…"; msg.textContent = ""; msg.className = "msg";
+  try {
+    const r = await FP.api("/auth/v1/user", { method: "PUT", body: JSON.stringify({ password: $("rPass").value }) });
+    if (r.ok) { location.href = "home.html"; return; }
+    const d = await r.json();
+    msg.textContent = d.msg || d.error_description || "Couldn't save the password.";
+    msg.classList.add("err");
+  } catch (err) { msg.textContent = "Couldn't reach the server."; msg.classList.add("err"); }
+  btn.disabled = false; btn.textContent = "Save New Password";
+});
+</script>
+</body>
+</html>

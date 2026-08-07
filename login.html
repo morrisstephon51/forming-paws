@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Forming Paws</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.onb{max-width:440px;margin:0 auto;padding:44px 5vw 90px}
+.onb h1{font-size:1.7rem;margin-bottom:6px}
+.onb .sub{color:var(--ink-soft);margin-bottom:24px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:.78rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.fld input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:.95rem;background:#fff}
+.onb .btn{width:100%;margin-top:6px}
+.msg{margin-top:12px;font-weight:600;min-height:1.3em}
+.msg.err{color:#b3261e}
+.msg.ok{color:#2e9e6b}
+.links{margin-top:16px;text-align:center;font-size:.9rem}
+.links a{color:#33685a;font-weight:700;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links"><a href="index.html">Home</a><a href="join.html">Join</a></div>
+</nav>
+
+<main class="onb">
+  <h1>Member Sign In</h1>
+  <p class="sub">Welcome back — your pack missed you.</p>
+
+  <form class="panel" id="loginForm">
+    <div class="fld"><label for="lEmail">Email</label><input id="lEmail" type="email" required autocomplete="email"></div>
+    <div class="fld"><label for="lPass">Password</label><input id="lPass" type="password" required autocomplete="current-password"></div>
+    <button type="submit" class="btn btn-primary" id="lBtn">Sign In 🐾</button>
+    <p class="msg" id="lMsg"></p>
+    <div class="links">
+      <a id="forgotLink">Forgot password?</a> · <a href="join.html" style="cursor:pointer">New here? Join</a>
+    </div>
+  </form>
+</main>
+
+<script src="fp-auth.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+// Already signed in? Straight to the dashboard.
+FP.getSession().then(s => { if (s) location.replace("home.html"); });
+
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("lBtn"), msg = $("lMsg");
+  btn.disabled = true; btn.textContent = "Signing in…"; msg.textContent = ""; msg.className = "msg";
+  try {
+    await FP.login($("lEmail").value.trim(), $("lPass").value);
+    location.href = "home.html";
+  } catch (err) {
+    msg.textContent = /invalid/i.test(err.message) ? "Wrong email or password — try again, or use Forgot password." : err.message;
+    msg.classList.add("err");
+    btn.disabled = false; btn.textContent = "Sign In 🐾";
+  }
+});
+
+$("forgotLink").addEventListener("click", async () => {
+  const msg = $("lMsg");
+  const email = $("lEmail").value.trim();
+  if (!email) { msg.textContent = "Type your email above first, then click Forgot password."; msg.className = "msg err"; return; }
+  msg.textContent = "Sending reset link…"; msg.className = "msg";
+  try {
+    const r = await fetch(FP.URL + "/auth/v1/recover?redirect_to=" + encodeURIComponent(location.origin + "/confirm.html"), {
+      method: "POST", headers: { "Content-Type": "application/json", "apikey": FP.KEY },
+      body: JSON.stringify({ email })
+    });
+    msg.textContent = r.ok ? "Check your email for a password-reset link. 📬" : "Couldn't send the reset email — try again in a minute.";
+    msg.className = r.ok ? "msg ok" : "msg err";
+  } catch (e2) { msg.textContent = "Couldn't reach the server."; msg.className = "msg err"; }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Forming Paws</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.hm{max-width:860px;margin:0 auto;padding:34px 5vw 90px}
+.hm h1{font-size:1.7rem;margin-bottom:4px}
+.hm .sub{color:var(--ink-soft);margin-bottom:22px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.panel h2{font-size:1.1rem;margin-bottom:12px}
+.founding{display:inline-block;background:#e4efe9;border:1px solid #2e9e6b;color:#2e7d5b;border-radius:999px;padding:5px 16px;font-weight:800;font-size:.8rem;letter-spacing:.03em}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center}
+.tile .num{font-size:1.9rem;font-weight:800;color:#33685a}
+.tile .lbl{font-size:.75rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.dog{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.dog:last-child{border-bottom:none}
+.dog .ava{font-size:2rem}
+.dog .nm{font-weight:800}
+.dog .meta{font-size:.85rem;color:var(--ink-soft)}
+.pill{display:inline-block;font-weight:700;font-size:.72rem;padding:3px 12px;border-radius:999px}
+.pill.pend{background:#fdf3e0;color:#9a6b15;border:1px solid #e8c273}
+.pill.ok{background:#e4efe9;color:#2e7d5b;border:1px solid #2e9e6b}
+.bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.btn-sm2{padding:8px 16px;font-size:.85rem}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:.76rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);font-size:.93rem;background:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.msg{margin-top:10px;font-weight:600;min-height:1.2em}
+.msg.err{color:#b3261e}
+.hidden{display:none}
+.next{background:#f4f8f6;border:1px dashed #33685a;border-radius:12px;padding:14px 16px;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links"><a href="app.html">Preview Matching</a><a id="outLink" style="cursor:pointer">Sign Out</a></div>
+</nav>
+
+<main class="hm">
+  <div class="bar">
+    <div>
+      <h1 id="hi">Welcome back 🐾</h1>
+      <p class="sub" id="hiSub">Your Forming Paws membership</p>
+    </div>
+    <span class="founding">🏅 FOUNDING MEMBER</span>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="num" id="sMembers">–</div><div class="lbl">Pack members</div></div>
+    <div class="tile"><div class="num" id="sDogs">–</div><div class="lbl">Dogs</div></div>
+    <div class="tile"><div class="num" id="sVerified">–</div><div class="lbl">Verified dogs</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>🐶 My Dogs</h2>
+    <div id="dogList"><p style="color:var(--ink-soft)">Loading…</p></div>
+    <button class="btn btn-ghost btn-sm2 hidden" id="addDogBtn" style="margin-top:12px">+ Add a dog</button>
+
+    <form id="dogForm" class="hidden" style="margin-top:16px">
+      <div class="fld"><label for="dName">Dog's name</label><input id="dName" required maxlength="60"></div>
+      <div class="row2">
+        <div class="fld"><label for="dBreed">Breed</label><select id="dBreed" required><option value="">Choose breed…</option></select></div>
+        <div class="fld"><label for="dSex">Sex</label><select id="dSex" required><option value="">Choose…</option><option value="male">Male ♂</option><option value="female">Female ♀</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="fld"><label for="dBirth">Birth date (approximate is fine)</label><input id="dBirth" type="date" required></div>
+        <div class="fld"><label for="dWeight">Weight (lb)</label><input id="dWeight" type="number" min="1" max="300"></div>
+      </div>
+      <div class="fld"><label for="dNotes">Temperament (optional)</label><textarea id="dNotes" maxlength="500"></textarea></div>
+      <button type="submit" class="btn btn-primary btn-sm2" id="dBtn">Save Dog 🐾</button>
+      <p class="msg" id="dMsg"></p>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>✅ Next step: health verification</h2>
+    <div class="next">
+      Your Founding Member verification is <strong>free for life</strong>. We're onboarding vet-document uploads now — we'll email you when your dog's health vault is ready (a recent vet wellness exam + vaccination records is all you'll need). Verified dogs unlock matching first.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>🔍 While the pack grows</h2>
+    <p style="color:var(--ink-soft);font-size:.92rem">Real matching unlocks as more Chicago dogs join and get verified. Meanwhile, <a href="app.html" style="color:#33685a;font-weight:700;text-decoration:underline">preview the matching experience</a> with sample dogs — and share <strong>theplugai.xyz</strong> with one dog owner you trust. Every early member makes your dog's future match pool bigger.</p>
+  </div>
+</main>
+
+<script src="fp-auth.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const BREEDS = {45:"Akita",48:"Australian Cattle Dog",12:"Australian Shepherd",32:"Basset Hound",7:"Beagle",33:"Belgian Malinois",21:"Bernese Mountain Dog",50:"Bichon Frise",41:"Bloodhound",29:"Border Collie",20:"Boston Terrier",14:"Boxer",25:"Brittany",44:"Bull Terrier",5:"Bulldog",27:"Cane Corso",15:"Cavalier King Charles Spaniel",46:"Chesapeake Bay Retriever",31:"Chihuahua",35:"Collie",10:"Dachshund",18:"Doberman Pinscher",26:"English Springer Spaniel",4:"French Bulldog",2:"German Shepherd",9:"German Shorthaired Pointer",3:"Golden Retriever",16:"Great Dane",23:"Havanese",1:"Labrador Retriever",42:"Maltese",34:"Mastiff",28:"Miniature American Shepherd",17:"Miniature Schnauzer",36:"Newfoundland",43:"Papillon",11:"Pembroke Welsh Corgi",22:"Pomeranian",6:"Poodle",49:"Portuguese Water Dog",37:"Rhodesian Ridgeback",8:"Rottweiler",39:"Shetland Sheepdog",24:"Shih Tzu",19:"Siberian Husky",47:"St. Bernard",30:"Vizsla",40:"Weimaraner",38:"West Highland White Terrier",51:"Whippet",13:"Yorkshire Terrier",52:"Mixed Breed / Not Listed"};
+Object.entries(BREEDS).sort((a,b) => a[1].localeCompare(b[1])).forEach(([id, name]) => {
+  const o = document.createElement("option"); o.value = id; o.textContent = name; $("dBreed").appendChild(o);
+});
+$("dBirth").max = new Date().toISOString().slice(0, 10);
+let ME = null;
+
+$("outLink").addEventListener("click", () => FP.logout());
+
+async function init(){
+  const s = await FP.getSession();
+  if (!s) { location.replace("login.html"); return; }
+  try {
+    ME = await (await FP.api("/auth/v1/user")).json();
+    const own = await (await FP.api("/rest/v1/owners?id=eq." + ME.id + "&select=display_name,location_label")).json();
+    const name = (own[0] && own[0].display_name) || "friend";
+    $("hi").textContent = "Welcome back, " + esc(name).split(" ")[0] + " 🐾";
+    $("hiSub").textContent = (own[0] && own[0].location_label ? own[0].location_label + " · " : "") + "Your Forming Paws membership";
+    loadDogs(); loadStats();
+  } catch(e){ location.replace("login.html"); }
+}
+
+async function loadDogs(){
+  const dogs = await (await FP.api("/rest/v1/dogs?owner_id=eq." + ME.id + "&select=id,name,breed_id,sex,birth_date&order=created_at")).json();
+  if (!Array.isArray(dogs) || dogs.length === 0) {
+    $("dogList").innerHTML = '<p style="color:var(--ink-soft)">No dogs on your profile yet — add your first below.</p>';
+    $("dogForm").classList.remove("hidden");
+    $("addDogBtn").classList.add("hidden");
+    return;
+  }
+  $("dogList").innerHTML = dogs.map(d => {
+    const age = d.birth_date ? Math.max(0, Math.floor((Date.now() - new Date(d.birth_date)) / 3.156e10)) : null;
+    return '<div class="dog"><div class="ava">' + (d.sex === "female" ? "🐕‍🦺" : "🐕") + '</div><div><div class="nm">' + esc(d.name) +
+      '</div><div class="meta">' + esc(BREEDS[d.breed_id] || "Dog") + (age !== null ? " · " + age + " yr" : "") + (d.sex === "female" ? " · ♀" : " · ♂") +
+      '</div></div><div style="margin-left:auto"><span class="pill pend">Verification pending</span></div></div>';
+  }).join("");
+  $("dogForm").classList.add("hidden");
+  $("addDogBtn").classList.remove("hidden");
+}
+
+async function loadStats(){
+  try {
+    const r = await FP.api("/rest/v1/rpc/community_stats", { method: "POST", body: "{}" });
+    const st = await r.json();
+    $("sMembers").textContent = st.members ?? "–";
+    $("sDogs").textContent = st.dogs ?? "–";
+    $("sVerified").textContent = st.verified_dogs ?? "–";
+  } catch(e){}
+}
+
+$("addDogBtn").addEventListener("click", () => { $("dogForm").classList.remove("hidden"); $("addDogBtn").classList.add("hidden"); });
+
+$("dogForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("dBtn"), msg = $("dMsg");
+  btn.disabled = true; btn.textContent = "Saving…"; msg.textContent = ""; msg.className = "msg";
+  try {
+    const r = await FP.api("/rest/v1/dogs", { method: "POST", body: JSON.stringify({
+      owner_id: ME.id, name: $("dName").value.trim(), breed_id: parseInt($("dBreed").value),
+      sex: $("dSex").value, birth_date: $("dBirth").value,
+      weight_lbs: parseFloat($("dWeight").value) || null,
+      temperament_notes: $("dNotes").value.trim() || null }) });
+    if (!r.ok) throw new Error("save " + r.status);
+    $("dogForm").reset();
+    loadDogs(); loadStats();
+  } catch (err) { msg.textContent = "Couldn't save — check the fields and try again."; msg.classList.add("err"); }
+  btn.disabled = false; btn.textContent = "Save Dog 🐾";
+});
+
+init();
+</script>
+</body>
+</html>

@@ -6,6 +6,7 @@
 <title>Join Forming Paws — Founding Member Onboarding</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
 <link rel="stylesheet" href="styles.css">
+<script src="fp-auth.js"></script>
 <style>
 .onb{max-width:560px;margin:0 auto;padding:34px 5vw 90px}
 .onb h1{font-size:1.8rem;margin-bottom:6px}
@@ -32,7 +33,7 @@
 
 <nav class="nav">
   <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
-  <div class="nav-links"><a href="index.html">Home</a><a href="app.html">Demo</a></div>
+  <div class="nav-links"><a href="index.html">Home</a><a href="login.html">Sign In</a><a href="app.html">Demo</a></div>
 </nav>
 
 <main class="onb">
@@ -116,7 +117,7 @@ $("joinForm").addEventListener("submit", async (e) => {
     notes: $("dNotes").value.trim()
   };
   try {
-    const res = await fetch(SB_URL + "/auth/v1/signup?redirect_to=" + encodeURIComponent(location.origin + location.pathname), {
+    const res = await fetch(SB_URL + "/auth/v1/signup?redirect_to=" + encodeURIComponent(location.origin + "/confirm.html"), {
       method: "POST", headers: { "Content-Type": "application/json", "apikey": SB_KEY },
       body: JSON.stringify({ email: $("jEmail").value.trim(), password: $("jPass").value,
         data: { display_name: p.name } })
@@ -144,6 +145,7 @@ $("joinForm").addEventListener("submit", async (e) => {
         msg.classList.add("err");
       }
     } else if (data.access_token) {
+      FP.saveTokens(data);
       await createRecords(data.access_token, data.user.id, p);
       showSuccess("Welcome to Forming Paws, " + p.name.split(" ")[0] + "!",
         p.dogName + "'s profile is live. Next: we'll email you about uploading " + p.dogName + "'s vet records to earn the Verified badge — free for Founding Members.");
