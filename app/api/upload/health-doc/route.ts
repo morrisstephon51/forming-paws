@@ -58,5 +58,5 @@ export async function POST(request: Request) {
   })
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.redirect(new URL(`/dogs/${dogId}`, request.url), 303)
 }
