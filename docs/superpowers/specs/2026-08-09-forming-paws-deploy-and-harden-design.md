@@ -124,8 +124,8 @@ RLS was re-audited across every policy in `public` and is otherwise correct. Own
 
 ### 6. Fix the static site
 
-- `home.html` hardcodes `Verification pending` on every dog. Query real status so a verified dog reads as verified.
-- `index.html` redirects to `home.html` on any stored `fp_session` without checking `expires_at`, producing a flash-bounce to login on a stale session. Check expiry first.
+- ~~`home.html` hardcodes `Verification pending`~~ — **moot, and the fix belongs elsewhere.** `home.html` redirects to the app, so patching its badge is wasted work. But the app's `/dashboard` shows only name and sex, with no verification status at all, so redirecting there would *downgrade* what members see today. The real fix is **task 6 below**: put the badge on the app dashboard.
+- `index.html` redirects to `home.html` on any stored `fp_session` without checking `expires_at`, producing a flash-bounce to login on a dead session. Redirect only when the session is unexpired or still holds a refresh token; otherwise clear it.
 - Apply the redirect map above.
 - Relabel `app.html` as sample data with a CTA to `/signup`.
 
