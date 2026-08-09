@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LocationSettings from './LocationSettings'
+import { dogListLabel } from './dogLabel'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -21,6 +22,17 @@ export default async function DashboardPage() {
 
   if (error) throw error
 
+  // The static site's dashboard showed a status pill on every dog. This page is
+  // replacing it, so it has to carry that information or the move is a downgrade.
+  const dogsWithStatus = await Promise.all(
+    (dogs ?? []).map(async (dog) => {
+      const { data: verified } = await supabase.rpc('dog_is_baseline_verified', {
+        p_dog_id: dog.id,
+      })
+      return { ...dog, isVerified: !!verified }
+    })
+  )
+
   return (
     <main className="mx-auto max-w-2xl p-8">
       <div className="flex items-center justify-between">
@@ -39,14 +51,14 @@ export default async function DashboardPage() {
       </div>
       <LocationSettings currentLabel={owner?.location_label ?? null} />
       <ul className="mt-6 flex flex-col gap-3">
-        {dogs?.map((dog) => (
+        {dogsWithStatus.map((dog) => (
           <li key={dog.id}>
             <Link href={`/dogs/${dog.id}`} className="block border p-4 rounded hover:bg-gray-50">
-              {dog.name} — {dog.sex}
+              {dogListLabel(dog.name, dog.sex, dog.isVerified)}
             </Link>
           </li>
         ))}
-        {dogs?.length === 0 && <p className="text-gray-500">No dogs yet.</p>}
+        {dogsWithStatus.length === 0 && <p className="text-gray-500">No dogs yet.</p>}
       </ul>
     </main>
   )
