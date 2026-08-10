@@ -384,6 +384,47 @@ try {
 
 Replace every `href="join.html"` with `href="https://app.theplugai.xyz/signup"` and `href="login.html"` with `href="https://app.theplugai.xyz/login"`. Leave `app.html` links alone — Step 5 handles that page.
 
+- [ ] **Step 2b: Add the sign-in field to the marketing landing**
+
+Requested 2026-08-09. The field lives on the landing page, but **credentials never do** — it collects an email and hands off to the app, which is the only thing that sees a password. That keeps the vanilla-JS auth copy count at zero rather than adding a sixth.
+
+The app side is already built (PR #21): `/login` and `/` both accept `?email=` and prefill it via `safeEmailParam`.
+
+Put it in the hero, below the existing CTA row, rather than in the nav — the nav has five items already and this would collapse badly on mobile. In `index.html`, after the `.hero-cta` div:
+
+```html
+    <form class="hero-signin" id="heroSignin">
+      <label for="heroEmail">Already a member?</label>
+      <input type="email" id="heroEmail" placeholder="you@example.com" aria-label="Your email" required>
+      <button type="submit" class="btn btn-ghost btn-sm">Sign In</button>
+    </form>
+```
+
+with this script alongside the existing waitlist script:
+
+```html
+<script>
+document.getElementById("heroSignin").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var email = document.getElementById("heroEmail").value.trim();
+  // The app owns authentication. This only carries the address across.
+  location.href = "https://app.theplugai.xyz/login" +
+    (email ? "?email=" + encodeURIComponent(email) : "");
+});
+</script>
+```
+
+and this styling in `styles.css`:
+
+```css
+.hero-signin{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px;font-size:.9rem}
+.hero-signin label{font-weight:700;opacity:.9}
+.hero-signin input{padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);font-size:.9rem;min-width:210px}
+@media (max-width:520px){.hero-signin input{flex:1 1 100%;min-width:0}}
+```
+
+Also change the nav's `<a href="login.html">Sign In</a>` to `<a href="https://app.theplugai.xyz/login">Sign In</a>`.
+
 - [ ] **Step 3: Replace `join.html`, `login.html`, and `home.html` with redirects**
 
 For each, replace the whole file. `join.html` (substitute `/login` and `/dashboard` for the other two, and adjust the wording):
