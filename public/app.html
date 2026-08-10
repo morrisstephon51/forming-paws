@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forming Paws — Find a Match</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links">
+    <a href="index.html">About</a>
+    <span class="demo-pill">Demo · seeded data</span>
+  </div>
+</nav>
+
+<main class="app-shell">
+  <div class="app-head">
+    <div>
+      <h1>Dogs near you</h1>
+      <p>📍 Showing matches around <strong>your area</strong> · distances are approximate — exact locations are never shared</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="f-group">
+      <label for="fBreed">Breed</label>
+      <select id="fBreed"><option value="">All breeds</option></select>
+    </div>
+    <div class="f-group">
+      <label for="fSex">Sex</label>
+      <select id="fSex">
+        <option value="">Any</option>
+        <option value="M">Male ♂</option>
+        <option value="F">Female ♀</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label for="fDist">Distance: <span id="distVal">50</span> mi</label>
+      <input type="range" id="fDist" min="5" max="50" value="50" step="5">
+    </div>
+    <div class="f-check">
+      <input type="checkbox" id="fVerified">
+      <label for="fVerified" style="margin:0;text-transform:none;font-size:.9rem">✅ Health-verified only</label>
+    </div>
+  </div>
+
+  <div class="results-count" id="count"></div>
+  <div class="dog-grid" id="grid"></div>
+</main>
+
+<!-- PROFILE MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal modal-wrap" id="modal"></div>
+</div>
+
+<!-- CHAT PANEL -->
+<div class="chat-panel" id="chat">
+  <div class="chat-head"><span id="chatName">Chat</span><button id="chatClose">✕</button></div>
+  <div class="chat-note">🔒 Chat unlocked by mutual interest · be kind, meet safe</div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-input">
+    <input id="chatText" placeholder="Type a message…" maxlength="300">
+    <button id="chatSend">Send</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">🎉 It's a match! Chat unlocked.</div>
+
+<script src="app.js"></script>
+</body>
+</html>

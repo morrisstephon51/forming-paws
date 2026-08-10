@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forming Paws — Member Admin</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+.adm{max-width:960px;margin:0 auto;padding:34px 5vw 90px}
+.adm h1{font-size:1.7rem;margin-bottom:4px}
+.adm .sub{color:var(--ink-soft);margin-bottom:24px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:22px}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:.78rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.fld input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:.95rem;background:#fff}
+.msg{margin-top:12px;font-weight:600;min-height:1.3em}
+.msg.err{color:#b3261e}
+.hidden{display:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;text-align:center}
+.tile .num{font-size:2rem;font-weight:800;color:var(--brand, #33685a)}
+.tile .lbl{font-size:.8rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.tbl-wrap{overflow-x:auto}
+table.adm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.adm-tbl th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);border-bottom:2px solid var(--line);padding:8px 8px}
+.adm-tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.pill{display:inline-block;background:#e4efe9;color:#33685a;font-weight:700;font-size:.72rem;padding:2px 10px;border-radius:999px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.btn-sm2{padding:8px 16px;font-size:.85rem}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <div class="nav-links"><a href="index.html">Home</a><a href="join.html">Join</a></div>
+</nav>
+
+<main class="adm">
+  <h1>Member Admin</h1>
+  <p class="sub">Running roster of members, dogs, and waitlist signups. Admin accounts only.</p>
+
+  <form class="panel" id="loginPanel" style="max-width:420px">
+    <div class="fld"><label for="aEmail">Admin email</label><input id="aEmail" type="email" required autocomplete="email"></div>
+    <div class="fld"><label for="aPass">Password</label><input id="aPass" type="password" required autocomplete="current-password"></div>
+    <button type="submit" class="btn btn-primary" id="aBtn">Sign In</button>
+    <p class="msg" id="aMsg"></p>
+  </form>
+
+  <div id="dash" class="hidden">
+    <div class="bar">
+      <span id="whoami" style="color:var(--ink-soft);font-size:.9rem"></span>
+      <span>
+        <button class="btn btn-ghost btn-sm2" id="refreshBtn">Refresh</button>
+        <button class="btn btn-ghost btn-sm2" id="csvBtn">Download CSV</button>
+        <button class="btn btn-ghost btn-sm2" id="outBtn">Sign Out</button>
+      </span>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="num" id="tMembers">–</div><div class="lbl">Members</div></div>
+      <div class="tile"><div class="num" id="tDogs">–</div><div class="lbl">Dogs</div></div>
+      <div class="tile"><div class="num" id="tWait">–</div><div class="lbl">Waitlist</div></div>
+      <div class="tile"><div class="num" id="tWeek">–</div><div class="lbl">New this week</div></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin-bottom:10px">Members</h2>
+      <div class="tbl-wrap"><table class="adm-tbl" id="memTbl">
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Location</th><th>Dogs</th><th>Joined</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="margin-bottom:10px">Waitlist</h2>
+      <div class="tbl-wrap"><table class="adm-tbl" id="wlTbl">
+        <thead><tr><th>#</th><th>Email</th><th>City</th><th>Breed</th><th>Signed up</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const SB_URL = "https://wyzcnkdonbdykidmcxvx.supabase.co";
+const SB_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const H = () => ({ "Content-Type": "application/json", "apikey": SB_KEY, "Authorization": "Bearer " + sessionStorage.getItem("fp_admin_token") });
+const BREEDS = {45:"Akita",48:"Australian Cattle Dog",12:"Australian Shepherd",32:"Basset Hound",7:"Beagle",33:"Belgian Malinois",21:"Bernese Mountain Dog",50:"Bichon Frise",41:"Bloodhound",29:"Border Collie",20:"Boston Terrier",14:"Boxer",25:"Brittany",44:"Bull Terrier",5:"Bulldog",27:"Cane Corso",15:"Cavalier King Charles Spaniel",46:"Chesapeake Bay Retriever",31:"Chihuahua",35:"Collie",10:"Dachshund",18:"Doberman Pinscher",26:"English Springer Spaniel",4:"French Bulldog",2:"German Shepherd",9:"German Shorthaired Pointer",3:"Golden Retriever",16:"Great Dane",23:"Havanese",1:"Labrador Retriever",42:"Maltese",34:"Mastiff",28:"Miniature American Shepherd",17:"Miniature Schnauzer",36:"Newfoundland",43:"Papillon",11:"Pembroke Welsh Corgi",22:"Pomeranian",6:"Poodle",49:"Portuguese Water Dog",37:"Rhodesian Ridgeback",8:"Rottweiler",39:"Shetland Sheepdog",24:"Shih Tzu",19:"Siberian Husky",47:"St. Bernard",30:"Vizsla",40:"Weimaraner",38:"West Highland White Terrier",51:"Whippet",13:"Yorkshire Terrier",52:"Mixed Breed / Not Listed"};
+let cache = { owners: [], dogs: [], waitlist: [] };
+
+$("loginPanel").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("aBtn"), msg = $("aMsg");
+  btn.disabled = true; btn.textContent = "Signing in…"; msg.textContent = ""; msg.className = "msg";
+  try {
+    const res = await fetch(SB_URL + "/auth/v1/token?grant_type=password", {
+      method: "POST", headers: { "Content-Type": "application/json", "apikey": SB_KEY },
+      body: JSON.stringify({ email: $("aEmail").value.trim(), password: $("aPass").value })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      msg.textContent = data.error_description || data.msg || "Sign-in failed."; msg.classList.add("err");
+    } else {
+      sessionStorage.setItem("fp_admin_token", data.access_token);
+      const adminRes = await fetch(SB_URL + "/rest/v1/rpc/is_admin", { method: "POST", headers: H(), body: "{}" });
+      const isAdmin = await adminRes.json();
+      if (isAdmin !== true) {
+        msg.textContent = "This account is not an admin."; msg.classList.add("err");
+        sessionStorage.removeItem("fp_admin_token");
+      } else {
+        $("whoami").textContent = "Signed in as " + $("aEmail").value.trim();
+        $("loginPanel").classList.add("hidden"); $("dash").classList.remove("hidden");
+        loadData();
+      }
+    }
+  } catch (err) { msg.textContent = "Couldn't reach the server."; msg.classList.add("err"); }
+  btn.disabled = false; btn.textContent = "Sign In";
+});
+
+async function loadData(){
+  const [o, d, w] = await Promise.all([
+    fetch(SB_URL + "/rest/v1/owners?select=id,display_name,email,location_label,created_at,is_admin&order=created_at.desc", { headers: H() }).then(r => r.json()),
+    fetch(SB_URL + "/rest/v1/dogs?select=id,owner_id,name,breed_id,sex,created_at", { headers: H() }).then(r => r.json()),
+    fetch(SB_URL + "/rest/v1/waitlist?select=email,city,dog_breed,created_at&order=created_at.desc", { headers: H() }).then(r => r.json())
+  ]);
+  cache = { owners: Array.isArray(o) ? o : [], dogs: Array.isArray(d) ? d : [], waitlist: Array.isArray(w) ? w : [] };
+  render();
+}
+
+function render(){
+  const { owners, dogs, waitlist } = cache;
+  const weekAgo = Date.now() - 7 * 864e5;
+  $("tMembers").textContent = owners.length;
+  $("tDogs").textContent = dogs.length;
+  $("tWait").textContent = waitlist.length;
+  $("tWeek").textContent = owners.filter(x => new Date(x.created_at) > weekAgo).length;
+  const dogsBy = {};
+  dogs.forEach(dg => { (dogsBy[dg.owner_id] = dogsBy[dg.owner_id] || []).push(BREEDS[dg.breed_id] ? dg.name + " (" + BREEDS[dg.breed_id] + ")" : dg.name); });
+  $("memTbl").querySelector("tbody").innerHTML = owners.map((x, i) =>
+    "<tr><td>" + (i + 1) + "</td><td>" + esc(x.display_name) + (x.is_admin ? ' <span class="pill">admin</span>' : "") +
+    "</td><td>" + esc(x.email || "") + "</td><td>" + esc(x.location_label || "") + "</td><td>" +
+    esc((dogsBy[x.id] || []).join(", ")) + "</td><td>" + new Date(x.created_at).toLocaleDateString() + "</td></tr>").join("") ||
+    '<tr><td colspan="6" style="color:var(--ink-soft)">No members yet.</td></tr>';
+  $("wlTbl").querySelector("tbody").innerHTML = waitlist.map((x, i) =>
+    "<tr><td>" + (i + 1) + "</td><td>" + esc(x.email) + "</td><td>" + esc(x.city || "") + "</td><td>" + esc(x.dog_breed || "") +
+    "</td><td>" + new Date(x.created_at).toLocaleDateString() + "</td></tr>").join("") ||
+    '<tr><td colspan="5" style="color:var(--ink-soft)">No waitlist signups yet.</td></tr>';
+}
+
+$("refreshBtn").addEventListener("click", loadData);
+$("outBtn").addEventListener("click", () => { sessionStorage.removeItem("fp_admin_token"); location.reload(); });
+$("csvBtn").addEventListener("click", () => {
+  const q = v => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+  const rows = [["name","email","location","joined","dogs"]].concat(cache.owners.map(x =>
+    [x.display_name, x.email || "", x.location_label || "", x.created_at,
+     cache.dogs.filter(dg => dg.owner_id === x.id).map(dg => dg.name).join("; ")]));
+  const csv = rows.map(r => r.map(q).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "forming-paws-members.csv"; a.click();
+});
+</script>
+</body>
+</html>
