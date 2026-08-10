@@ -3,3 +3,6 @@ node_modules/
 .env.local
 test-results/
 playwright-report/
+tsconfig.tsbuildinfo
+# Agent worktrees: nested full copies of this repo, including their own .env.local
+.claude/
