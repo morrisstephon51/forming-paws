@@ -4,17 +4,25 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+/**
+ * Renders the sign-in controls only — no page chrome. Both /login and the
+ * landing page mount this, so each supplies its own heading and layout rather
+ * than the form dictating one. Keeping it single-sourced is the point: this is
+ * the only place in the app that handles credentials.
+ */
 export default function LoginForm({
   error: initialError,
   offerResend,
+  initialEmail,
 }: {
   error: string | null
   offerResend: boolean
+  initialEmail?: string
 }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(initialError)
   const [showResend, setShowResend] = useState(offerResend)
-  const [resendEmail, setResendEmail] = useState('')
+  const [resendEmail, setResendEmail] = useState(initialEmail ?? '')
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle')
   const [resendError, setResendError] = useState<string | null>(null)
 
@@ -72,9 +80,7 @@ export default function LoginForm({
   }
 
   return (
-    <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Log in</h1>
-
+    <div className="w-full">
       {error && (
         <p className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
@@ -82,7 +88,14 @@ export default function LoginForm({
       )}
 
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <input name="email" type="email" placeholder="Email" required className="border p-2" />
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          required
+          defaultValue={initialEmail}
+          className="border p-2"
+        />
         <input
           name="password"
           type="password"
@@ -132,6 +145,6 @@ export default function LoginForm({
           )}
         </div>
       )}
-    </main>
+    </div>
   )
 }
