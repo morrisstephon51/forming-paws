@@ -13,6 +13,9 @@ const config = [
       'playwright-report/**',
       'next-env.d.ts',
       '.claude/**',
+      // Legacy static files carried over from the GitHub Pages site. Served
+      // verbatim by Vercel, not part of the app source.
+      'public/**',
     ],
   },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
