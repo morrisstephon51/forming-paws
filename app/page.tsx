@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import LoginForm from './(auth)/login/LoginForm'
 import WaitlistForm from './WaitlistForm'
 import { safeEmailParam } from '@/lib/auth/prefill'
+import { CONTACT_EMAIL } from '@/lib/site'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -264,6 +265,17 @@ export default async function HomePage({
         <p className="mt-2">
           Forming Paws is not a party to any breeding arrangement. Always consult your veterinarian.
         </p>
+        <nav className="mt-4 flex flex-wrap gap-4">
+          <Link href="/privacy" className="underline">
+            Privacy Policy
+          </Link>
+          <Link href="/terms" className="underline">
+            Terms of Service
+          </Link>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
+            Contact
+          </a>
+        </nav>
       </footer>
     </div>
   )
