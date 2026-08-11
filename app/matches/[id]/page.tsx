@@ -32,6 +32,10 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
     .in('id', [match.dog_a_id, match.dog_b_id])
   const nameById = new Map((dogRows ?? []).map((d) => [d.id, d.name]))
 
+  // An admin reading a reported conversation reaches this page without owning
+  // either dog. They may read, but must not post, block, or report.
+  const isParticipant = myDogIds.has(match.dog_a_id) || myDogIds.has(match.dog_b_id)
+
   const mineId = myDogIds.has(match.dog_a_id) ? match.dog_a_id : match.dog_b_id
   const theirsId = myDogIds.has(match.dog_a_id) ? match.dog_b_id : match.dog_a_id
 
@@ -49,32 +53,49 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const blockedByMe = (blocks ?? []).some((b) => b.blocker_owner_id === myOwnerId)
   const blocked = (blocks ?? []).length > 0
 
-  await markRead(matchId)
+  if (isParticipant) await markRead(matchId)
+
+  const dogA = nameById.get(match.dog_a_id) ?? 'A dog'
+  const dogB = nameById.get(match.dog_b_id) ?? 'Another dog'
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">
-          {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
+          {isParticipant
+            ? `${nameById.get(mineId) ?? 'Your dog'} ↔ ${nameById.get(theirsId) ?? 'Their dog'}`
+            : `${dogA} ↔ ${dogB}`}
         </h1>
-        <Link href="/matches" className="text-sm text-gray-600 underline">
-          All matches
+        <Link
+          href={isParticipant ? '/matches' : '/admin/reports'}
+          className="text-sm text-gray-600 underline"
+        >
+          {isParticipant ? 'All matches' : 'Back to reports'}
         </Link>
       </div>
-      <p className="mt-1 text-sm text-gray-500">
-        Meet in a public place. Forming Paws is not a party to any breeding arrangement.
-      </p>
+
+      {isParticipant ? (
+        <p className="mt-1 text-sm text-gray-500">
+          Meet in a public place. Forming Paws is not a party to any breeding arrangement.
+        </p>
+      ) : (
+        <p className="mt-1 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          You are reading this conversation because it was reported. Your access ends when the report
+          is resolved or dismissed. You cannot post here.
+        </p>
+      )}
 
       <Thread
         matchId={matchId}
         myOwnerId={myOwnerId}
-        theirDogName={nameById.get(theirsId) ?? 'Their dog'}
+        theirDogName={isParticipant ? (nameById.get(theirsId) ?? 'Their dog') : dogA}
         initialMessages={messages ?? []}
         blocked={blocked}
         blockedByMe={blockedByMe}
+        canParticipate={isParticipant}
       />
 
-      <ReportForm matchId={matchId} />
+      {isParticipant && <ReportForm matchId={matchId} />}
     </main>
   )
 }

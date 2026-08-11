@@ -18,6 +18,7 @@ export default function Thread({
   initialMessages,
   blocked,
   blockedByMe,
+  canParticipate,
 }: {
   matchId: string
   myOwnerId: string
@@ -25,6 +26,8 @@ export default function Thread({
   initialMessages: ThreadMessage[]
   blocked: boolean
   blockedByMe: boolean
+  /** False for an admin reading under a report: they may read, never write. */
+  canParticipate: boolean
 }) {
   const [messages, setMessages] = useState<ThreadMessage[]>(initialMessages)
   const [draft, setDraft] = useState('')
@@ -107,7 +110,7 @@ export default function Thread({
         {messages.length === 0 && <p className="text-gray-500">No messages yet — say hello.</p>}
       </ul>
 
-      {blocked ? (
+      {!canParticipate ? null : blocked ? (
         <div className="mt-6 rounded border bg-gray-50 p-4 text-sm text-gray-600">
           <p>
             {blockedByMe

@@ -27,17 +27,24 @@ export async function sendMessage(matchId: string, body: string) {
   revalidatePath('/matches')
 }
 
+/**
+ * Marks a thread read. Deliberately never throws.
+ *
+ * This is bookkeeping for a badge. An admin reading a reported conversation is
+ * not a participant, so the match_reads insert policy rejects them — and an
+ * unread marker failing must not take down the page someone is trying to read.
+ * Verified against the live database: the rejection is
+ * "new row violates row-level security policy for table match_reads".
+ */
 export async function markRead(matchId: string) {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) throw new Error('Not signed in')
+  if (!userData.user) return
 
-  const { error } = await supabase.from('match_reads').upsert(
+  await supabase.from('match_reads').upsert(
     { match_id: matchId, owner_id: userData.user.id, last_read_at: new Date().toISOString() },
     { onConflict: 'match_id,owner_id' }
   )
-
-  if (error) throw error
 }
 
 export async function blockMatch(matchId: string) {
