@@ -16,4 +16,4 @@ export const SITE_DESCRIPTION =
 export const CONTACT_EMAIL = 'founder@theplugai.info'
 
 /** Last substantive revision of the privacy policy and terms. */
-export const LEGAL_LAST_UPDATED = '11 August 2026'
+export const LEGAL_LAST_UPDATED = '12 August 2026'
