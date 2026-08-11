@@ -58,6 +58,9 @@ export default function PrivacyPage() {
               the resulting matches.
             </li>
             <li>
+              <strong>Messages</strong> you send to another owner after a mutual match.
+            </li>
+            <li>
               <strong>Waitlist entries:</strong> if you join the waitlist without creating an
               account, we store the email, city, and breed you provide.
             </li>
@@ -95,6 +98,25 @@ export default function PrivacyPage() {
               signed in.
             </li>
           </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-bold text-gray-900">Your messages</h2>
+          <p className="mt-3">
+            Messages between two owners are private to those two people. Our staff{' '}
+            <strong>cannot</strong> read them.
+          </p>
+          <p className="mt-3">
+            There is one exception. If either owner reports a conversation, a reviewer can read that
+            conversation while they look into the report — so that we can act on harassment, welfare
+            concerns, or falsified documents. <strong>That access ends</strong> when the report is
+            resolved or dismissed. This limit is enforced by our database, not by staff discipline.
+          </p>
+          <p className="mt-3">
+            Individual messages cannot be edited or deleted. That is deliberate: a reported
+            conversation must not be alterable after the fact. All of your messages are removed when
+            your account is deleted.
+          </p>
         </section>
 
         <section>

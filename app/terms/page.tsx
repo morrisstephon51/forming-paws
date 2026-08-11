@@ -70,6 +70,10 @@ export default function TermsPage() {
             <li>Meet other owners in safe, public places, and use your own judgement.</li>
             <li>Comply with the animal welfare, licensing, and breeding laws where you live.</li>
             <li>Treat other members decently.</li>
+            <li>
+              Keep messages civil. Reporting a conversation lets a reviewer read it while they look
+              into the report.
+            </li>
           </ul>
         </section>
 
