@@ -184,10 +184,14 @@ insert into public.messages (match_id, sender_owner_id, body)
 select m.id, d.owner_id, 'rls probe'
 from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1;
 
+-- SET LOCAL takes a literal, not an expression. Anything computed must go
+-- through set_config(), whose third argument makes it transaction-local.
+select set_config('request.jwt.claims',
+  json_build_object(
+    'sub', (select d.owner_id::text from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1),
+    'role', 'authenticated')::text,
+  true);
 set local role authenticated;
-set local request.jwt.claims = json_build_object(
-  'sub', (select d.owner_id::text from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1),
-  'role', 'authenticated')::text;
 select count(*) as participant_sees from public.messages;
 rollback;
 ```
@@ -213,9 +217,9 @@ insert into public.messages (match_id, sender_owner_id, body)
 select m.id, d.owner_id, 'rls probe'
 from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1;
 
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text, true);
 set local role authenticated;
-set local request.jwt.claims =
-  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text;
 select count(*) as admin_before_report from public.messages;
 reset role;
 
@@ -223,17 +227,17 @@ insert into public.match_reports (match_id, reporter_owner_id, reason)
 select m.id, d.owner_id, 'harassment'
 from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1;
 
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text, true);
 set local role authenticated;
-set local request.jwt.claims =
-  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text;
 select count(*) as admin_with_open_report from public.messages;
 reset role;
 
 update public.match_reports set status = 'resolved';
 
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text, true);
 set local role authenticated;
-set local request.jwt.claims =
-  json_build_object('sub', (select id::text from probe), 'role', 'authenticated')::text;
 select count(*) as admin_after_resolved from public.messages;
 
 rollback;
@@ -250,10 +254,14 @@ begin;
 insert into public.match_blocks (match_id, blocker_owner_id)
 select m.id, d.owner_id from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1;
 
+-- SET LOCAL takes a literal, not an expression. Anything computed must go
+-- through set_config(), whose third argument makes it transaction-local.
+select set_config('request.jwt.claims',
+  json_build_object(
+    'sub', (select d.owner_id::text from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1),
+    'role', 'authenticated')::text,
+  true);
 set local role authenticated;
-set local request.jwt.claims = json_build_object(
-  'sub', (select d.owner_id::text from public.matches m join public.dogs d on d.id = m.dog_a_id limit 1),
-  'role', 'authenticated')::text;
 
 insert into public.messages (match_id, sender_owner_id, body)
 select m.id, auth.uid(), 'should fail' from public.matches m limit 1;
