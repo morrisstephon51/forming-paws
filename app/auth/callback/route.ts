@@ -1,43 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
-import { getRequestOrigin, loginUrlWithError, safeRedirectPath } from '@/lib/auth/redirects'
+import { handleAuthLink } from '@/lib/auth/link'
 
 /**
- * PKCE callback, used by OAuth sign-in (Google) and by any emailed link that
- * still carries a `?code=`. Emailed links issued from the current templates go
- * to /auth/confirm instead.
+ * OAuth return point (Google), and the landing spot for any emailed link that
+ * still carries `?code=`.
+ *
+ * A provider's own error is passed through verbatim rather than replaced with
+ * confirmation-email wording: "provider is not enabled" is a configuration
+ * problem, and offering to re-send an email would send the member in circles.
  */
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const origin = getRequestOrigin(request)
-  const next = safeRedirectPath(searchParams.get('next'))
-
-  const providerError = searchParams.get('error_description') ?? searchParams.get('error')
-  if (providerError) {
-    return NextResponse.redirect(loginUrlWithError(origin, providerError))
-  }
-
-  const code = searchParams.get('code')
-
-  if (!code) {
-    // Previously this fell through to /dashboard, which bounced the user back to
-    // /login with no explanation. Anything landing here without a code either
-    // already has a session or never will.
-    const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    if (data.user) return NextResponse.redirect(`${origin}${next}`)
-
-    return NextResponse.redirect(
-      loginUrlWithError(origin, 'We could not complete that sign-in. Please try again.', true)
-    )
-  }
-
-  const supabase = await createClient()
-  const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-  if (error) {
-    return NextResponse.redirect(loginUrlWithError(origin, error.message, true))
-  }
-
-  return NextResponse.redirect(`${origin}${next}`)
+  return handleAuthLink(request, { offerResendOnLinkError: false })
 }

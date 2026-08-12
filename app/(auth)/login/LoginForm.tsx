@@ -73,10 +73,17 @@ export default function LoginForm({
 
   async function handleGoogleLogin() {
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
+
+    // Without this the button is a dead control: when the provider is switched
+    // off in Supabase the call fails silently and nothing at all happens on the
+    // page, which reads as a broken site rather than an unavailable option.
+    if (oauthError) {
+      setError('Google sign-in is unavailable right now. Use your email and password instead.')
+    }
   }
 
   return (
@@ -108,9 +115,17 @@ export default function LoginForm({
         </button>
       </form>
 
-      <button onClick={handleGoogleLogin} className="mt-4 border p-2 rounded w-full">
-        Continue with Google
-      </button>
+      {/*
+        Google is off in Supabase Auth, so this button only ever produced
+        "provider is not enabled". Offering a sign-in route that cannot work
+        costs members more than not offering it. Set
+        NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true once the provider is configured.
+      */}
+      {process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' && (
+        <button onClick={handleGoogleLogin} className="mt-4 border p-2 rounded w-full">
+          Continue with Google
+        </button>
+      )}
 
       {showResend && (
         <div className="mt-6 border-t pt-6">
