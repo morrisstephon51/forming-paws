@@ -80,24 +80,49 @@ export async function handleAuthLink(
 
   const supabase = await createClient()
 
+  /**
+   * Supabase throws — rather than returning an error — on transport failures and
+   * on a missing PKCE verifier. An unhandled throw here renders a 500, which is
+   * a dead end on the one page a new member has to get through, so every failure
+   * becomes a redirect they can act on.
+   */
+  const succeeded = async (call: () => Promise<{ error: unknown }>) => {
+    try {
+      return !(await call()).error
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * A link works exactly once, and people click theirs twice. If consuming it
+   * failed but this browser already holds a session, the member is in — send
+   * them on instead of accusing a link that already did its job. A failed
+   * exchange leaves an existing session intact, so this cannot mask a sign-out.
+   */
+  const failedUnlessSignedIn = async (message: string) => {
+    try {
+      const { data } = await supabase.auth.getUser()
+      if (data.user) return done()
+    } catch {
+      // Fall through to the error below; it is the safe answer either way.
+    }
+    return failed(message)
+  }
+
   if (tokenHash && isEmailOtpType(type)) {
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
     // By far the most common failure: the link was already used — often by the
     // mail provider's own link scanner — or it aged past the OTP expiry window.
-    return error ? failed(SPENT_LINK) : done()
+    return (await succeeded(() => supabase.auth.verifyOtp({ type, token_hash: tokenHash })))
+      ? done()
+      : failedUnlessSignedIn(SPENT_LINK)
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    return error ? failed(WRONG_BROWSER) : done()
+    return (await succeeded(() => supabase.auth.exchangeCodeForSession(code)))
+      ? done()
+      : failedUnlessSignedIn(WRONG_BROWSER)
   }
 
-  // Nothing usable on the link. Before showing an error, check whether this
-  // browser is already signed in: a second click on a spent link, or a link
-  // opened in a tab that already has a session, should go on to the app rather
-  // than be told something is broken.
-  const { data } = await supabase.auth.getUser()
-  if (data.user) return done()
-
-  return failed(NOTHING_USABLE)
+  return failedUnlessSignedIn(NOTHING_USABLE)
 }

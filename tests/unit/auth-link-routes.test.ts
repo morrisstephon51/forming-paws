@@ -106,6 +106,39 @@ describe('/auth/confirm', () => {
     expect(location(response)).toBe(`${ORIGIN}/dashboard`)
   })
 
+  it('does not scold a signed-in member for clicking their link twice', async () => {
+    // The second click cannot consume a spent link, but the first one already
+    // signed them in — there is nothing to fix and nothing to apologise for.
+    verifyOtp.mockResolvedValue({ error: { message: 'Token has expired' } })
+    getUser.mockResolvedValue({ data: { user: { id: 'u1' } } })
+
+    const response = await confirm(link('/auth/confirm?token_hash=spent&type=signup'))
+
+    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+  })
+
+  it('redirects rather than throwing when Supabase itself is unreachable', async () => {
+    // A thrown error here would render a 500 on the one page a new member has
+    // to get through. Supabase throws on transport failures and on a missing
+    // PKCE verifier, so this is not hypothetical.
+    exchangeCodeForSession.mockRejectedValue(new Error('fetch failed'))
+    getUser.mockRejectedValue(new Error('fetch failed'))
+
+    const response = await confirm(link('/auth/confirm?code=abc'))
+
+    expect(location(response)).toContain('/login?')
+    expect(location(response)).toContain('resend=1')
+  })
+
+  it('still reports a genuinely dead link to a signed-out visitor', async () => {
+    verifyOtp.mockResolvedValue({ error: { message: 'Token has expired' } })
+    getUser.mockResolvedValue({ data: { user: null } })
+
+    const response = await confirm(link('/auth/confirm?token_hash=spent&type=signup'))
+
+    expect(errorMessage(response)).toMatch(/already been used or has expired/i)
+  })
+
   it('surfaces an error Supabase itself put on the link', async () => {
     const response = await confirm(
       link('/auth/confirm?error=access_denied&error_description=Email+link+is+invalid')
