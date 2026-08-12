@@ -18,11 +18,19 @@ const nextConfig: NextConfig = {
       { source: '/join.html', destination: '/signup', permanent: false },
       { source: '/login.html', destination: '/login', permanent: false },
       { source: '/home.html', destination: '/dashboard', permanent: false },
-      // Emailed auth links under the current template carry ?token_hash=, which
-      // the route handler needs. Query strings are forwarded automatically.
+      // Emailed auth links carry either ?token_hash= (a {{ .TokenHash }}
+      // template) or ?code= (the stock {{ .ConfirmationURL }} template, which
+      // bounces the click through Supabase's own /verify endpoint first).
+      // /auth/confirm handles both; query strings are forwarded automatically.
       {
         source: '/confirm.html',
         has: [{ type: 'query', key: 'token_hash' }],
+        destination: '/auth/confirm',
+        permanent: false,
+      },
+      {
+        source: '/confirm.html',
+        has: [{ type: 'query', key: 'code' }],
         destination: '/auth/confirm',
         permanent: false,
       },
