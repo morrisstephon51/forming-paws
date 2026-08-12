@@ -81,10 +81,29 @@
   </div>
 
   <div class="panel">
-    <h2>✅ Next step: health verification</h2>
+    <h2>✅ Health verification</h2>
     <div class="next">
-      Your Founding Member verification is <strong>free for life</strong>. We're onboarding vet-document uploads now — we'll email you when your dog's health vault is ready (a recent vet wellness exam + vaccination records is all you'll need). Verified dogs unlock matching first.
+      Your Founding Member verification is <strong>free for life</strong>. Upload a recent vet wellness exam (within 12 months) and vaccination records using the 📤 button on your dog above — our team reviews every document, and your dog earns the ✅ Verified badge that unlocks matching.
     </div>
+  </div>
+
+  <div class="panel hidden" id="upPanel">
+    <h2>📤 Upload vet record<span id="upDog" style="color:var(--ink-soft);font-weight:400"></span></h2>
+    <form id="upForm">
+      <div class="row2">
+        <div class="fld"><label for="upType">Document type</label><select id="upType" required>
+          <option value="vet_exam">Vet wellness exam</option>
+          <option value="vaccination">Vaccination record</option>
+          <option value="ofa">OFA screening</option>
+          <option value="dna_panel">DNA panel</option>
+        </select></div>
+        <div class="fld"><label for="upDate">Date on the document</label><input id="upDate" type="date" required></div>
+      </div>
+      <div class="fld"><label for="upFile">File (photo or PDF, max 10 MB)</label><input id="upFile" type="file" accept="image/*,.pdf" required></div>
+      <button type="submit" class="btn btn-primary btn-sm2" id="upBtn">Upload for Review</button>
+      <button type="button" class="btn btn-ghost btn-sm2" onclick="document.getElementById('upPanel').classList.add('hidden')">Cancel</button>
+      <p class="msg" id="upMsg"></p>
+    </form>
   </div>
 
   <div class="panel">
@@ -127,11 +146,25 @@ async function loadDogs(){
     $("addDogBtn").classList.add("hidden");
     return;
   }
+  const docs = await (await FP.api("/rest/v1/health_documents?select=id,dog_id,doc_type,status,document_date&order=uploaded_at.desc")).json();
+  const docsBy = {};
+  (Array.isArray(docs) ? docs : []).forEach(x => { (docsBy[x.dog_id] = docsBy[x.dog_id] || []).push(x); });
+  const verified = {};
+  for (const d of dogs) {
+    try { verified[d.id] = await (await FP.api("/rest/v1/rpc/dog_is_baseline_verified", { method: "POST", body: JSON.stringify({ p_dog_id: d.id }) })).json(); } catch(e){ verified[d.id] = false; }
+  }
+  const DOCLBL = { vet_exam: "Vet wellness exam", vaccination: "Vaccination record", ofa: "OFA screening", dna_panel: "DNA panel" };
+  const STPILL = { pending_review: '<span class="pill pend">In review</span>', verified: '<span class="pill ok">Verified</span>', rejected: '<span class="pill" style="background:#fdecea;color:#b3261e;border:1px solid #e0a29c">Needs attention</span>', unverified: '<span class="pill pend">Uploaded</span>' };
   $("dogList").innerHTML = dogs.map(d => {
     const age = d.birth_date ? Math.max(0, Math.floor((Date.now() - new Date(d.birth_date)) / 3.156e10)) : null;
-    return '<div class="dog"><div class="ava">' + (d.sex === "female" ? "🐕‍🦺" : "🐕") + '</div><div><div class="nm">' + esc(d.name) +
+    const list = (docsBy[d.id] || []).map(x =>
+      '<div style="display:flex;gap:8px;align-items:center;font-size:.85rem;padding:4px 0"><span>📄 ' + (DOCLBL[x.doc_type] || x.doc_type) + ' <span style="color:var(--ink-soft)">(' + x.document_date + ')</span></span>' + (STPILL[x.status] || "") + '</div>').join("");
+    const badge = verified[d.id] === true ? '<span class="pill ok">✅ VERIFIED</span>' : '<span class="pill pend">Verification pending</span>';
+    return '<div class="dog" style="flex-wrap:wrap"><div class="ava">' + (d.sex === "female" ? "🐕‍🦺" : "🐕") + '</div><div><div class="nm">' + esc(d.name) +
       '</div><div class="meta">' + esc(BREEDS[d.breed_id] || "Dog") + (age !== null ? " · " + age + " yr" : "") + (d.sex === "female" ? " · ♀" : " · ♂") +
-      '</div></div><div style="margin-left:auto"><span class="pill pend">Verification pending</span></div></div>';
+      '</div></div><div style="margin-left:auto">' + badge + '</div>' +
+      '<div style="flex-basis:100%;padding-left:46px">' + list +
+      '<button type="button" class="btn btn-ghost btn-sm2" style="margin-top:6px" onclick="openUpload(\'' + d.id + '\', \'' + esc(d.name).replace(/'/g, "") + '\')">📤 Upload vet record</button></div></div>';
   }).join("");
   $("dogForm").classList.add("hidden");
   $("addDogBtn").classList.remove("hidden");
@@ -164,6 +197,46 @@ $("dogForm").addEventListener("submit", async (e) => {
     loadDogs(); loadStats();
   } catch (err) { msg.textContent = "Couldn't save — check the fields and try again."; msg.classList.add("err"); }
   btn.disabled = false; btn.textContent = "Save Dog 🐾";
+});
+
+let UP_DOG = null;
+function openUpload(dogId, dogName){
+  UP_DOG = dogId;
+  $("upDog").textContent = " — " + dogName;
+  $("upDate").max = new Date().toISOString().slice(0, 10);
+  $("upPanel").classList.remove("hidden");
+  $("upPanel").scrollIntoView({ behavior: "smooth" });
+}
+
+$("upForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("upBtn"), msg = $("upMsg");
+  const f = $("upFile").files[0];
+  if (!f) return;
+  if (f.size > 10 * 1024 * 1024) { msg.textContent = "That file is over 10 MB — try a smaller photo or PDF."; msg.className = "msg err"; return; }
+  btn.disabled = true; btn.textContent = "Uploading…"; msg.textContent = ""; msg.className = "msg";
+  try {
+    const s = await FP.getSession();
+    const ext = (f.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
+    const path = UP_DOG + "/" + (crypto.randomUUID ? crypto.randomUUID() : Date.now()) + "." + ext;
+    const up = await fetch(FP.URL + "/storage/v1/object/health-docs/" + path, {
+      method: "POST",
+      headers: { "apikey": FP.KEY, "Authorization": "Bearer " + s.access_token, "Content-Type": f.type || "application/octet-stream" },
+      body: f
+    });
+    if (!up.ok) throw new Error("storage " + up.status);
+    const row = await FP.api("/rest/v1/health_documents", { method: "POST", body: JSON.stringify({
+      dog_id: UP_DOG, storage_path: path, doc_type: $("upType").value,
+      document_date: $("upDate").value, status: "pending_review" }) });
+    if (!row.ok) throw new Error("record " + row.status);
+    $("upForm").reset();
+    $("upPanel").classList.add("hidden");
+    loadDogs();
+  } catch (err) {
+    msg.textContent = "Upload failed — please try again (photos and PDFs only).";
+    msg.classList.add("err");
+  }
+  btn.disabled = false; btn.textContent = "Upload for Review";
 });
 
 init();

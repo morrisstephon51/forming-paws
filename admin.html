@@ -66,6 +66,15 @@ table.adm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
     </div>
 
     <div class="panel">
+      <h2 style="margin-bottom:10px">🩺 Verification review queue</h2>
+      <div class="tbl-wrap"><table class="adm-tbl" id="rqTbl">
+        <thead><tr><th>Dog</th><th>Owner</th><th>Document</th><th>Doc date</th><th>Uploaded</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="msg" id="rqMsg" style="font-weight:600;min-height:1.2em;margin-top:8px"></p>
+    </div>
+
+    <div class="panel">
       <h2 style="margin-bottom:10px">Members</h2>
       <div class="tbl-wrap"><table class="adm-tbl" id="memTbl">
         <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Location</th><th>Dogs</th><th>Joined</th></tr></thead>
@@ -129,6 +138,43 @@ async function loadData(){
   ]);
   cache = { owners: Array.isArray(o) ? o : [], dogs: Array.isArray(d) ? d : [], waitlist: Array.isArray(w) ? w : [] };
   render();
+  loadQueue();
+}
+
+const DOCLBL = { vet_exam: "Vet wellness exam", vaccination: "Vaccination record", ofa: "OFA screening", dna_panel: "DNA panel" };
+
+async function loadQueue(){
+  const q = await fetch(SB_URL + "/rest/v1/health_documents?status=eq.pending_review&select=id,dog_id,doc_type,document_date,storage_path,uploaded_at&order=uploaded_at", { headers: H() }).then(r => r.json());
+  const rows = Array.isArray(q) ? q : [];
+  const dogById = {}; cache.dogs.forEach(d => dogById[d.id] = d);
+  const ownerById = {}; cache.owners.forEach(o => ownerById[o.id] = o);
+  $("rqTbl").querySelector("tbody").innerHTML = rows.map(x => {
+    const dog = dogById[x.dog_id] || {};
+    const owner = ownerById[dog.owner_id] || {};
+    return "<tr><td>" + esc(dog.name || "?") + "</td><td>" + esc(owner.display_name || "?") + "<br><span style='color:var(--ink-soft);font-size:.8rem'>" + esc(owner.email || "") + "</span></td><td>" +
+      esc(DOCLBL[x.doc_type] || x.doc_type) + "</td><td>" + esc(x.document_date) + "</td><td>" + new Date(x.uploaded_at).toLocaleDateString() + "</td><td style='white-space:nowrap'>" +
+      '<button class="btn btn-ghost btn-sm2" onclick="viewDoc(\'' + x.storage_path.replace(/'/g, "") + '\')">View</button> ' +
+      '<button class="btn btn-primary btn-sm2" onclick="reviewDoc(\'' + x.id + '\', true)">Approve</button> ' +
+      '<button class="btn btn-ghost btn-sm2" style="color:#b3261e" onclick="reviewDoc(\'' + x.id + '\', false)">Reject</button></td></tr>';
+  }).join("") || '<tr><td colspan="6" style="color:var(--ink-soft)">No documents waiting for review. 🎉</td></tr>';
+}
+
+async function viewDoc(path){
+  const r = await fetch(SB_URL + "/storage/v1/object/sign/health-docs/" + path, {
+    method: "POST", headers: H(), body: JSON.stringify({ expiresIn: 300 }) });
+  const d = await r.json();
+  if (d.signedURL) window.open(SB_URL + "/storage/v1" + d.signedURL, "_blank");
+  else { $("rqMsg").textContent = "Couldn't open the document — try refreshing."; }
+}
+
+async function reviewDoc(id, approve){
+  let notes = null;
+  if (!approve) { notes = prompt("Why is this document being rejected? (The note is stored for the record)") || "Document did not meet verification requirements."; }
+  const r = await fetch(SB_URL + "/rest/v1/health_documents?id=eq." + id, {
+    method: "PATCH", headers: H(),
+    body: JSON.stringify({ status: approve ? "verified" : "rejected", reviewed_at: new Date().toISOString(), reviewer_notes: notes }) });
+  $("rqMsg").textContent = r.ok ? (approve ? "Approved ✅" : "Rejected — the owner sees 'Needs attention' on their dashboard.") : "Update failed (" + r.status + ")";
+  loadQueue();
 }
 
 function render(){
