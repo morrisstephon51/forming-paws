@@ -6,3 +6,6 @@ playwright-report/
 tsconfig.tsbuildinfo
 # Agent worktrees: nested full copies of this repo, including their own .env.local
 .claude/
+
+# Vercel CLI project link — machine-specific, not shared state.
+.vercel

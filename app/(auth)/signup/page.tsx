@@ -12,6 +12,13 @@ export default function SignupPage() {
   const [pendingEmail, setPendingEmail] = useState('')
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle')
   const [resendError, setResendError] = useState<string | null>(null)
+  // Controlled on purpose. React resets a form once its action has run, so with
+  // plain inputs one un-ticked age box wipes the name, email and password a new
+  // member just typed — and makes them start the whole thing again.
+  const [displayName, setDisplayName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isAdult, setIsAdult] = useState(false)
 
   async function handleResend() {
     setResendState('sending')
@@ -33,13 +40,8 @@ export default function SignupPage() {
     setResendState('sent')
   }
 
-  async function handleSubmit(formData: FormData) {
-    const parsed = signupSchema.safeParse({
-      email: formData.get('email'),
-      password: formData.get('password'),
-      displayName: formData.get('displayName'),
-      isAdult: formData.get('isAdult') === 'on',
-    })
+  async function handleSubmit() {
+    const parsed = signupSchema.safeParse({ email, password, displayName, isAdult })
 
     if (!parsed.success) {
       setError(parsed.error.issues[0].message)
@@ -105,11 +107,41 @@ export default function SignupPage() {
     <main className="mx-auto max-w-sm p-8">
       <h1 className="text-2xl font-bold">Create your account</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <input name="displayName" placeholder="Your name" required className="border p-2" />
-        <input name="email" type="email" placeholder="Email" required className="border p-2" />
-        <input name="password" type="password" placeholder="Password" required className="border p-2" />
+        <input
+          name="displayName"
+          placeholder="Your name"
+          required
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          className="border p-2"
+        />
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border p-2"
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border p-2"
+        />
         <label className="flex items-center gap-2 text-sm">
-          <input name="isAdult" type="checkbox" />
+          <input
+            name="isAdult"
+            type="checkbox"
+            checked={isAdult}
+            onChange={(e) => setIsAdult(e.target.checked)}
+          />
           I confirm I am 18 years of age or older
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}

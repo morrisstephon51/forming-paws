@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
     // by browsers and would be painful to walk back mid-migration; these can be
     // promoted once the move has settled.
     return [
+      // Insurance for auth links that land on the Site URL instead of the
+      // redirect they asked for — which is what Supabase falls back to when a
+      // redirect target isn't on its allow list. Without this the code sits on
+      // the marketing page, unconsumed, and the member is silently not signed in.
+      {
+        source: '/',
+        has: [{ type: 'query', key: 'code' }],
+        destination: '/auth/confirm',
+        permanent: false,
+      },
       { source: '/index.html', destination: '/', permanent: false },
       { source: '/join.html', destination: '/signup', permanent: false },
       { source: '/login.html', destination: '/login', permanent: false },

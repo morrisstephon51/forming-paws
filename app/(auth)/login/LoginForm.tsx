@@ -21,23 +21,34 @@ export default function LoginForm({
 }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(initialError)
+  // Controlled on purpose. React resets a form after its action runs, so plain
+  // inputs would make a wrong password also erase the email address — twice the
+  // typing for the mistake people actually make.
+  const [email, setEmail] = useState(initialEmail ?? '')
+  const [password, setPassword] = useState('')
   const [showResend, setShowResend] = useState(offerResend)
   const [resendEmail, setResendEmail] = useState(initialEmail ?? '')
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle')
   const [resendError, setResendError] = useState<string | null>(null)
+  const [showReset, setShowReset] = useState(false)
+  const [resetEmail, setResetEmail] = useState(initialEmail ?? '')
+  const [resetState, setResetState] = useState<'idle' | 'sending' | 'sent'>('idle')
+  const [resetError, setResetError] = useState<string | null>(null)
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit() {
     setError(null)
 
     const supabase = createClient()
-    const email = String(formData.get('email'))
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password: String(formData.get('password')),
-    })
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (signInError) {
       setError(signInError.message)
+      // A wrong password is the other way a real member gets stranded, so the
+      // way out is offered right where they hit the wall.
+      if (/invalid login credentials/i.test(signInError.message)) {
+        setResetEmail(email)
+        setShowReset(true)
+      }
       // Supabase reports an unconfirmed account this way. Surfacing the resend
       // path here is the difference between a dead end and a recoverable one.
       if (/email not confirmed/i.test(signInError.message)) {
@@ -71,6 +82,27 @@ export default function LoginForm({
     setResendState('sent')
   }
 
+  async function handleReset() {
+    setResetState('sending')
+    setResetError(null)
+
+    const supabase = createClient()
+    // `next` rides along on the link so /auth/confirm — which is what actually
+    // consumes the recovery token and creates the session — knows to forward
+    // them to the page where they choose the new password.
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: `${window.location.origin}/auth/confirm?next=/account/password`,
+    })
+
+    if (resetErr) {
+      setResetError(resetErr.message)
+      setResetState('idle')
+      return
+    }
+
+    setResetState('sent')
+  }
+
   async function handleGoogleLogin() {
     const supabase = createClient()
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -100,7 +132,9 @@ export default function LoginForm({
           type="email"
           placeholder="Email"
           required
-          defaultValue={initialEmail}
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="border p-2"
         />
         <input
@@ -108,12 +142,59 @@ export default function LoginForm({
           type="password"
           placeholder="Password"
           required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="border p-2"
         />
         <button type="submit" className="bg-gray-900 text-white p-2 rounded">
           Log in
         </button>
       </form>
+
+      {!showReset && (
+        <button
+          onClick={() => setShowReset(true)}
+          className="mt-3 text-sm underline text-gray-600"
+        >
+          Forgot your password?
+        </button>
+      )}
+
+      {showReset && (
+        <div className="mt-6 border-t pt-6">
+          {resetState === 'sent' ? (
+            <p className="text-sm text-green-700">
+              If {resetEmail} has an account, a reset link is on its way. Open it and you can choose
+              a new password.
+            </p>
+          ) : (
+            <>
+              <label htmlFor="reset-email" className="text-sm font-medium">
+                Reset your password
+              </label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id="reset-email"
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="Your email"
+                  className="border p-2 flex-1"
+                />
+                <button
+                  onClick={handleReset}
+                  disabled={!resetEmail || resetState === 'sending'}
+                  className="border px-3 rounded disabled:opacity-50"
+                >
+                  {resetState === 'sending' ? 'Sending…' : 'Send link'}
+                </button>
+              </div>
+              {resetError && <p className="mt-2 text-sm text-red-600">{resetError}</p>}
+            </>
+          )}
+        </div>
+      )}
 
       {/*
         Google is off in Supabase Auth, so this button only ever produced

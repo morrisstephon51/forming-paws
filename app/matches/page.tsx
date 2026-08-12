@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { unreadCountsByMatch } from '@/lib/chat/unread'
+import { threadSummaries } from '@/lib/chat/threads'
 
 export default async function MatchesPage() {
   const supabase = await createClient()
@@ -26,20 +26,11 @@ export default async function MatchesPage() {
     : { data: [] }
   const nameById = new Map((dogRows ?? []).map((d) => [d.id, d.name]))
 
-  // RLS scopes both of these to this owner's threads, so no match_id filter is
-  // needed. Fine at current volume; if threads grow this becomes an RPC that
-  // aggregates in Postgres rather than pulling every message.
-  const { data: messages } = await supabase
-    .from('messages')
-    .select('match_id, sender_owner_id, created_at, body')
-    .order('created_at')
-  const { data: reads } = await supabase.from('match_reads').select('match_id, last_read_at')
-
-  const lastReadByMatch = new Map((reads ?? []).map((r) => [r.match_id, r.last_read_at]))
-  const unread = unreadCountsByMatch(messages ?? [], lastReadByMatch, myOwnerId)
-
-  const lastByMatch = new Map<string, string>()
-  for (const m of messages ?? []) lastByMatch.set(m.match_id, m.body)
+  // Counted and previewed in Postgres — see lib/chat/threads.ts for why this is
+  // not a message pull any more.
+  const threads = await threadSummaries(supabase)
+  const unread = new Map(threads.map((t) => [t.match_id, t.unread]))
+  const lastByMatch = new Map(threads.map((t) => [t.match_id, t.last_body]))
 
   return (
     <main className="mx-auto max-w-2xl p-8">
