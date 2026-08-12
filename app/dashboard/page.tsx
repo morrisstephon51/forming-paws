@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LocationSettings from './LocationSettings'
 import { dogListLabel } from './dogLabel'
-import { unreadCountsByMatch } from '@/lib/chat/unread'
+import { threadSummaries, totalUnread } from '@/lib/chat/threads'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -35,20 +35,8 @@ export default async function DashboardPage() {
   )
 
   // The matches page is not where members land, so the unread count has to
-  // surface here or nobody discovers a new message. RLS scopes both queries to
-  // this owner's own threads.
-  const { data: chatMessages } = await supabase
-    .from('messages')
-    .select('match_id, sender_owner_id, created_at')
-  const { data: chatReads } = await supabase.from('match_reads').select('match_id, last_read_at')
-
-  const totalUnread = Array.from(
-    unreadCountsByMatch(
-      chatMessages ?? [],
-      new Map((chatReads ?? []).map((r) => [r.match_id, r.last_read_at])),
-      userData.user.id
-    ).values()
-  ).reduce((sum, n) => sum + n, 0)
+  // surface here or nobody discovers a new message.
+  const unreadTotal = totalUnread(await threadSummaries(supabase))
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -60,11 +48,14 @@ export default async function DashboardPage() {
           </Link>
           <Link href="/matches" className="text-sm underline text-gray-600">
             Matches
-            {totalUnread > 0 && (
+            {unreadTotal > 0 && (
               <span className="ml-1 rounded-full bg-gray-900 px-1.5 py-0.5 text-xs font-bold text-white no-underline">
-                {totalUnread}
+                {unreadTotal}
               </span>
             )}
+          </Link>
+          <Link href="/account/password" className="text-sm underline text-gray-600">
+            Password
           </Link>
           <Link href="/dogs/new" className="bg-gray-900 text-white px-4 py-2 rounded">
             Add a dog

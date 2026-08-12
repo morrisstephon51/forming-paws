@@ -1,0 +1,36 @@
+import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import PasswordForm from './PasswordForm'
+
+export const metadata: Metadata = { title: 'Set a new password' }
+
+/**
+ * Where a password-recovery link lands, and where a signed-in member can change
+ * their password on purpose.
+ *
+ * The recovery link itself is what creates the session — /auth/confirm consumes
+ * it and forwards here — so by the time this page renders, the visitor is
+ * already authenticated. No session means someone reached the URL directly.
+ */
+export default async function PasswordPage() {
+  const supabase = await createClient()
+  const { data } = await supabase.auth.getUser()
+
+  if (!data.user) {
+    const message =
+      'Open the reset link from your email first, then you can choose a new password.'
+    redirect(`/login?error=${encodeURIComponent(message)}`)
+  }
+
+  return (
+    <main className="mx-auto max-w-sm p-8">
+      <h1 className="text-2xl font-bold">Set a new password</h1>
+      <p className="mt-2 text-sm text-gray-600">
+        Signed in as {data.user.email}. Choose a new password and we&apos;ll take you back to your
+        dogs.
+      </p>
+      <PasswordForm />
+    </main>
+  )
+}
