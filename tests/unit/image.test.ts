@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import sharp from 'sharp'
-import { stripImageMetadata } from '@/lib/image'
+import { stripImageMetadata, UnsupportedImageError } from '@/lib/image'
 
 describe('stripImageMetadata', () => {
   it('removes EXIF metadata from a JPEG buffer', async () => {
@@ -51,5 +51,23 @@ describe('stripImageMetadata', () => {
     expect(strippedMetadata.width).toBeLessThanOrEqual(2000)
     expect(strippedMetadata.height).toBeLessThanOrEqual(2000)
     expect(Math.max(strippedMetadata.width!, strippedMetadata.height!)).toBeLessThanOrEqual(2000)
+  })
+
+  it('rejects non-image bytes with a typed UnsupportedImageError', async () => {
+    // A file that is not an image at all — what the upload route gets when someone
+    // POSTs a text file or a spoofed content-type. sharp throws a generic Error
+    // for this; stripImageMetadata must surface it as a typed, catchable error so
+    // the route can answer 400 instead of a cryptic 500.
+    const notAnImage = Buffer.from('this is plain text, not an image\n'.repeat(4))
+
+    await expect(stripImageMetadata(notAnImage)).rejects.toBeInstanceOf(UnsupportedImageError)
+  })
+
+  it('preserves the original decode failure as the error cause', async () => {
+    const notAnImage = Buffer.from('still not an image')
+
+    const error = await stripImageMetadata(notAnImage).catch((e) => e)
+    expect(error).toBeInstanceOf(UnsupportedImageError)
+    expect((error as UnsupportedImageError).cause).toBeInstanceOf(Error)
   })
 })

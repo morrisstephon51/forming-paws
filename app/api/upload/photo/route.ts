@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { stripImageMetadata } from '@/lib/image'
+import { stripImageMetadata, UnsupportedImageError } from '@/lib/image'
 import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
@@ -17,6 +17,13 @@ export async function POST(request: Request) {
   if (file.size > MAX_FILE_BYTES) {
     return NextResponse.json({ error: 'File exceeds 5MB limit' }, { status: 400 })
   }
+  // A cheap, honest rejection for the obvious cases — a PDF, a video, a text
+  // file — before we spend memory decoding. `file.type` is client-supplied, so
+  // an empty or image/* type falls through to stripImageMetadata, which is the
+  // real authority on whether the bytes actually decode.
+  if (file.type && !file.type.startsWith('image/')) {
+    return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
+  }
 
   const { data: dog } = await supabase.from('dogs').select('owner_id').eq('id', dogId).single()
   if (!dog || dog.owner_id !== userData.user.id) {
@@ -32,7 +39,20 @@ export async function POST(request: Request) {
   }
 
   const rawBuffer = Buffer.from(await file.arrayBuffer())
-  const cleanBuffer = await stripImageMetadata(rawBuffer)
+  let cleanBuffer: Buffer
+  try {
+    cleanBuffer = await stripImageMetadata(rawBuffer)
+  } catch (err) {
+    // A file sharp cannot decode is the uploader's mistake, not a server fault;
+    // answer 400 with something they can act on instead of a cryptic 500.
+    if (err instanceof UnsupportedImageError) {
+      return NextResponse.json(
+        { error: 'That file is not a readable image. Please upload a JPEG, PNG, or WebP.' },
+        { status: 400 }
+      )
+    }
+    throw err
+  }
   const storagePath = `${dogId}/${crypto.randomUUID()}.jpg`
 
   const { error: uploadError } = await supabase.storage
