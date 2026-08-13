@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { humanAuthError } from '@/lib/auth/errors'
 
 /**
  * Renders the sign-in controls only — no page chrome. Both /login and the
@@ -42,7 +43,7 @@ export default function LoginForm({
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (signInError) {
-      setError(signInError.message)
+      setError(humanAuthError(signInError.message))
       // A wrong password is the other way a real member gets stranded, so the
       // way out is offered right where they hit the wall.
       if (/invalid login credentials/i.test(signInError.message)) {
@@ -74,7 +75,7 @@ export default function LoginForm({
     })
 
     if (resendErr) {
-      setResendError(resendErr.message)
+      setResendError(humanAuthError(resendErr.message))
       setResendState('idle')
       return
     }
@@ -95,7 +96,7 @@ export default function LoginForm({
     })
 
     if (resetErr) {
-      setResetError(resetErr.message)
+      setResetError(humanAuthError(resetErr.message))
       setResetState('idle')
       return
     }

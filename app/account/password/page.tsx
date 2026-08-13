@@ -1,9 +1,14 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PasswordForm from './PasswordForm'
 
-export const metadata: Metadata = { title: 'Set a new password' }
+export const metadata = pageMetadata({
+  title: 'Set a new password',
+  description: 'Choose a new password for your Forming Paws account.',
+  path: '/account/password',
+  index: false,
+})
 
 /**
  * Where a password-recovery link lands, and where a signed-in member can change

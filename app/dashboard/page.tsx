@@ -4,6 +4,14 @@ import { redirect } from 'next/navigation'
 import LocationSettings from './LocationSettings'
 import { dogListLabel } from './dogLabel'
 import { threadSummaries, totalUnread } from '@/lib/chat/threads'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Your dogs',
+  description: 'Your dog profiles, health verification status and unread messages.',
+  path: '/dashboard',
+  index: false,
+})
 
 export default async function DashboardPage() {
   const supabase = await createClient()

@@ -13,8 +13,12 @@ test('signup shows the email confirmation prompt instead of the dashboard', asyn
   await page.check('input[name="isAdult"]')
   await page.click('button[type="submit"]')
 
+  // A real page rather than a state swap, so it survives a refresh and can be
+  // measured as a conversion. It echoes the address back and offers a resend.
+  await expect(page).toHaveURL(/\/thank-you\?from=signup/)
   await expect(page.locator('text=Check your email')).toBeVisible()
-  await expect(page).toHaveURL(/\/signup/)
+  await expect(page.locator(`text=${uniqueEmail}`)).toBeVisible()
+  await expect(page.getByRole('button', { name: /send it again/i })).toBeVisible()
 })
 
 test('confirmed owner can add a dog and see health verification status', async ({ page }) => {

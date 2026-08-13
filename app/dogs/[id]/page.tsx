@@ -1,6 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import ExpressInterestForm from './ExpressInterestForm'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Dog profile',
+  description: 'Breed, age, health verification status and photos for this dog.',
+  path: '/dogs/[id]',
+  index: false,
+})
 
 export default async function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

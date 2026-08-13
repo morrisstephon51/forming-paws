@@ -6,9 +6,10 @@ const nextConfig: NextConfig = {
     // are printed on flyers, sit in QR codes, and are in members' inboxes, so
     // they keep working rather than 404ing.
     //
-    // `app.html` and `admin.html` are deliberately absent: they still exist as
-    // real files in public/ and are served as-is. Redirects are evaluated before
-    // the public/ directory, so anything listed here would shadow its file.
+    // `admin.html` is deliberately absent: it still exists as a real file in
+    // public/ and is served as-is. Redirects are evaluated before the public/
+    // directory, so anything listed here would shadow its file — which is
+    // exactly how /app.html below retires the old static demo.
     //
     // permanent: false (307) on purpose during the cutover. A 308 is cached hard
     // by browsers and would be painful to walk back mid-migration; these can be
@@ -25,6 +26,8 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       { source: '/index.html', destination: '/', permanent: false },
+      // The static sample-dogs demo is now a real page at /app.
+      { source: '/app.html', destination: '/app', permanent: false },
       { source: '/join.html', destination: '/signup', permanent: false },
       { source: '/login.html', destination: '/login', permanent: false },
       { source: '/home.html', destination: '/dashboard', permanent: false },

@@ -4,6 +4,14 @@ import { redirect } from 'next/navigation'
 import { getBreeds } from '@/lib/breeds'
 import { getThumbnailUrl } from '@/lib/dogPhotos'
 import LocationPrompt from './LocationPrompt'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Browse dogs near you',
+  description: 'Filter health-verified dogs by breed, sex, age and distance, and express interest in a match.',
+  path: '/browse',
+  index: false,
+})
 
 function calculateAge(birthDate: string): number {
   const diffMs = Date.now() - new Date(birthDate).getTime()

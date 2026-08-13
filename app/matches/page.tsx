@@ -2,6 +2,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { threadSummaries } from '@/lib/chat/threads'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Your matches',
+  description: 'Every owner whose dog matched with yours, and the conversations you have open with them.',
+  path: '/matches',
+  index: false,
+})
 
 export default async function MatchesPage() {
   const supabase = await createClient()

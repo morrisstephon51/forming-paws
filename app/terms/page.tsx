@@ -1,12 +1,12 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { CONTACT_EMAIL, LEGAL_LAST_UPDATED, SITE_NAME } from '@/lib/site'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Terms of Service',
   description: `The terms you agree to when using ${SITE_NAME}.`,
-  alternates: { canonical: '/terms' },
-}
+  path: '/terms',
+})
 
 export default function TermsPage() {
   return (

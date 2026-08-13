@@ -1,0 +1,71 @@
+import Link from 'next/link'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import ShareButtons from '@/components/ShareButtons'
+import SiteFooter from '@/components/SiteFooter'
+import StickyJoinBar from '@/components/StickyJoinBar'
+import { FAQS, faqSchema } from '@/lib/faq'
+import { RESPONSE_TIME } from '@/lib/promise'
+import { absoluteUrl, pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Frequently asked questions',
+  description:
+    'What health verification means, whether joining costs anything, how your location stays private, and how quickly we reply.',
+  path: '/faq',
+})
+
+export default function FaqPage() {
+  return (
+    <div className="mx-auto max-w-2xl px-6 py-10 pb-28 sm:pb-10">
+      <Breadcrumbs trail={[{ label: 'FAQ' }]} />
+
+      <h1 className="mt-6 text-3xl font-bold">Questions people ask first</h1>
+      <p className="mt-3 text-gray-600">
+        If yours isn&apos;t here,{' '}
+        <Link href="/contact" className="underline">
+          send it to us
+        </Link>{' '}
+        — we reply {RESPONSE_TIME.within}.
+      </p>
+
+      <dl className="mt-10 flex flex-col gap-8">
+        {FAQS.map((faq) => (
+          <div key={faq.question}>
+            <dt className="text-lg font-semibold">{faq.question}</dt>
+            <dd className="mt-2 text-gray-700">{faq.answer}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="mt-12 rounded-lg border bg-gray-50 p-6">
+        <h2 className="text-xl font-bold">Ready when you are</h2>
+        <p className="mt-2 text-sm text-gray-600">
+          Creating your account and your dog&apos;s profile takes a few minutes, and costs nothing.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/signup" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+            Join free
+          </Link>
+          <Link href="/app" className="rounded border px-5 py-2 font-semibold">
+            See the app first
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <ShareButtons
+          url={absoluteUrl('/faq')}
+          title="Forming Paws — health-verified breeding matches for dog owners"
+        />
+      </div>
+
+      <SiteFooter />
+      <StickyJoinBar />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema()) }}
+      />
+    </div>
+  )
+}
