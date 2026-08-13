@@ -1,5 +1,12 @@
 import LoginForm from './LoginForm'
 import { safeEmailParam } from '@/lib/auth/prefill'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Log in',
+  description: 'Sign in to Forming Paws to manage your dogs, browse matches and message other owners.',
+  path: '/(auth)/login',
+})
 
 export default async function LoginPage({
   searchParams,

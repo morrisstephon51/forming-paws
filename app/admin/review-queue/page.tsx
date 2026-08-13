@@ -1,6 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { reviewDocument } from './actions'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Health document review',
+  description: 'Review and verify submitted veterinary documents.',
+  path: '/admin/review-queue',
+  index: false,
+})
 
 export default async function ReviewQueuePage({
   searchParams,

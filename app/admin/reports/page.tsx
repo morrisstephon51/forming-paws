@@ -2,6 +2,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { setReportStatus } from './actions'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Reported conversations',
+  description: 'Review conversations members have reported.',
+  path: '/admin/reports',
+  index: false,
+})
 
 const REASON_LABELS: Record<string, string> = {
   harassment: 'Harassment',

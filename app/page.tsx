@@ -3,7 +3,12 @@ import { createClient } from '@/lib/supabase/server'
 import LoginForm from './(auth)/login/LoginForm'
 import WaitlistForm from './WaitlistForm'
 import { safeEmailParam } from '@/lib/auth/prefill'
-import { CONTACT_EMAIL } from '@/lib/site'
+import { SITE_URL } from '@/lib/site'
+import { FAQS } from '@/lib/faq'
+import { RESPONSE_TIME } from '@/lib/promise'
+import ShareButtons from '@/components/ShareButtons'
+import SiteFooter from '@/components/SiteFooter'
+import StickyJoinBar from '@/components/StickyJoinBar'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -91,7 +96,7 @@ export default async function HomePage({
   const signedIn = Boolean(data.user)
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 pb-28 sm:pb-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-lg font-bold">🐾 Forming Paws</span>
         <nav className="flex items-center gap-4 text-sm">
@@ -128,6 +133,24 @@ export default async function HomePage({
             thoughtful matchmaking for dogs, with veterinary verification at the centre of
             everything.
           </p>
+          {/*
+            The primary action, above the fold on a phone. Before this, the only
+            way in from the top of the page was the header's "Join Now" chip or
+            the sign-in panel — which on mobile sits below the entire hero.
+          */}
+          {!signedIn && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/signup"
+                className="rounded bg-gray-900 px-6 py-3 font-semibold text-white"
+              >
+                Join free — list your dog
+              </Link>
+              <Link href="/app" className="rounded border px-6 py-3 font-semibold">
+                See the app first
+              </Link>
+            </div>
+          )}
           <dl className="mt-6 grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="font-semibold">Health-gated</dt>
@@ -249,34 +272,56 @@ export default async function HomePage({
               Create your account &amp; dog profile
             </Link>{' '}
             · or{' '}
-            <a href="/app.html" className="underline">
-              try the sample view
-            </a>{' '}
+            <Link href="/app" className="underline">
+              see what the app looks like
+            </Link>{' '}
             first.
           </p>
         </section>
       )}
 
-      <footer className="mt-20 border-t py-8 text-sm text-gray-600">
-        <p>
-          🐾 <strong>Forming Paws</strong> — a nonprofit initiative for healthy, responsible dog
-          breeding.
-        </p>
-        <p className="mt-2">
-          Forming Paws is not a party to any breeding arrangement. Always consult your veterinarian.
-        </p>
-        <nav className="mt-4 flex flex-wrap gap-4">
-          <Link href="/privacy" className="underline">
-            Privacy Policy
+      <section id="faq" className="mt-20 scroll-mt-8">
+        <h2 className="text-2xl font-bold">Questions people ask first</h2>
+        <p className="mt-2 text-gray-600">
+          The five that come up most.{' '}
+          <Link href="/faq" className="underline">
+            All of them, on one page
           </Link>
-          <Link href="/terms" className="underline">
-            Terms of Service
+          .
+        </p>
+        <div className="mt-6 flex flex-col gap-3">
+          {FAQS.map((faq) => (
+            <details key={faq.question} className="rounded-lg border p-5">
+              <summary className="cursor-pointer font-semibold">{faq.question}</summary>
+              <p className="mt-3 text-sm text-gray-600">{faq.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-16 rounded-lg border bg-gray-50 p-8">
+        <h2 className="text-2xl font-bold">Still deciding?</h2>
+        <p className="mt-2 text-gray-600">
+          {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/contact" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+            Ask a question
           </Link>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
-            Contact
-          </a>
-        </nav>
-      </footer>
+          <Link href="/app" className="rounded border px-5 py-2 font-semibold">
+            See the app
+          </Link>
+        </div>
+        <div className="mt-6">
+          <ShareButtons
+            url={SITE_URL}
+            title="Forming Paws — health-verified breeding matches for dog owners"
+          />
+        </div>
+      </section>
+
+      <SiteFooter />
+      {!signedIn && <StickyJoinBar />}
     </div>
   )
 }

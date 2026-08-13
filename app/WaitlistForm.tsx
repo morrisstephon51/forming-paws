@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 /**
@@ -11,18 +12,25 @@ import { createClient } from '@/lib/supabase/client'
  * insert would be refused.
  */
 export default function WaitlistForm() {
-  const [state, setState] = useState<'idle' | 'sending' | 'joined' | 'already'>('idle')
+  const router = useRouter()
+  const [state, setState] = useState<'idle' | 'sending' | 'already'>('idle')
   const [error, setError] = useState<string | null>(null)
+  // Controlled, for the same reason as every other form here: React clears a
+  // form once its action has run, so a failed insert would wipe the address they
+  // just typed and ask them to do it again.
+  const [email, setEmail] = useState('')
+  const [city, setCity] = useState('')
+  const [dogBreed, setDogBreed] = useState('')
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit() {
     setState('sending')
     setError(null)
 
     const supabase = createClient()
     const { error: insertError } = await supabase.from('waitlist').insert({
-      email: String(formData.get('email')).trim(),
-      city: String(formData.get('city') ?? '').trim() || null,
-      dog_breed: String(formData.get('dogBreed') ?? '').trim() || null,
+      email: email.trim(),
+      city: city.trim() || null,
+      dog_breed: dogBreed.trim() || null,
     })
 
     if (insertError) {
@@ -37,15 +45,7 @@ export default function WaitlistForm() {
       return
     }
 
-    setState('joined')
-  }
-
-  if (state === 'joined') {
-    return (
-      <p className="mt-6 font-medium text-green-700">
-        🎉 You&apos;re on the list. We&apos;ll email you when we launch in your area.
-      </p>
-    )
+    router.push('/thank-you?from=waitlist')
   }
 
   if (state === 'already') {
@@ -60,6 +60,8 @@ export default function WaitlistForm() {
     <form action={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <input
         name="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         type="email"
         required
         placeholder="Your email"
@@ -68,6 +70,8 @@ export default function WaitlistForm() {
       />
       <input
         name="city"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
         type="text"
         placeholder="Your city"
         aria-label="Your city"
@@ -75,6 +79,8 @@ export default function WaitlistForm() {
       />
       <input
         name="dogBreed"
+        value={dogBreed}
+        onChange={(e) => setDogBreed(e.target.value)}
         type="text"
         placeholder="Your dog's breed (optional)"
         aria-label="Your dog's breed"

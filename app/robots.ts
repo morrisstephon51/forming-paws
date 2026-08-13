@@ -21,9 +21,12 @@ export default function robots(): MetadataRoute.Robots {
           // The carried-over static admin console. Gated by Supabase RLS rather
           // than by obscurity, but there is no reason for it to be indexed.
           '/admin.html',
-          // Sample-data view — indexing it would put fictional dogs in search
-          // results alongside real listings.
+          // The old static sample view. Redirects to /app, which is a genuine
+          // page and is indexed — its example dogs are labelled as examples.
           '/app.html',
+          // Confirmation pages. Crawlable on purpose so the noindex tag on them
+          // is actually read; a disallow here would hide that tag instead.
+          '/account/',
         ],
       },
     ],

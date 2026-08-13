@@ -4,6 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import Thread from './Thread'
 import ReportForm from './ReportForm'
 import { markRead } from './actions'
+import { pageMetadata } from '@/lib/seo'
+
+export const metadata = pageMetadata({
+  title: 'Conversation',
+  description: 'Talk with the other owner before you arrange anything in person.',
+  path: '/matches/[id]',
+  index: false,
+})
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: matchId } = await params

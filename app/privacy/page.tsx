@@ -1,12 +1,12 @@
-import type { Metadata } from 'next'
+import { pageMetadata } from '@/lib/seo'
 import Link from 'next/link'
 import { CONTACT_EMAIL, LEGAL_LAST_UPDATED, SITE_NAME } from '@/lib/site'
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
   title: 'Privacy Policy',
   description: `How ${SITE_NAME} collects, uses, and protects your information.`,
-  alternates: { canonical: '/privacy' },
-}
+  path: '/privacy',
+})
 
 export default function PrivacyPage() {
   return (
