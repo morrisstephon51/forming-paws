@@ -19,6 +19,8 @@ export default function FaqPage() {
     <div className="mx-auto max-w-2xl px-6 py-10 pb-28 sm:pb-10">
       <Breadcrumbs trail={[{ label: 'FAQ' }]} />
 
+      <main>
+
       <h1 className="mt-6 text-3xl font-bold">Questions people ask first</h1>
       <p className="mt-3 text-gray-600">
         If yours isn&apos;t here,{' '}
@@ -58,6 +60,8 @@ export default function FaqPage() {
           title="Forming Paws — health-verified breeding matches for dog owners"
         />
       </div>
+
+      </main>
 
       <SiteFooter />
       <StickyJoinBar />

@@ -21,6 +21,7 @@ export const metadata = pageMetadata({
 export default function NotFound() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-16">
+      <main>
       <p className="text-sm font-semibold uppercase tracking-wide text-gray-500">Error 404</p>
       <h1 className="mt-3 text-3xl font-bold">We couldn&apos;t find that page</h1>
       <p className="mt-4 text-gray-600">
@@ -62,6 +63,8 @@ export default function NotFound() {
           </Link>
         </li>
       </ul>
+
+      </main>
 
       <SiteFooter />
     </div>

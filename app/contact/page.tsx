@@ -18,6 +18,8 @@ export default function ContactPage() {
     <div className="mx-auto max-w-2xl px-6 py-10 pb-28 sm:pb-10">
       <Breadcrumbs trail={[{ label: 'Contact' }]} />
 
+      <main>
+
       <h1 className="mt-6 text-3xl font-bold">Talk to a person</h1>
 
       <p className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-green-900">
@@ -46,6 +48,8 @@ export default function ContactPage() {
       </p>
 
       <ContactForm />
+
+      </main>
 
       <SiteFooter />
       <StickyJoinBar />
