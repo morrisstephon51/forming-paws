@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { reviewDocument } from './actions'
 import { pageMetadata } from '@/lib/seo'
+import { formatCalendarDate } from '@/lib/dates'
 
 export const metadata = pageMetadata({
   title: 'Health document review',
@@ -58,7 +59,7 @@ export default async function ReviewQueuePage({
         {docs.map((doc) => (
           <li key={doc.id} className="border p-4 rounded">
             <p className="font-medium">
-              {doc.dogName ?? 'Unknown dog'} — {doc.doc_type} ({doc.document_date})
+              {doc.dogName ?? 'Unknown dog'} — {doc.doc_type} ({formatCalendarDate(doc.document_date)})
             </p>
             {doc.url ? (
               <a
