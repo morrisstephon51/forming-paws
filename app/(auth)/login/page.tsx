@@ -5,7 +5,7 @@ import { pageMetadata } from '@/lib/seo'
 export const metadata = pageMetadata({
   title: 'Log in',
   description: 'Sign in to Forming Paws to manage your dogs, browse matches and message other owners.',
-  path: '/(auth)/login',
+  path: '/login',
 })
 
 export default async function LoginPage({
