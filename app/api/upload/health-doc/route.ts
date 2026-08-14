@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isFutureCalendarDate } from '@/lib/dates'
 import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const parsedDate = new Date(documentDate)
-  if (!documentDate || Number.isNaN(parsedDate.getTime()) || parsedDate > new Date()) {
+  if (!documentDate || Number.isNaN(parsedDate.getTime()) || isFutureCalendarDate(documentDate)) {
     return NextResponse.json({ error: 'Invalid document date' }, { status: 400 })
   }
 
