@@ -58,7 +58,11 @@ export default function SignupForm() {
     <main className="mx-auto max-w-sm p-8">
       <h1 className="text-2xl font-bold">Create your account</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
+        <label htmlFor="signup-displayName" className="sr-only">
+          Your name
+        </label>
         <input
+          id="signup-displayName"
           name="displayName"
           placeholder="Your name"
           required
@@ -66,7 +70,11 @@ export default function SignupForm() {
           onChange={(e) => setDisplayName(e.target.value)}
           className="border p-2"
         />
+        <label htmlFor="signup-email" className="sr-only">
+          Email
+        </label>
         <input
+          id="signup-email"
           name="email"
           type="email"
           placeholder="Email"
@@ -76,7 +84,11 @@ export default function SignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="border p-2"
         />
+        <label htmlFor="signup-password" className="sr-only">
+          Password
+        </label>
         <input
+          id="signup-password"
           name="password"
           type="password"
           placeholder="Password"

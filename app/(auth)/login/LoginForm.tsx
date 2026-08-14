@@ -128,7 +128,11 @@ export default function LoginForm({
       )}
 
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
+        <label htmlFor="login-email" className="sr-only">
+          Email
+        </label>
         <input
+          id="login-email"
           name="email"
           type="email"
           placeholder="Email"
@@ -138,7 +142,11 @@ export default function LoginForm({
           onChange={(e) => setEmail(e.target.value)}
           className="border p-2"
         />
+        <label htmlFor="login-password" className="sr-only">
+          Password
+        </label>
         <input
+          id="login-password"
           name="password"
           type="password"
           placeholder="Password"

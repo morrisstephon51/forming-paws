@@ -71,6 +71,8 @@ export default async function ThankYouPage({
     <div className="mx-auto max-w-2xl px-6 py-10">
       <Breadcrumbs trail={[{ label: 'Thank you' }]} />
 
+      <main>
+
       <h1 className="mt-6 text-3xl font-bold">{copy.heading}</h1>
       <p className="mt-4 text-gray-700">
         {variant === 'signup' && email ? (
@@ -114,6 +116,8 @@ export default async function ThankYouPage({
           />
         </div>
       )}
+
+      </main>
 
       <SiteFooter />
     </div>

@@ -118,6 +118,8 @@ export default async function HomePage({
         </nav>
       </header>
 
+      <main>
+
       <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
         <section className="md:col-span-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -319,6 +321,8 @@ export default async function HomePage({
           />
         </div>
       </section>
+
+      </main>
 
       <SiteFooter />
       {!signedIn && <StickyJoinBar />}
