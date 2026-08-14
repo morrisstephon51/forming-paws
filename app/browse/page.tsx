@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getBreeds } from '@/lib/breeds'
 import { getThumbnailUrl } from '@/lib/dogPhotos'
+import { ageInYears } from '@/lib/age'
 import LocationPrompt from './LocationPrompt'
 import { pageMetadata } from '@/lib/seo'
 
@@ -13,10 +14,6 @@ export const metadata = pageMetadata({
   index: false,
 })
 
-function calculateAge(birthDate: string): number {
-  const diffMs = Date.now() - new Date(birthDate).getTime()
-  return Math.floor(diffMs / (365.25 * 24 * 60 * 60 * 1000))
-}
 
 const VALID_SEXES = ['male', 'female']
 
@@ -147,7 +144,7 @@ export default async function BrowsePage({
               )}
               <div>
                 <p className="font-medium">
-                  {dog.name} — {dog.breed_name}, {calculateAge(dog.birth_date)}yo {dog.sex}
+                  {dog.name} — {dog.breed_name}, {ageInYears(dog.birth_date)}yo {dog.sex}
                 </p>
                 {dog.distance_miles != null && (
                   <p className="text-sm text-gray-500">
