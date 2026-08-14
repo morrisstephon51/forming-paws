@@ -4,12 +4,16 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
+import { isBirthDateNotInFuture } from '@/lib/dogBirthDate'
 
 export const dogSchema = z.object({
   name: z.string().min(1),
   breedId: z.string().min(1),
   sex: z.enum(['male', 'female']),
-  birthDate: z.string().refine((d) => new Date(d) <= new Date(), {
+  // Compared as a calendar date in the member's local frame, not as a UTC
+  // instant — see lib/dogBirthDate.ts for why a naive `new Date(d)` let an
+  // evening "tomorrow" through west of UTC.
+  birthDate: z.string().refine((d) => isBirthDateNotInFuture(d), {
     message: 'Birth date cannot be in the future',
   }),
   weightLbs: z.string().optional(),
