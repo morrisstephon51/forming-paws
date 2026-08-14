@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import ExpressInterestForm from './ExpressInterestForm'
 import { pageMetadata } from '@/lib/seo'
+import { formatCalendarDate } from '@/lib/dates'
 
 export const metadata = pageMetadata({
   title: 'Dog profile',
@@ -97,7 +98,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
         </span>
       )}
       <p className="text-gray-600">
-        {dog.breedName} · {dog.sex} · born {dog.birth_date}
+        {dog.breedName} · {dog.sex} · born {formatCalendarDate(dog.birth_date)}
       </p>
       {isOwnDog && dog.temperament_notes && <p className="mt-4">{dog.temperament_notes}</p>}
 
@@ -134,7 +135,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
             {healthDocs?.map((doc) => (
               <li key={doc.id} className="flex justify-between border p-2 rounded text-sm">
                 <span>
-                  {doc.doc_type} ({doc.document_date})
+                  {doc.doc_type} ({formatCalendarDate(doc.document_date)})
                 </span>
                 <span
                   className={
