@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Forming Paws — Healthy Matches. Happy Litters.</title>
 <meta name="description" content="Forming Paws is a nonprofit platform connecting dog owners for safe, health-verified breeding matches in their local area.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="stylesheet" href="styles.css">
 <script>
 // Signed-in members skip the marketing page and land on their dashboard
@@ -16,7 +16,7 @@ try { var fps = JSON.parse(localStorage.getItem("fp_session") || "null");
 <body>
 
 <nav class="nav">
-  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <a href="index.html" class="nav-logo"><img src="logo.svg" alt="Forming Paws logo"> <span>Forming<em>Paws</em></span></a>
   <div class="nav-links">
     <a href="#how">How It Works</a>
     <a href="#health">Health First</a>
@@ -127,8 +127,9 @@ document.getElementById("wlForm").addEventListener("submit", async (e) => {
 </script>
 
 <footer class="footer">
-  <div>🐾 <strong>Forming Paws</strong> — a nonprofit initiative for healthy, responsible dog breeding.</div>
-  <div class="footer-note">Demo build · Forming Paws is not a party to any breeding arrangement. Always consult your veterinarian.</div>
+  <div><img src="logo.svg" alt="" style="width:26px;height:26px;vertical-align:-6px"> <strong>Forming Paws</strong> — a nonprofit initiative for healthy, responsible dog breeding.</div>
+  <div class="footer-note">Forming Paws is not a party to any breeding arrangement. Always consult your veterinarian.</div>
+  <div class="footer-credit">Built by <a href="https://theplugai.xyz">The Plug AI</a></div>
 </footer>
 
 </body>
