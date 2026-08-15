@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Forming Paws — Member Admin</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐾</text></svg>">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="stylesheet" href="styles.css">
 <style>
 .adm{max-width:960px;margin:0 auto;padding:34px 5vw 90px}
@@ -20,13 +20,13 @@
 .hidden{display:none}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;text-align:center}
-.tile .num{font-size:2rem;font-weight:800;color:var(--brand, #33685a)}
+.tile .num{font-size:2rem;font-weight:800;color:var(--brand, var(--brand))}
 .tile .lbl{font-size:.8rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 .tbl-wrap{overflow-x:auto}
 table.adm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
 .adm-tbl th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);border-bottom:2px solid var(--line);padding:8px 8px}
 .adm-tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-.pill{display:inline-block;background:#e4efe9;color:#33685a;font-weight:700;font-size:.72rem;padding:2px 10px;border-radius:999px}
+.pill{display:inline-block;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:.72rem;padding:2px 10px;border-radius:999px}
 .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
 .btn-sm2{padding:8px 16px;font-size:.85rem}
 </style>
@@ -34,7 +34,7 @@ table.adm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
 <body>
 
 <nav class="nav">
-  <a href="index.html" class="nav-logo">🐾 <span>Forming<em>Paws</em></span></a>
+  <a href="index.html" class="nav-logo"><img src="logo.svg" alt="Forming Paws logo"> <span>Forming<em>Paws</em></span></a>
   <div class="nav-links"><a href="index.html">Home</a><a href="join.html">Join</a></div>
 </nav>
 
@@ -66,6 +66,15 @@ table.adm-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
     </div>
 
     <div class="panel">
+      <h2 style="margin-bottom:10px">🩺 Verification review queue</h2>
+      <div class="tbl-wrap"><table class="adm-tbl" id="rqTbl">
+        <thead><tr><th>Dog</th><th>Owner</th><th>Document</th><th>Doc date</th><th>Uploaded</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+      <p class="msg" id="rqMsg" style="font-weight:600;min-height:1.2em;margin-top:8px"></p>
+    </div>
+
+    <div class="panel">
       <h2 style="margin-bottom:10px">Members</h2>
       <div class="tbl-wrap"><table class="adm-tbl" id="memTbl">
         <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Location</th><th>Dogs</th><th>Joined</th></tr></thead>
@@ -89,7 +98,7 @@ const SB_KEY = "sb_publishable_dI7lN4FdgEzJuid5r7whMw_Pxyx6OqG";
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const H = () => ({ "Content-Type": "application/json", "apikey": SB_KEY, "Authorization": "Bearer " + sessionStorage.getItem("fp_admin_token") });
-const BREEDS = {45:"Akita",48:"Australian Cattle Dog",12:"Australian Shepherd",32:"Basset Hound",7:"Beagle",33:"Belgian Malinois",21:"Bernese Mountain Dog",50:"Bichon Frise",41:"Bloodhound",29:"Border Collie",20:"Boston Terrier",14:"Boxer",25:"Brittany",44:"Bull Terrier",5:"Bulldog",27:"Cane Corso",15:"Cavalier King Charles Spaniel",46:"Chesapeake Bay Retriever",31:"Chihuahua",35:"Collie",10:"Dachshund",18:"Doberman Pinscher",26:"English Springer Spaniel",4:"French Bulldog",2:"German Shepherd",9:"German Shorthaired Pointer",3:"Golden Retriever",16:"Great Dane",23:"Havanese",1:"Labrador Retriever",42:"Maltese",34:"Mastiff",28:"Miniature American Shepherd",17:"Miniature Schnauzer",36:"Newfoundland",43:"Papillon",11:"Pembroke Welsh Corgi",22:"Pomeranian",6:"Poodle",49:"Portuguese Water Dog",37:"Rhodesian Ridgeback",8:"Rottweiler",39:"Shetland Sheepdog",24:"Shih Tzu",19:"Siberian Husky",47:"St. Bernard",30:"Vizsla",40:"Weimaraner",38:"West Highland White Terrier",51:"Whippet",13:"Yorkshire Terrier",52:"Mixed Breed / Not Listed"};
+const BREEDS = {45:"Akita",149:"Alaskan Malamute",109:"American Bully",106:"American Pit Bull Terrier",107:"American Staffordshire Terrier",127:"Aussiedoodle",48:"Australian Cattle Dog",158:"Australian Kelpie",12:"Australian Shepherd",150:"Basenji",32:"Basset Hound",7:"Beagle",119:"Beagle Mix",33:"Belgian Malinois",126:"Bernedoodle",21:"Bernese Mountain Dog",50:"Bichon Frise",161:"Black Mouth Cur",41:"Bloodhound",29:"Border Collie",20:"Boston Terrier",14:"Boxer",118:"Boxer Mix",25:"Brittany",44:"Bull Terrier",5:"Bulldog",151:"Bullmastiff",27:"Cane Corso",164:"Cane Corso Mix",159:"Catahoula Leopard Dog",15:"Cavalier King Charles Spaniel",129:"Cavapoo",46:"Chesapeake Bay Retriever",31:"Chihuahua",116:"Chihuahua Mix",136:"Chiweenie",147:"Chow Chow",130:"Cockapoo",140:"Cocker Spaniel",35:"Collie",122:"Corgi Mix",10:"Dachshund",143:"Dalmatian",18:"Doberman Pinscher",163:"Dogo Argentino",152:"English Setter",26:"English Springer Spaniel",4:"French Bulldog",2:"German Shepherd",9:"German Shorthaired Pointer",3:"Golden Retriever",123:"Golden Retriever Mix",124:"Goldendoodle",16:"Great Dane",144:"Greyhound",23:"Havanese",114:"Hound Mix",115:"Husky Mix",153:"Irish Setter",145:"Italian Greyhound",146:"Jack Russell Terrier",111:"Lab Mix",125:"Labradoodle",1:"Labrador Retriever",155:"Lhasa Apso",42:"Maltese",131:"Maltipoo",34:"Mastiff",165:"Mastiff Mix",28:"Miniature American Shepherd",17:"Miniature Schnauzer",137:"Morkie",36:"Newfoundland",43:"Papillon",154:"Pekingese",11:"Pembroke Welsh Corgi",110:"Pit Bull Mix",160:"Plott Hound",139:"Pomchi",22:"Pomeranian",134:"Pomsky",6:"Poodle",117:"Poodle Mix",49:"Portuguese Water Dog",162:"Presa Canario",141:"Pug",135:"Puggle",37:"Rhodesian Ridgeback",8:"Rottweiler",120:"Rottweiler Mix",148:"Samoyed",156:"Scottish Terrier",128:"Sheepadoodle",112:"Shepherd Mix",138:"Shepsky",39:"Shetland Sheepdog",142:"Shiba Inu",24:"Shih Tzu",132:"Shihpoo",19:"Siberian Husky",121:"Spaniel Mix",47:"St. Bernard",108:"Staffordshire Bull Terrier",113:"Terrier Mix",30:"Vizsla",40:"Weimaraner",157:"West Highland Mix",38:"West Highland White Terrier",51:"Whippet",133:"Yorkipoo",13:"Yorkshire Terrier",52:"Mixed Breed / Not Listed"};
 let cache = { owners: [], dogs: [], waitlist: [] };
 
 $("loginPanel").addEventListener("submit", async (e) => {
@@ -129,6 +138,43 @@ async function loadData(){
   ]);
   cache = { owners: Array.isArray(o) ? o : [], dogs: Array.isArray(d) ? d : [], waitlist: Array.isArray(w) ? w : [] };
   render();
+  loadQueue();
+}
+
+const DOCLBL = { vet_exam: "Vet wellness exam", vaccination: "Vaccination record", ofa: "OFA screening", dna_panel: "DNA panel" };
+
+async function loadQueue(){
+  const q = await fetch(SB_URL + "/rest/v1/health_documents?status=eq.pending_review&select=id,dog_id,doc_type,document_date,storage_path,uploaded_at&order=uploaded_at", { headers: H() }).then(r => r.json());
+  const rows = Array.isArray(q) ? q : [];
+  const dogById = {}; cache.dogs.forEach(d => dogById[d.id] = d);
+  const ownerById = {}; cache.owners.forEach(o => ownerById[o.id] = o);
+  $("rqTbl").querySelector("tbody").innerHTML = rows.map(x => {
+    const dog = dogById[x.dog_id] || {};
+    const owner = ownerById[dog.owner_id] || {};
+    return "<tr><td>" + esc(dog.name || "?") + "</td><td>" + esc(owner.display_name || "?") + "<br><span style='color:var(--ink-soft);font-size:.8rem'>" + esc(owner.email || "") + "</span></td><td>" +
+      esc(DOCLBL[x.doc_type] || x.doc_type) + "</td><td>" + esc(x.document_date) + "</td><td>" + new Date(x.uploaded_at).toLocaleDateString() + "</td><td style='white-space:nowrap'>" +
+      '<button class="btn btn-ghost btn-sm2" onclick="viewDoc(\'' + x.storage_path.replace(/'/g, "") + '\')">View</button> ' +
+      '<button class="btn btn-primary btn-sm2" onclick="reviewDoc(\'' + x.id + '\', true)">Approve</button> ' +
+      '<button class="btn btn-ghost btn-sm2" style="color:#b3261e" onclick="reviewDoc(\'' + x.id + '\', false)">Reject</button></td></tr>';
+  }).join("") || '<tr><td colspan="6" style="color:var(--ink-soft)">No documents waiting for review. 🎉</td></tr>';
+}
+
+async function viewDoc(path){
+  const r = await fetch(SB_URL + "/storage/v1/object/sign/health-docs/" + path, {
+    method: "POST", headers: H(), body: JSON.stringify({ expiresIn: 300 }) });
+  const d = await r.json();
+  if (d.signedURL) window.open(SB_URL + "/storage/v1" + d.signedURL, "_blank");
+  else { $("rqMsg").textContent = "Couldn't open the document — try refreshing."; }
+}
+
+async function reviewDoc(id, approve){
+  let notes = null;
+  if (!approve) { notes = prompt("Why is this document being rejected? (The note is stored for the record)") || "Document did not meet verification requirements."; }
+  const r = await fetch(SB_URL + "/rest/v1/health_documents?id=eq." + id, {
+    method: "PATCH", headers: H(),
+    body: JSON.stringify({ status: approve ? "verified" : "rejected", reviewed_at: new Date().toISOString(), reviewer_notes: notes }) });
+  $("rqMsg").textContent = r.ok ? (approve ? "Approved ✅" : "Rejected — the owner sees 'Needs attention' on their dashboard.") : "Update failed (" + r.status + ")";
+  loadQueue();
 }
 
 function render(){

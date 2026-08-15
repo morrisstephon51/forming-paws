@@ -1,3 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Forming Paws brand base: Fraunces display, Nunito body */
+@layer base {
+  :root {
+    --fp-brand: #2F6B5C;
+    --fp-accent: #E8734A;
+    --fp-ivory: #FBF7F0;
+  }
+  body {
+    font-family: 'Nunito', system-ui, sans-serif;
+  }
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+}
