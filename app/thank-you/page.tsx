@@ -94,7 +94,7 @@ export default async function ThankYouPage({
             href={link.href}
             className={
               'primary' in link && link.primary
-                ? 'rounded bg-gray-900 px-5 py-2 font-semibold text-white'
+                ? 'rounded bg-brand px-5 py-2 font-semibold text-white'
                 : 'rounded border px-5 py-2 font-semibold'
             }
           >

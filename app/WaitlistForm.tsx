@@ -89,7 +89,7 @@ export default function WaitlistForm() {
       <button
         type="submit"
         disabled={state === 'sending'}
-        className="rounded bg-gray-900 px-5 py-2 text-white disabled:opacity-50"
+        className="rounded bg-brand px-5 py-2 text-white disabled:opacity-50"
       >
         {state === 'sending' ? 'Joining…' : 'Join the Waitlist'}
       </button>

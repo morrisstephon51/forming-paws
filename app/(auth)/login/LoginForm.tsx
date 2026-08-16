@@ -156,7 +156,7 @@ export default function LoginForm({
           onChange={(e) => setPassword(e.target.value)}
           className="border p-2"
         />
-        <button type="submit" className="bg-gray-900 text-white p-2 rounded">
+        <button type="submit" className="bg-brand text-white p-2 rounded">
           Log in
         </button>
       </form>

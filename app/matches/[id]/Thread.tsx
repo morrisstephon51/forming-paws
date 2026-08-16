@@ -148,7 +148,7 @@ export default function Thread({
             <button
               type="submit"
               disabled={sending || draft.trim().length === 0}
-              className="rounded bg-gray-900 px-4 py-2 text-white disabled:opacity-50"
+              className="rounded bg-brand px-4 py-2 text-white disabled:opacity-50"
             >
               {sending ? 'Sending…' : 'Send'}
             </button>

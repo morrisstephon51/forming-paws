@@ -107,11 +107,11 @@ export default async function HomePage({
             Health First
           </a>
           {signedIn ? (
-            <Link href="/dashboard" className="rounded bg-gray-900 px-3 py-1.5 text-white">
+            <Link href="/dashboard" className="rounded bg-brand px-3 py-1.5 text-white">
               Dashboard
             </Link>
           ) : (
-            <Link href="/signup" className="rounded bg-gray-900 px-3 py-1.5 text-white">
+            <Link href="/signup" className="rounded bg-brand px-3 py-1.5 text-white">
               Join Now
             </Link>
           )}
@@ -144,7 +144,7 @@ export default async function HomePage({
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/signup"
-                className="rounded bg-gray-900 px-6 py-3 font-semibold text-white"
+                className="rounded bg-brand px-6 py-3 font-semibold text-white"
               >
                 Join free — list your dog
               </Link>
@@ -184,7 +184,7 @@ export default async function HomePage({
               </p>
               <Link
                 href="/dashboard"
-                className="mt-6 block rounded bg-gray-900 p-2 text-center text-white"
+                className="mt-6 block rounded bg-brand p-2 text-center text-white"
               >
                 Go to your dashboard
               </Link>
@@ -216,7 +216,7 @@ export default async function HomePage({
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step) => (
             <li key={step.n} className="rounded-lg border p-5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 font-bold text-white">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-white">
                 {step.n}
               </span>
               <h3 className="mt-3 font-semibold">{step.title}</h3>
@@ -307,7 +307,7 @@ export default async function HomePage({
           {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/contact" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+          <Link href="/contact" className="rounded bg-brand px-5 py-2 font-semibold text-white">
             Ask a question
           </Link>
           <Link href="/app" className="rounded border px-5 py-2 font-semibold">

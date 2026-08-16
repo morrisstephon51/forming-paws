@@ -127,7 +127,7 @@ export default async function BrowsePage({
           />
           Verified only
         </label>
-        <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+        <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
           Filter
         </button>
       </form>

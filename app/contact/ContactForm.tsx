@@ -105,7 +105,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={sending}
-        className="rounded bg-gray-900 p-2 font-semibold text-white disabled:opacity-50"
+        className="rounded bg-brand p-2 font-semibold text-white disabled:opacity-50"
       >
         {sending ? 'Sending…' : 'Send message'}
       </button>

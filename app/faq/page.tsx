@@ -45,7 +45,7 @@ export default function FaqPage() {
           Creating your account and your dog&apos;s profile takes a few minutes, and costs nothing.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/signup" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+          <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
             Join free
           </Link>
           <Link href="/app" className="rounded border px-5 py-2 font-semibold">

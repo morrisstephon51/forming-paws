@@ -76,7 +76,7 @@ export default async function ReportsPage() {
                 placeholder="Reviewer notes"
                 className="flex-1 rounded border p-1.5 text-sm"
               />
-              <button type="submit" className="rounded bg-gray-900 px-3 py-1.5 text-sm text-white">
+              <button type="submit" className="rounded bg-brand px-3 py-1.5 text-sm text-white">
                 Save
               </button>
             </form>

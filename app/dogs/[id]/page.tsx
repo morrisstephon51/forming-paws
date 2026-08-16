@@ -122,7 +122,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
         >
           <input type="hidden" name="dogId" value={dog.id} />
           <input type="file" name="file" accept="image/*" required />
-          <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+          <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
             Upload photo
           </button>
         </form>
@@ -166,7 +166,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
             </select>
             <input name="documentDate" type="date" required className="border p-2" />
             <input type="file" name="file" accept="application/pdf,image/*" required />
-            <button type="submit" className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+            <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
               Upload document
             </button>
           </form>

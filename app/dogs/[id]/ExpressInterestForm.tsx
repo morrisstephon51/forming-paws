@@ -70,7 +70,7 @@ export default function ExpressInterestForm({
           </option>
         ))}
       </select>
-      <button onClick={handleSubmit} className="bg-gray-900 text-white px-3 py-1 rounded text-sm">
+      <button onClick={handleSubmit} className="bg-brand text-white px-3 py-1 rounded text-sm">
         Express Interest
       </button>
       {error && <p className="text-sm text-red-600">{error}</p>}

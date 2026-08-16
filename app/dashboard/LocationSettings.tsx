@@ -30,7 +30,7 @@ export default function LocationSettings({ currentLabel }: { currentLabel: strin
         <button
           onClick={share}
           disabled={isSaving}
-          className="bg-gray-900 text-white px-3 py-1 rounded text-sm"
+          className="bg-brand text-white px-3 py-1 rounded text-sm"
         >
           {isSaving ? 'Saving…' : 'Share location'}
         </button>

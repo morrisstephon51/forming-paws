@@ -79,7 +79,7 @@ export default function AppTourPage() {
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/signup" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+        <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
           Join free
         </Link>
         <Link href="/faq" className="rounded border px-5 py-2 font-semibold">
@@ -143,7 +143,7 @@ export default function AppTourPage() {
           them to hand.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/signup" className="rounded bg-gray-900 px-5 py-2 font-semibold text-white">
+          <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
             Create your account
           </Link>
           <Link href="/contact" className="rounded border px-5 py-2 font-semibold">

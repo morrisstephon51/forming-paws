@@ -81,7 +81,7 @@ export default function NewDogForm({ breeds }: { breeds: { id: number; name: str
         <input name="weightLbs" type="number" placeholder="Weight (lbs)" className="border p-2" />
         <textarea name="temperamentNotes" placeholder="Temperament notes" className="border p-2" />
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="bg-gray-900 text-white p-2 rounded">
+        <button type="submit" className="bg-brand text-white p-2 rounded">
           Save
         </button>
       </form>

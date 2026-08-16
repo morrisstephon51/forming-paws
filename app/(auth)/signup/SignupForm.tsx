@@ -108,7 +108,7 @@ export default function SignupForm() {
           I confirm I am 18 years of age or older
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="bg-gray-900 text-white p-2 rounded">
+        <button type="submit" className="bg-brand text-white p-2 rounded">
           Sign up
         </button>
       </form>

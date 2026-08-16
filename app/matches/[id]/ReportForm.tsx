@@ -70,7 +70,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
         className="rounded border p-2 text-sm"
       />
       <div className="flex items-center gap-3">
-        <button type="submit" className="rounded bg-gray-900 px-4 py-2 text-sm text-white">
+        <button type="submit" className="rounded bg-brand px-4 py-2 text-sm text-white">
           Send report
         </button>
         <button

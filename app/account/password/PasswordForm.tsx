@@ -73,7 +73,7 @@ export default function PasswordForm() {
       <button
         type="submit"
         disabled={saving}
-        className="bg-gray-900 text-white p-2 rounded disabled:opacity-50"
+        className="bg-brand text-white p-2 rounded disabled:opacity-50"
       >
         {saving ? 'Saving…' : 'Save new password'}
       </button>

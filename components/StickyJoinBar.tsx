@@ -23,7 +23,7 @@ export default function StickyJoinBar() {
         </p>
         <Link
           href="/signup"
-          className="whitespace-nowrap rounded bg-gray-900 px-4 py-2 text-sm font-semibold text-white"
+          className="whitespace-nowrap rounded bg-brand px-4 py-2 text-sm font-semibold text-white"
         >
           Join free
         </Link>
