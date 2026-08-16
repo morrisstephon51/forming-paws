@@ -64,12 +64,15 @@ export default function Thread({
       })
     }
 
+    pollNowRef.current = poll
     const timer = setInterval(poll, 5000)
     return () => {
       cancelled = true
       clearInterval(timer)
     }
   }, [matchId])
+
+  const pollNowRef = useRef<null | (() => Promise<void>)>(null)
 
   async function handleSend(formData: FormData) {
     const body = String(formData.get('body') ?? '').trim()
@@ -80,9 +83,10 @@ export default function Thread({
     try {
       await sendMessage(matchId, body)
       setDraft('')
-      // The cursor is deliberately left alone, so the next poll collects the
-      // message we just sent. Inventing an id client-side would risk showing a
-      // duplicate when the poll lands.
+      // The cursor is deliberately left alone; instead of inventing an id
+      // client-side (duplicate risk), poll immediately so the sender sees
+      // their message now rather than after the next 5s interval.
+      await pollNowRef.current?.()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not send that message.')
     } finally {
@@ -99,7 +103,7 @@ export default function Thread({
             <li
               key={m.id}
               className={`max-w-[80%] rounded-lg border p-3 ${
-                mine ? 'self-end bg-gray-900 text-white' : 'self-start bg-white'
+                mine ? 'self-end bg-brand text-white' : 'self-start bg-white'
               }`}
             >
               <p className="text-xs opacity-70">{mine ? 'You' : theirDogName}</p>

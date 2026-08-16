@@ -57,17 +57,22 @@ export default async function DashboardPage() {
           <Link href="/matches" className="text-sm underline text-gray-600">
             Matches
             {unreadTotal > 0 && (
-              <span className="ml-1 rounded-full bg-gray-900 px-1.5 py-0.5 text-xs font-bold text-white no-underline">
+              <span className="ml-1 rounded-full bg-accent px-1.5 py-0.5 text-xs font-bold text-white no-underline">
                 {unreadTotal}
               </span>
             )}
           </Link>
-          <Link href="/account/password" className="text-sm underline text-gray-600">
-            Password
+          <Link href="/account/password" className="text-sm underline text-gray-600 hover:text-brand">
+            Account
           </Link>
-          <Link href="/dogs/new" className="bg-gray-900 text-white px-4 py-2 rounded">
+          <Link href="/dogs/new" className="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded">
             Add a dog
           </Link>
+          <form action="/auth/signout" method="post">
+            <button type="submit" className="text-sm underline text-gray-600 hover:text-brand">
+              Sign out
+            </button>
+          </form>
         </div>
       </div>
       <LocationSettings currentLabel={owner?.location_label ?? null} />

@@ -26,7 +26,11 @@ export default function ExpressInterestForm({
   if (verifiedDogs.length === 0) {
     return (
       <p className="mt-4 text-sm text-gray-500">
-        Your dog needs verified health documents before it can express interest.
+        Your dog needs verified health documents before it can express interest.{' '}
+        <a href="/dashboard" className="font-semibold text-brand underline">
+          Upload them from your dashboard
+        </a>
+        {' '}— verification is free for Founding Members.
       </p>
     )
   }
