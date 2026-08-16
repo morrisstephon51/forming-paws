@@ -25,8 +25,9 @@ export default function robots(): MetadataRoute.Robots {
           // The old static sample view. Redirects to /app, which is a genuine
           // page and is indexed — its example dogs are labelled as examples.
           '/app.html',
-          // Confirmation pages. Crawlable on purpose so the noindex tag on them
-          // is actually read; a disallow here would hide that tag instead.
+          // Member-only account settings (the password page). It redirects to
+          // /login when signed out, so — like the surfaces above — there is
+          // nothing here to crawl and no reason to leak the URL into the index.
           '/account/',
         ],
       },
