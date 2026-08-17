@@ -9,3 +9,6 @@ tsconfig.tsbuildinfo
 
 # Vercel CLI project link — machine-specific, not shared state.
 .vercel
+
+# superpowers skill scratch state — per-session, not shared.
+.superpowers/
