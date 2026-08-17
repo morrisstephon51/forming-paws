@@ -1,0 +1,70 @@
+import Link from 'next/link'
+import Logo from './Logo'
+import { navLinks, isActive, type NavVariant } from '@/lib/nav'
+
+/**
+ * The one header for every page.
+ *
+ * Deliberately a pure function of its props — it reads no session and runs no
+ * query — so it renders identically in a test and in a server component, and the
+ * caller (which already holds a Supabase client) stays the single source of
+ * truth about who is signed in.
+ */
+export default function SiteHeader({
+  variant,
+  pathname = '/',
+  unreadCount = 0,
+  displayName = null,
+}: {
+  variant: NavVariant
+  pathname?: string
+  unreadCount?: number
+  displayName?: string | null
+}) {
+  const links = navLinks(variant)
+
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-4 py-4">
+      <Link href={variant === 'member' ? '/home' : '/'} className="shrink-0">
+        <Logo size="md" withWordmark />
+      </Link>
+
+      <nav aria-label="Main" className="flex flex-wrap items-center gap-4 text-sm">
+        {links.map((link) => {
+          const active = isActive(link.href, pathname)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+              className={
+                active
+                  ? 'font-bold text-brand-dark'
+                  : 'text-ink-soft hover:text-brand-dark hover:underline'
+              }
+            >
+              {link.label}
+              {/*
+                Spelled out rather than a bare number in a dot: a screen reader
+                announcing "Matches 3" gives no clue what the 3 counts.
+              */}
+              {link.href === '/matches' && unreadCount > 0 && (
+                <span data-testid="unread-badge" className="fp-badge ml-1.5">
+                  {unreadCount} unread
+                </span>
+              )}
+            </Link>
+          )
+        })}
+
+        {variant === 'public' ? (
+          <Link href="/signup" className="fp-btn px-4 py-2 text-sm">
+            Join free
+          </Link>
+        ) : (
+          displayName && <span className="text-sm text-ink-soft">{displayName}</span>
+        )}
+      </nav>
+    </header>
+  )
+}
