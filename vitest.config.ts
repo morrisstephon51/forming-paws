@@ -7,7 +7,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['tests/unit/**/*.{test,spec}.ts'],
+    // .tsx is included so component tests are actually collected — a .tsx test
+    // under a .ts-only glob is skipped silently, which looks exactly like passing.
+    include: ['tests/unit/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: { alias: { '@': path.resolve(__dirname, '.') } },
 })

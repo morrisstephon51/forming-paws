@@ -8,6 +8,7 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
+import SiteHeader from '@/components/SiteHeader'
 import StickyJoinBar from '@/components/StickyJoinBar'
 
 /**
@@ -97,32 +98,18 @@ export default async function HomePage({
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8 pb-28 sm:pb-8">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-lg font-bold">🐾 Forming Paws</span>
-        <nav className="flex items-center gap-4 text-sm">
-          <a href="#how" className="text-gray-600 hover:underline">
-            How It Works
-          </a>
-          <a href="#health" className="text-gray-600 hover:underline">
-            Health First
-          </a>
-          {signedIn ? (
-            <Link href="/dashboard" className="rounded bg-brand px-3 py-1.5 text-white">
-              Dashboard
-            </Link>
-          ) : (
-            <Link href="/signup" className="rounded bg-brand px-3 py-1.5 text-white">
-              Join Now
-            </Link>
-          )}
-        </nav>
-      </header>
+      {/*
+        The signed-in "Dashboard" chip that used to sit here is not lost: the
+        #signin panel below already renders a full-width dashboard button
+        whenever `signedIn`, which is a far bigger target than a header chip.
+      */}
+      <SiteHeader variant="public" />
 
       <main>
 
       <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
         <section className="md:col-span-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
             Nonprofit · Community-driven · Health-verified
           </p>
           <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
@@ -130,7 +117,7 @@ export default async function HomePage({
             <br />
             Happy litters.
           </h1>
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-ink-soft">
             Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
             thoughtful matchmaking for dogs, with veterinary verification at the centre of
             everything.
@@ -144,11 +131,11 @@ export default async function HomePage({
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/signup"
-                className="rounded bg-brand px-6 py-3 font-semibold text-white"
+                className="fp-btn"
               >
                 Join free — list your dog
               </Link>
-              <Link href="/app" className="rounded border px-6 py-3 font-semibold">
+              <Link href="/app" className="fp-btn-ghost">
                 See the app first
               </Link>
             </div>
@@ -156,35 +143,35 @@ export default async function HomePage({
           <dl className="mt-6 grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="font-semibold">Health-gated</dt>
-              <dd className="text-sm text-gray-600">
+              <dd className="text-sm text-ink-soft">
                 matching unlocks only after vet docs are verified
               </dd>
             </div>
             <div>
               <dt className="font-semibold">Local-first</dt>
-              <dd className="text-sm text-gray-600">
+              <dd className="text-sm text-ink-soft">
                 find partners by distance, never exact addresses
               </dd>
             </div>
             <div>
               <dt className="font-semibold">Owner-safe</dt>
-              <dd className="text-sm text-gray-600">
+              <dd className="text-sm text-ink-soft">
                 in-app chat, neutral meetup guidance, report tools
               </dd>
             </div>
           </dl>
         </section>
 
-        <section id="signin" className="rounded-lg border p-6 md:col-span-2">
+        <section id="signin" className="fp-card p-6 md:col-span-2">
           {signedIn ? (
             <>
               <h2 className="text-xl font-bold">You&apos;re signed in</h2>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-ink-soft">
                 Pick up where you left off with your dogs and matches.
               </p>
               <Link
                 href="/dashboard"
-                className="mt-6 block rounded bg-brand p-2 text-center text-white"
+                className="fp-btn mt-6 w-full"
               >
                 Go to your dashboard
               </Link>
@@ -197,9 +184,9 @@ export default async function HomePage({
                 offerResend={params.resend === '1'}
                 initialEmail={safeEmailParam(params.email)}
               />
-              <p className="mt-6 border-t pt-6 text-sm text-gray-600">
+              <p className="mt-6 border-t border-brand/15 pt-6 text-sm text-ink-soft">
                 New here?{' '}
-                <Link href="/signup" className="underline">
+                <Link href="/signup" className="fp-link">
                   Create your account and dog profile
                 </Link>
               </p>
@@ -209,36 +196,40 @@ export default async function HomePage({
       </div>
 
       <section id="how" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">How Forming Paws works</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-2xl font-bold">
+          <span aria-hidden="true">🐾</span> How Forming Paws works
+        </h2>
+        <p className="mt-2 text-ink-soft">
           Four steps from profile to a safe, well-documented match.
         </p>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step) => (
-            <li key={step.n} className="rounded-lg border p-5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-white">
+            <li key={step.n} className="fp-card">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
                 {step.n}
               </span>
               <h3 className="mt-3 font-semibold">{step.title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{step.body}</p>
+              <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
             </li>
           ))}
         </ol>
       </section>
 
       <section id="health" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">Health first — it&apos;s the whole point</h2>
-        <p className="mt-2 text-gray-600">
+        <h2 className="text-2xl font-bold">
+          <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
+        </h2>
+        <p className="mt-2 text-ink-soft">
           Forming Paws exists to raise the standard of dog breeding, not just to make introductions.
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {HEALTH.map((card) => (
-            <div key={card.title} className="rounded-lg border p-5">
+            <div key={card.title} className="fp-card">
               <span className="text-2xl" aria-hidden="true">
                 {card.icon}
               </span>
               <h3 className="mt-3 font-semibold">{card.title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{card.body}</p>
+              <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
             </div>
           ))}
         </div>
@@ -246,35 +237,35 @@ export default async function HomePage({
 
       <section id="roadmap" className="mt-20 scroll-mt-8">
         <h2 className="text-2xl font-bold">Where we&apos;re headed</h2>
-        <p className="mt-2 text-gray-600">A nonprofit that grows with its community.</p>
+        <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ROADMAP.map((item) => (
-            <li key={item.tag} className="rounded-lg border p-5">
-              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <li key={item.tag} className="fp-card">
+              <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                 {item.tag}
               </span>
               <h3 className="mt-2 font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{item.body}</p>
+              <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
             </li>
           ))}
         </ol>
       </section>
 
       {!signedIn && (
-        <section id="waitlist" className="mt-20 scroll-mt-8 rounded-lg border bg-gray-50 p-8">
+        <section id="waitlist" className="fp-band mt-20 scroll-mt-8">
           <h2 className="text-2xl font-bold">Be a Founding Member</h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-ink-soft">
             Join the waitlist — the first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
           </p>
           <WaitlistForm />
-          <p className="mt-4 text-sm text-gray-600">
+          <p className="mt-4 text-sm text-ink-soft">
             Ready now?{' '}
-            <Link href="/signup" className="font-semibold underline">
+            <Link href="/signup" className="fp-link font-semibold">
               Create your account &amp; dog profile
             </Link>{' '}
             · or{' '}
-            <Link href="/app" className="underline">
+            <Link href="/app" className="fp-link">
               see what the app looks like
             </Link>{' '}
             first.
@@ -284,33 +275,33 @@ export default async function HomePage({
 
       <section id="faq" className="mt-20 scroll-mt-8">
         <h2 className="text-2xl font-bold">Questions people ask first</h2>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-ink-soft">
           The five that come up most.{' '}
-          <Link href="/faq" className="underline">
+          <Link href="/faq" className="fp-link">
             All of them, on one page
           </Link>
           .
         </p>
         <div className="mt-6 flex flex-col gap-3">
           {FAQS.map((faq) => (
-            <details key={faq.question} className="rounded-lg border p-5">
+            <details key={faq.question} className="fp-card">
               <summary className="cursor-pointer font-semibold">{faq.question}</summary>
-              <p className="mt-3 text-sm text-gray-600">{faq.answer}</p>
+              <p className="mt-3 text-sm text-ink-soft">{faq.answer}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="mt-16 rounded-lg border bg-gray-50 p-8">
+      <section className="fp-band mt-16">
         <h2 className="text-2xl font-bold">Still deciding?</h2>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-ink-soft">
           {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/contact" className="rounded bg-brand px-5 py-2 font-semibold text-white">
+          <Link href="/contact" className="fp-btn">
             Ask a question
           </Link>
-          <Link href="/app" className="rounded border px-5 py-2 font-semibold">
+          <Link href="/app" className="fp-btn-ghost">
             See the app
           </Link>
         </div>

@@ -13,18 +13,15 @@ import Link from 'next/link'
  */
 export default function StickyJoinBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 p-3 backdrop-blur sm:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-brand/15 bg-ivory/95 p-3 backdrop-blur sm:hidden">
       <div
         className="flex items-center gap-3"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <p className="flex-1 text-xs leading-tight text-gray-600">
+        <p className="flex-1 text-xs leading-tight text-ink-soft">
           Free to join · health-verified matches near you
         </p>
-        <Link
-          href="/signup"
-          className="whitespace-nowrap rounded bg-brand px-4 py-2 text-sm font-semibold text-white"
-        >
+        <Link href="/signup" className="fp-btn whitespace-nowrap px-4 py-2 text-sm">
           Join free
         </Link>
       </div>

@@ -20,3 +20,49 @@
     letter-spacing: -0.01em;
   }
 }
+
+/*
+ * The brand vocabulary. Pages rebrand by swapping a utility soup like
+ * "rounded bg-gray-900 px-4 py-2 text-white" for a single .fp-btn, which keeps
+ * a fifteen-page rebrand a mechanical diff instead of fifteen redesigns.
+ *
+ * Layout stays on Tailwind utilities; only visual identity lives here.
+ */
+@layer components {
+  .fp-btn {
+    @apply inline-flex items-center justify-center rounded-lg bg-brand px-5 py-2.5
+           font-body font-bold text-ivory transition-colors hover:bg-brand-dark
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-brand;
+  }
+  .fp-btn-accent {
+    @apply inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5
+           font-body font-bold text-ivory transition-colors hover:bg-accent-dark
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-accent;
+  }
+  .fp-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg border-2 border-brand
+           bg-transparent px-5 py-2.5 font-body font-bold text-brand transition-colors
+           hover:bg-brand-soft focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .fp-card {
+    @apply rounded-xl border border-brand/15 bg-white p-5 shadow-sm;
+  }
+  /*
+   * Three distinct surfaces, or the layering reads as flat: the page is ivory,
+   * cards are white, and emphasis bands are pale brand green. An ivory band on
+   * an ivory page is a band nobody can see.
+   */
+  .fp-band {
+    @apply rounded-2xl bg-brand-soft p-8;
+  }
+  .fp-link {
+    @apply text-brand underline underline-offset-2 hover:text-brand-dark;
+  }
+  .fp-badge {
+    @apply inline-flex items-center rounded-full bg-brand-soft px-2.5 py-0.5
+           text-xs font-bold text-brand-dark;
+  }
+}
