@@ -7,7 +7,7 @@ export default function LocationPrompt() {
 
   return (
     <div className="mt-4 rounded border p-4">
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-ink-soft">
         Share your location to sort by distance. Declining just skips distance sorting — browsing still works.
       </p>
       <div className="mt-2 flex gap-2">

@@ -76,14 +76,14 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
         </h1>
         <Link
           href={isParticipant ? '/matches' : '/admin/reports'}
-          className="text-sm text-gray-600 underline"
+          className="text-sm text-ink-soft underline"
         >
           {isParticipant ? 'All matches' : 'Back to reports'}
         </Link>
       </div>
 
       {isParticipant ? (
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-ink-soft">
           Meet in a public place. Forming Paws is not a party to any breeding arrangement.
         </p>
       ) : (

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { dogListLabel } from '@/app/dashboard/dogLabel'
+import { dogListLabel } from '@/lib/dogs/dogLabel'
 
 describe('dogListLabel', () => {
   it('marks a verified dog', () => {

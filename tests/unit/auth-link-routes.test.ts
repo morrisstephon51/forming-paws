@@ -47,14 +47,14 @@ describe('/auth/confirm', () => {
     const response = await confirm(link('/auth/confirm?token_hash=abc123&type=signup'))
 
     expect(verifyOtp).toHaveBeenCalledWith({ type: 'signup', token_hash: 'abc123' })
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('confirms a PKCE code link, which is what the stock email template sends', async () => {
     const response = await confirm(link('/auth/confirm?code=68cb7ad6-e563-40af-be69-1352574efa4b'))
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('68cb7ad6-e563-40af-be69-1352574efa4b')
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('prefers the token hash when a link somehow carries both', async () => {
@@ -73,7 +73,7 @@ describe('/auth/confirm', () => {
   it('refuses to bounce a fresh session off to another site', async () => {
     const response = await confirm(link('/auth/confirm?code=abc&next=https%3A%2F%2Fevil.com'))
 
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('offers a resend when the token hash is spent or expired', async () => {
@@ -103,7 +103,7 @@ describe('/auth/confirm', () => {
 
     const response = await confirm(link('/auth/confirm'))
 
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('does not scold a signed-in member for clicking their link twice', async () => {
@@ -114,7 +114,7 @@ describe('/auth/confirm', () => {
 
     const response = await confirm(link('/auth/confirm?token_hash=spent&type=signup'))
 
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('redirects rather than throwing when Supabase itself is unreachable', async () => {
@@ -163,7 +163,7 @@ describe('/auth/confirm', () => {
       })
     )
 
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 })
 
@@ -172,14 +172,14 @@ describe('/auth/callback', () => {
     const response = await callback(link('/auth/callback?code=oauth-code'))
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith('oauth-code')
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('also accepts a token-hash link, so a mis-pointed template still works', async () => {
     const response = await callback(link('/auth/callback?token_hash=abc123&type=recovery'))
 
     expect(verifyOtp).toHaveBeenCalledWith({ type: 'recovery', token_hash: 'abc123' })
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 
   it('reports what the provider said when sign-in was refused', async () => {
@@ -195,6 +195,6 @@ describe('/auth/callback', () => {
 
     const response = await callback(link('/auth/callback'))
 
-    expect(location(response)).toBe(`${ORIGIN}/dashboard`)
+    expect(location(response)).toBe(`${ORIGIN}/home`)
   })
 })

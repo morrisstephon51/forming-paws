@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test('signup shows the email confirmation prompt instead of the dashboard', async ({ page }) => {
   // This Supabase project requires email confirmation (mailer_autoconfirm: false),
   // so signUp() returns a user with no session — the page must show a pending-confirmation
-  // message rather than redirecting to /dashboard.
+  // message rather than redirecting to /home.
   const uniqueEmail = `e2e-test-${Date.now()}@gmail.com`
 
   await page.goto('/signup')
@@ -33,7 +33,7 @@ test('confirmed owner can add a dog and see health verification status', async (
   await page.fill('input[name="password"]', password)
   await page.click('button[type="submit"]')
 
-  await expect(page).toHaveURL(/\/dashboard/)
+  await expect(page).toHaveURL(/\/home/)
 
   const dogName = `Test Dog ${Date.now()}`
   await page.click('text=Add a dog')
@@ -43,7 +43,7 @@ test('confirmed owner can add a dog and see health verification status', async (
   await page.fill('input[name="birthDate"]', '2023-01-15')
   await page.click('button[type="submit"]')
 
-  await expect(page).toHaveURL(/\/dashboard/)
+  await expect(page).toHaveURL(/\/home/)
   await page.click(`text=${dogName}`)
 
   await expect(page.locator('text=Health verification pending')).toBeVisible()

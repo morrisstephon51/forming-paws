@@ -37,19 +37,19 @@ export default function ShareButtons({ url, title }: { url: string; title: strin
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-gray-600">Share:</span>
+      <span className="text-sm text-ink-soft">Share:</span>
       {targets.map((target) => (
         <a
           key={target.name}
           href={target.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded border px-3 py-1 text-sm hover:bg-gray-50"
+          className="rounded border px-3 py-1 text-sm hover:bg-brand-soft"
         >
           {target.name}
         </a>
       ))}
-      <button onClick={copyLink} className="rounded border px-3 py-1 text-sm hover:bg-gray-50">
+      <button onClick={copyLink} className="rounded border px-3 py-1 text-sm hover:bg-brand-soft">
         {copied ? 'Link copied' : 'Copy link'}
       </button>
     </div>

@@ -111,11 +111,11 @@ export default function Thread({
             </li>
           )
         })}
-        {messages.length === 0 && <p className="text-gray-500">No messages yet — say hello.</p>}
+        {messages.length === 0 && <p className="text-ink-soft">No messages yet — say hello.</p>}
       </ul>
 
       {!canParticipate ? null : blocked ? (
-        <div className="mt-6 rounded border bg-gray-50 p-4 text-sm text-gray-600">
+        <div className="mt-6 rounded border bg-ivory p-4 text-sm text-ink-soft">
           <p>
             {blockedByMe
               ? 'You closed this conversation.'
@@ -128,7 +128,7 @@ export default function Thread({
               }}
               className="mt-3"
             >
-              <button type="submit" className="rounded border px-3 py-1.5 text-gray-900">
+              <button type="submit" className="rounded border px-3 py-1.5 text-ink">
                 Reopen conversation
               </button>
             </form>
@@ -159,7 +159,7 @@ export default function Thread({
             }}
             className="mt-4 border-t pt-4"
           >
-            <button type="submit" className="text-sm text-gray-600 underline">
+            <button type="submit" className="text-sm text-ink-soft underline">
               Close this conversation
             </button>
           </form>

@@ -27,7 +27,7 @@ export default function ContactPage() {
         Paws, not a queue.
       </p>
 
-      <p className="mt-4 text-gray-600">
+      <p className="mt-4 text-ink-soft">
         Health verification questions, trouble with your account, a link that didn&apos;t work, or a
         concern about another member — all of it belongs here. If you would rather use your own mail
         app, write to{' '}
@@ -37,7 +37,7 @@ export default function ContactPage() {
         .
       </p>
 
-      <p className="mt-4 text-sm text-gray-600">
+      <p className="mt-4 text-sm text-ink-soft">
         Before you write: the{' '}
         <Link href="/faq" className="underline">
           FAQ

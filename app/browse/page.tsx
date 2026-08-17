@@ -5,6 +5,8 @@ import { getBreeds } from '@/lib/breeds'
 import { getThumbnailUrl } from '@/lib/dogPhotos'
 import { ageInYears } from '@/lib/age'
 import LocationPrompt from './LocationPrompt'
+import SiteHeader from '@/components/SiteHeader'
+import { threadSummaries, totalUnread } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -47,10 +49,16 @@ export default async function BrowsePage({
 
   const { data: me } = await supabase
     .from('owners')
-    .select('location_label')
+    .select('location_label, deactivated_at')
     .eq('id', userData.user.id)
     .single()
+  if (me?.deactivated_at) redirect('/account/reactivate')
+
   const hasLocation = !!me?.location_label
+
+  // The header badge has to be true on every page that shows it, so this page
+  // pays for one extra RPC rather than rendering a silently stale zero.
+  const unreadTotal = totalUnread(await threadSummaries(supabase))
 
   const breeds = await getBreeds()
 
@@ -73,13 +81,10 @@ export default async function BrowsePage({
   )
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Browse dogs</h1>
-        <Link href="/dashboard" className="text-sm text-gray-600 underline">
-          Back to dashboard
-        </Link>
-      </div>
+    <div className="mx-auto max-w-2xl px-6 py-4">
+      <SiteHeader variant="member" pathname="/browse" unreadCount={unreadTotal} />
+      <main className="mt-6">
+      <h1 className="text-2xl font-bold">Browse dogs</h1>
 
       {!hasLocation && <LocationPrompt />}
 
@@ -135,19 +140,19 @@ export default async function BrowsePage({
       <ul className="mt-6 flex flex-col gap-3">
         {dogsWithPhotos.map((dog) => (
           <li key={dog.id}>
-            <Link href={`/dogs/${dog.id}`} className="flex gap-3 border p-3 rounded hover:bg-gray-50">
+            <Link href={`/dogs/${dog.id}`} className="flex gap-3 border p-3 rounded hover:bg-brand-soft">
               {dog.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={dog.photoUrl} alt={dog.name} className="h-16 w-16 rounded object-cover" />
               ) : (
-                <div className="h-16 w-16 rounded bg-gray-100" />
+                <div className="h-16 w-16 rounded bg-brand-soft" />
               )}
               <div>
                 <p className="font-medium">
                   {dog.name} — {dog.breed_name}, {ageInYears(dog.birth_date)}yo {dog.sex}
                 </p>
                 {dog.distance_miles != null && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-ink-soft">
                     {Math.round(dog.distance_miles)} mi away
                     {dog.location_label ? ` · ${dog.location_label}` : ''}
                   </p>
@@ -156,8 +161,9 @@ export default async function BrowsePage({
             </Link>
           </li>
         ))}
-        {dogsWithPhotos.length === 0 && <p className="text-gray-500">No dogs match your filters.</p>}
+        {dogsWithPhotos.length === 0 && <p className="text-ink-soft">No dogs match your filters.</p>}
       </ul>
-    </main>
+      </main>
+    </div>
   )
 }

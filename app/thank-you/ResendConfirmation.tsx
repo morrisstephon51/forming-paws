@@ -46,7 +46,7 @@ export default function ResendConfirmation({ email }: { email: string }) {
       <button
         onClick={resend}
         disabled={state === 'sending'}
-        className="text-sm underline text-gray-600 disabled:opacity-50"
+        className="text-sm underline text-ink-soft disabled:opacity-50"
       >
         {state === 'sending' ? 'Sending…' : "Didn't arrive? Send it again"}
       </button>

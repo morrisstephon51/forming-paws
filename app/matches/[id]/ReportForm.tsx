@@ -28,7 +28,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="mt-4 border-t pt-4 text-left text-sm text-gray-600 underline"
+        className="mt-4 border-t pt-4 text-left text-sm text-ink-soft underline"
       >
         Report this conversation
       </button>
@@ -52,7 +52,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
       }}
       className="mt-4 flex flex-col gap-3 border-t pt-4"
     >
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-ink-soft">
         Reporting lets a Forming Paws reviewer read this conversation while they look into it.
       </p>
       <select name="reason" required className="rounded border p-2 text-sm">
@@ -76,7 +76,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-gray-600 underline"
+          className="text-sm text-ink-soft underline"
         >
           Cancel
         </button>

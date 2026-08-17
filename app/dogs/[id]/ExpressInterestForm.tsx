@@ -20,14 +20,14 @@ export default function ExpressInterestForm({
   const [success, setSuccess] = useState(false)
 
   if (myDogs.length === 0) {
-    return <p className="mt-4 text-sm text-gray-500">Add a dog of your own to express interest.</p>
+    return <p className="mt-4 text-sm text-ink-soft">Add a dog of your own to express interest.</p>
   }
 
   if (verifiedDogs.length === 0) {
     return (
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="mt-4 text-sm text-ink-soft">
         Your dog needs verified health documents before it can express interest.{' '}
-        <a href="/dashboard" className="font-semibold text-brand underline">
+        <a href="/home" className="font-semibold text-brand underline">
           Upload them from your dashboard
         </a>
         {' '}— verification is free for Founding Members.

@@ -59,7 +59,7 @@ export default function LoginForm({
       return
     }
 
-    router.push('/dashboard')
+    router.push('/home')
     router.refresh()
   }
 
@@ -164,7 +164,7 @@ export default function LoginForm({
       {!showReset && (
         <button
           onClick={() => setShowReset(true)}
-          className="mt-3 text-sm underline text-gray-600"
+          className="mt-3 text-sm underline text-ink-soft"
         >
           Forgot your password?
         </button>

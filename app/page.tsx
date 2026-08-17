@@ -170,7 +170,7 @@ export default async function HomePage({
                 Pick up where you left off with your dogs and matches.
               </p>
               <Link
-                href="/dashboard"
+                href="/home"
                 className="fp-btn mt-6 w-full"
               >
                 Go to your dashboard

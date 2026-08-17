@@ -25,21 +25,21 @@ export default function Breadcrumbs({ trail }: { trail: Crumb[] }) {
 
   return (
     <>
-      <nav aria-label="Breadcrumb" className="text-sm text-gray-500">
+      <nav aria-label="Breadcrumb" className="text-sm text-ink-soft">
         <ol className="flex flex-wrap items-center gap-1">
           {items.map((item, i) => (
             <li key={item.label} className="flex items-center gap-1">
               {i > 0 && (
-                <span aria-hidden="true" className="text-gray-300">
+                <span aria-hidden="true" className="text-brand/30">
                   /
                 </span>
               )}
               {item.href ? (
-                <Link href={item.href} className="underline hover:text-gray-700">
+                <Link href={item.href} className="underline hover:text-ink-soft">
                   {item.label}
                 </Link>
               ) : (
-                <span aria-current="page" className="text-gray-700">
+                <span aria-current="page" className="text-ink-soft">
                   {item.label}
                 </span>
               )}

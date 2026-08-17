@@ -74,7 +74,7 @@ export default async function ThankYouPage({
       <main>
 
       <h1 className="mt-6 text-3xl font-bold">{copy.heading}</h1>
-      <p className="mt-4 text-gray-700">
+      <p className="mt-4 text-ink-soft">
         {variant === 'signup' && email ? (
           <>
             We&apos;ve sent a confirmation link to <span className="font-medium">{email}</span>. Open
@@ -103,11 +103,11 @@ export default async function ThankYouPage({
         ))}
       </div>
 
-      <p className="mt-6 text-sm text-gray-600">{copy.note}</p>
+      <p className="mt-6 text-sm text-ink-soft">{copy.note}</p>
 
       {variant !== 'signup' && (
         <div className="mt-10 border-t pt-6">
-          <p className="mb-3 text-sm text-gray-600">
+          <p className="mb-3 text-sm text-ink-soft">
             Know another owner who cares about doing this properly?
           </p>
           <ShareButtons

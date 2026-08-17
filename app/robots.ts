@@ -11,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           // Member-only surfaces. They redirect to /login when signed out, so
           // crawling them yields nothing but wasted budget and stray login URLs
           // in the index.
+          '/home',
           '/dashboard',
           '/browse',
           '/matches',

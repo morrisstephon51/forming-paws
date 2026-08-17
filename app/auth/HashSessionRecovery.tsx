@@ -56,7 +56,7 @@ export default function HashSessionRecovery() {
           )
           return
         }
-        router.replace('/dashboard')
+        router.replace('/home')
         router.refresh()
       })
 

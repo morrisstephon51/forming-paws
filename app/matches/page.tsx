@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { threadSummaries } from '@/lib/chat/threads'
+import { threadSummaries, totalUnread } from '@/lib/chat/threads'
+import SiteHeader from '@/components/SiteHeader'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -41,14 +42,11 @@ export default async function MatchesPage() {
   const lastByMatch = new Map(threads.map((t) => [t.match_id, t.last_body]))
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Your matches</h1>
-        <Link href="/dashboard" className="text-sm text-gray-600 underline">
-          Back to dashboard
-        </Link>
-      </div>
-      <p className="mt-2 text-sm text-gray-500">
+    <div className="mx-auto max-w-2xl px-6 py-4">
+      <SiteHeader variant="member" pathname="/matches" unreadCount={totalUnread(threads)} />
+      <main className="mt-6">
+      <h1 className="text-2xl font-bold">Your matches</h1>
+      <p className="mt-2 text-sm text-ink-soft">
         Matches are introductions only — Forming Paws is not a party to any breeding arrangement.
       </p>
       <ul className="mt-6 flex flex-col gap-3">
@@ -59,7 +57,7 @@ export default async function MatchesPage() {
           const preview = lastByMatch.get(m.id)
           return (
             <li key={m.id}>
-              <Link href={`/matches/${m.id}`} className="block rounded border p-4 hover:bg-gray-50">
+              <Link href={`/matches/${m.id}`} className="block rounded border p-4 hover:bg-brand-soft">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">
                     {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
@@ -70,15 +68,16 @@ export default async function MatchesPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 truncate text-sm text-gray-500">
+                <p className="mt-1 truncate text-sm text-ink-soft">
                   {preview ?? `Matched ${new Date(m.matched_at).toLocaleDateString()}`}
                 </p>
               </Link>
             </li>
           )
         })}
-        {matches?.length === 0 && <p className="text-gray-500">No matches yet.</p>}
+        {matches?.length === 0 && <p className="text-ink-soft">No matches yet.</p>}
       </ul>
-    </main>
+      </main>
+    </div>
   )
 }

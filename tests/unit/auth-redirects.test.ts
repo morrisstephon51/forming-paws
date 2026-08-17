@@ -36,19 +36,19 @@ describe('safeRedirectPath', () => {
   })
 
   it('falls back when next is absent', () => {
-    expect(safeRedirectPath(null)).toBe('/dashboard')
+    expect(safeRedirectPath(null)).toBe('/home')
   })
 
   it('rejects an absolute URL to another site', () => {
-    expect(safeRedirectPath('https://evil.com')).toBe('/dashboard')
+    expect(safeRedirectPath('https://evil.com')).toBe('/home')
   })
 
   it('rejects a protocol-relative URL', () => {
-    expect(safeRedirectPath('//evil.com')).toBe('/dashboard')
+    expect(safeRedirectPath('//evil.com')).toBe('/home')
   })
 
   it('rejects a backslash-obfuscated protocol-relative URL', () => {
-    expect(safeRedirectPath('/\\evil.com')).toBe('/dashboard')
+    expect(safeRedirectPath('/\\evil.com')).toBe('/home')
   })
 })
 
