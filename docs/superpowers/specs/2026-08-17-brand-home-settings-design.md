@@ -16,8 +16,24 @@ Three gaps, one root cause.
    with an unread message, a pending interest, and an unverified dog has no single
    screen that tells them what to do next.
 3. **There is no settings page.** Password lives at `/account/password`, location is
-   embedded in the dashboard, display name cannot be changed after signup, email cannot
-   be changed at all, and **the app has no sign-out button anywhere**.
+   embedded in the dashboard, display name cannot be changed after signup, and email
+   cannot be changed at all.
+
+> **Correction, 2026-08-17.** This document was first drafted against local `main`.
+> `origin/main` was two commits ahead — `5bcba51` (a UX pass) and `bf2b233` (brand
+> colours). Two claims changed as a result:
+>
+> - **Sign out already exists.** `app/auth/signout/route.ts` is a POST route, and
+>   `/dashboard` renders a form posting to it. The earlier claim that the app had no
+>   sign-out anywhere was true of local `main` and is false of `origin/main`. Settings
+>   and `SiteHeader` therefore *reuse* that route rather than adding a server action.
+>   POST is deliberate there — a prefetching crawler must never be able to sign a member
+>   out — so any new sign-out affordance must also be a form, never a link.
+> - **`bf2b233` is a colour swap, not a brand system.** It replaced `bg-gray-900` with
+>   `bg-brand` in 22 files. 130 `text-gray-*` / `bg-gray-50` / bare `border` classes
+>   remain, no shared header exists, `logo.svg` is still unused outside the favicon, and
+>   the Fraunces/Nunito families are not applied to `body`. The work below is unaffected;
+>   it supplies the system that swap was reaching for.
 
 The root cause of (1) is that there is nothing to swap *to*. Rebranding fifteen pages
 one at a time is fifteen redesigns. A shared component layer turns it into a class swap.

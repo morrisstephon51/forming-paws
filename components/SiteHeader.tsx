@@ -62,7 +62,22 @@ export default function SiteHeader({
             Join free
           </Link>
         ) : (
-          displayName && <span className="text-sm text-ink-soft">{displayName}</span>
+          <>
+            {displayName && <span className="text-sm text-ink-soft">{displayName}</span>}
+            {/*
+              A form, not a link, and posting to the existing /auth/signout route
+              rather than a new action. GET sign-out is a real bug: a crawler or a
+              browser prefetching the link would silently end the session.
+            */}
+            <form action="/auth/signout" method="post">
+              <button
+                type="submit"
+                className="text-sm text-ink-soft hover:text-brand-dark hover:underline"
+              >
+                Sign out
+              </button>
+            </form>
+          </>
         )}
       </nav>
     </header>
