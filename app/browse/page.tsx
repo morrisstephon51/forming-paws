@@ -49,9 +49,11 @@ export default async function BrowsePage({
 
   const { data: me } = await supabase
     .from('owners')
-    .select('location_label')
+    .select('location_label, deactivated_at')
     .eq('id', userData.user.id)
     .single()
+  if (me?.deactivated_at) redirect('/account/reactivate')
+
   const hasLocation = !!me?.location_label
 
   // The header badge has to be true on every page that shows it, so this page

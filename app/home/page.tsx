@@ -31,7 +31,7 @@ export default async function HomePage() {
 
   const { data: owner } = await supabase
     .from('owners')
-    .select('display_name, location_label')
+    .select('display_name, location_label, deactivated_at')
     .eq('id', userData.user.id)
     .single()
 
@@ -39,6 +39,10 @@ export default async function HomePage() {
     .from('dogs')
     .select('id, name, sex, birth_date, breeds(name)')
     .eq('owner_id', userData.user.id)
+
+  // A member mid-deletion gets the one page that offers a way back, not the
+  // product they just asked us to remove them from.
+  if (owner?.deactivated_at) redirect('/account/reactivate')
 
   if (error) throw error
 

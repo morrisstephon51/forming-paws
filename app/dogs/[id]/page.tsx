@@ -45,6 +45,22 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
       .maybeSingle()
 
     if (error || !browsableDog) notFound()
+
+    // dogs_browsable deliberately does NOT filter deactivated owners — it is
+    // also what resolves dog names inside existing conversations and the admin
+    // review queue, and filtering it there would blank those names (migration
+    // 0022 explains this at length). So the check lives here instead: a direct
+    // URL to a departing member's dog should 404 for everyone but its owner.
+    //
+    // Via the RPC, not `select deactivated_at from owners`: owners' RLS is
+    // owner-own-row-only, so reading someone else's row returns nothing and the
+    // check would quietly pass for every dog on the site.
+    const { data: ownerActive } = await supabase.rpc('owner_is_active', {
+      p_owner_id: browsableDog.owner_id,
+    })
+
+    if (!ownerActive) notFound()
+
     dog = { ...browsableDog, breedName: browsableDog.breed_name }
   }
 
