@@ -93,11 +93,11 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
           ✓ Baseline health verified
         </span>
       ) : (
-        <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded mt-1">
+        <span className="inline-block bg-brand-soft text-ink-soft text-xs px-2 py-1 rounded mt-1">
           Health verification pending
         </span>
       )}
-      <p className="text-gray-600">
+      <p className="text-ink-soft">
         {dog.breedName} · {dog.sex} · born {formatCalendarDate(dog.birth_date)}
       </p>
       {isOwnDog && dog.temperament_notes && <p className="mt-4">{dog.temperament_notes}</p>}

@@ -29,7 +29,7 @@ export default async function ReportsPage() {
     .select('is_admin')
     .eq('id', userData.user.id)
     .single()
-  if (!owner?.is_admin) redirect('/dashboard')
+  if (!owner?.is_admin) redirect('/home')
 
   const { data: reports } = await supabase
     .from('match_reports')
@@ -40,7 +40,7 @@ export default async function ReportsPage() {
   return (
     <main className="mx-auto max-w-2xl p-8">
       <h1 className="text-2xl font-bold">Reported conversations</h1>
-      <p className="mt-2 text-sm text-gray-500">
+      <p className="mt-2 text-sm text-ink-soft">
         You can read a reported conversation while its report is open or being reviewed. Resolving or
         dismissing it ends that access — that limit is enforced by the database, not by this page.
       </p>
@@ -48,8 +48,8 @@ export default async function ReportsPage() {
         {reports?.map((r) => (
           <li key={r.id} className="rounded border p-4">
             <p className="font-medium">{REASON_LABELS[r.reason] ?? r.reason}</p>
-            {r.detail && <p className="mt-1 text-sm text-gray-600">{r.detail}</p>}
-            <p className="mt-1 text-xs text-gray-500">
+            {r.detail && <p className="mt-1 text-sm text-ink-soft">{r.detail}</p>}
+            <p className="mt-1 text-xs text-ink-soft">
               Reported {new Date(r.created_at).toLocaleDateString()} · status {r.status}
             </p>
             <Link href={`/matches/${r.match_id}`} className="mt-2 inline-block text-sm underline">
@@ -82,7 +82,7 @@ export default async function ReportsPage() {
             </form>
           </li>
         ))}
-        {reports?.length === 0 && <p className="text-gray-500">Nothing reported. 🎉</p>}
+        {reports?.length === 0 && <p className="text-ink-soft">Nothing reported. 🎉</p>}
       </ul>
     </main>
   )

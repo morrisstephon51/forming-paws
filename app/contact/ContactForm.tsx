@@ -81,7 +81,7 @@ export default function ContactForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="border p-2"
         />
-        <p className="text-xs text-gray-500">So we can reply. We never add it to a mailing list.</p>
+        <p className="text-xs text-ink-soft">So we can reply. We never add it to a mailing list.</p>
       </div>
 
       <div className="flex flex-col gap-1">

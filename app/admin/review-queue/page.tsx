@@ -26,7 +26,7 @@ export default async function ReviewQueuePage({
     .select('is_admin')
     .eq('id', userData.user.id)
     .single()
-  if (!owner?.is_admin) redirect('/dashboard')
+  if (!owner?.is_admin) redirect('/home')
 
   const { data: pendingDocs } = await supabase
     .from('health_documents')
@@ -71,7 +71,7 @@ export default async function ReviewQueuePage({
                 View document
               </a>
             ) : (
-              <p className="text-sm text-gray-500">Document unavailable</p>
+              <p className="text-sm text-ink-soft">Document unavailable</p>
             )}
             <form
               action={async (formData: FormData) => {
@@ -100,7 +100,7 @@ export default async function ReviewQueuePage({
             </form>
           </li>
         ))}
-        {docs.length === 0 && <p className="text-gray-500">Nothing pending review.</p>}
+        {docs.length === 0 && <p className="text-ink-soft">Nothing pending review.</p>}
       </ul>
     </main>
   )

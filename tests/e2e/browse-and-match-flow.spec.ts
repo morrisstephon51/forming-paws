@@ -45,13 +45,13 @@ test('two verified owners browse, express mutual interest, and see a match', asy
   await pageA.fill('input[name="email"]', emailA)
   await pageA.fill('input[name="password"]', passwordA)
   await pageA.click('button[type="submit"]')
-  await expect(pageA).toHaveURL(/\/dashboard/)
+  await expect(pageA).toHaveURL(/\/home/)
 
   await pageB.goto('/login')
   await pageB.fill('input[name="email"]', emailB)
   await pageB.fill('input[name="password"]', passwordB)
   await pageB.click('button[type="submit"]')
-  await expect(pageB).toHaveURL(/\/dashboard/)
+  await expect(pageB).toHaveURL(/\/home/)
 
   // Owner A browses and finds Owner B's dog
   await pageA.goto('/browse')

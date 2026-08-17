@@ -57,7 +57,7 @@ export default function NewDogForm({ breeds }: { breeds: { id: number; name: str
       return
     }
 
-    router.push('/dashboard')
+    router.push('/home')
   }
 
   return (

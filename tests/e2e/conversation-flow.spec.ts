@@ -8,7 +8,7 @@ async function signIn(page: Page, who: { email: string; password: string }) {
   await page.fill('input[name="email"]', who.email)
   await page.fill('input[name="password"]', who.password)
   await page.click('button[type="submit"]')
-  await page.waitForURL('**/dashboard')
+  await page.waitForURL('**/home')
 }
 
 async function openFirstThread(page: Page) {

@@ -27,7 +27,7 @@ export default async function MessagesPage() {
     .select('is_admin')
     .eq('id', userData.user.id)
     .single()
-  if (!owner?.is_admin) redirect('/dashboard')
+  if (!owner?.is_admin) redirect('/home')
 
   const { data: messages } = await supabase
     .from('contact_messages')
@@ -42,11 +42,11 @@ export default async function MessagesPage() {
     <main className="mx-auto max-w-2xl p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-2xl font-bold">Contact messages</h1>
-        <Link href="/dashboard" className="text-sm underline text-gray-600">
+        <Link href="/home" className="text-sm underline text-ink-soft">
           Back to dashboard
         </Link>
       </div>
-      <p className="mt-2 text-sm text-gray-500">
+      <p className="mt-2 text-sm text-ink-soft">
         The site promises a reply {RESPONSE_TIME.within}, so anything here older than that is
         already late.
       </p>
@@ -54,20 +54,20 @@ export default async function MessagesPage() {
       <h2 className="mt-8 text-lg font-semibold">
         Waiting on a reply{waiting.length > 0 && ` (${waiting.length})`}
       </h2>
-      {waiting.length === 0 && <p className="mt-2 text-gray-500">Nothing waiting.</p>}
+      {waiting.length === 0 && <p className="mt-2 text-ink-soft">Nothing waiting.</p>}
       <ul className="mt-4 flex flex-col gap-4">
         {waiting.map((message) => (
           <li key={message.id} className="rounded border p-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-medium">{message.name}</p>
-              <time className="text-xs text-gray-500" dateTime={message.created_at}>
+              <time className="text-xs text-ink-soft" dateTime={message.created_at}>
                 {new Date(message.created_at).toLocaleString()}
               </time>
             </div>
-            <a href={`mailto:${message.email}`} className="text-sm underline text-gray-600">
+            <a href={`mailto:${message.email}`} className="text-sm underline text-ink-soft">
               {message.email}
             </a>
-            <p className="mt-3 whitespace-pre-wrap text-sm text-gray-800">{message.message}</p>
+            <p className="mt-3 whitespace-pre-wrap text-sm text-ink">{message.message}</p>
             <form
               action={async () => {
                 'use server'
@@ -75,7 +75,7 @@ export default async function MessagesPage() {
               }}
               className="mt-4"
             >
-              <button className="rounded border px-3 py-1 text-sm hover:bg-gray-50">
+              <button className="rounded border px-3 py-1 text-sm hover:bg-brand-soft">
                 Mark replied
               </button>
             </form>
@@ -88,8 +88,8 @@ export default async function MessagesPage() {
           <h2 className="mt-10 text-lg font-semibold">Replied</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {done.map((message) => (
-              <li key={message.id} className="rounded border p-3 text-sm text-gray-600">
-                <span className="font-medium text-gray-800">{message.name}</span> · {message.email} ·{' '}
+              <li key={message.id} className="rounded border p-3 text-sm text-ink-soft">
+                <span className="font-medium text-ink">{message.name}</span> · {message.email} ·{' '}
                 {new Date(message.created_at).toLocaleDateString()}
               </li>
             ))}

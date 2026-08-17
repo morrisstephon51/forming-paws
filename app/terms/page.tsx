@@ -11,16 +11,16 @@ export const metadata = pageMetadata({
 export default function TermsPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link href="/" className="text-sm text-gray-600 underline">
+      <Link href="/" className="text-sm text-ink-soft underline">
         ← Back to {SITE_NAME}
       </Link>
 
       <h1 className="mt-6 text-3xl font-bold">Terms of Service</h1>
-      <p className="mt-2 text-sm text-gray-600">Last updated {LEGAL_LAST_UPDATED}</p>
+      <p className="mt-2 text-sm text-ink-soft">Last updated {LEGAL_LAST_UPDATED}</p>
 
-      <div className="mt-8 flex flex-col gap-6 text-gray-700">
+      <div className="mt-8 flex flex-col gap-6 text-ink-soft">
         <section>
-          <h2 className="text-xl font-bold text-gray-900">What {SITE_NAME} is</h2>
+          <h2 className="text-xl font-bold text-ink">What {SITE_NAME} is</h2>
           <p className="mt-3">
             {SITE_NAME} is a platform that helps dog owners find each other and review health
             documentation before deciding whether to breed. We provide introductions and a review
@@ -33,7 +33,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Who can use it</h2>
+          <h2 className="text-xl font-bold text-ink">Who can use it</h2>
           <p className="mt-3">
             You must be at least 18 and legally able to enter into agreements. You are responsible
             for keeping your password secure and for everything done through your account.
@@ -41,7 +41,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-ink">
             What health verification does and does not mean
           </h2>
           <p className="mt-3">
@@ -60,7 +60,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Your responsibilities</h2>
+          <h2 className="text-xl font-bold text-ink">Your responsibilities</h2>
           <ul className="mt-3 flex list-disc flex-col gap-2 pl-6">
             <li>Give accurate information about yourself and your dog.</li>
             <li>
@@ -78,7 +78,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">What you may not do</h2>
+          <h2 className="text-xl font-bold text-ink">What you may not do</h2>
           <p className="mt-3">
             You may not use {SITE_NAME} to operate a high-volume commercial breeding business, list
             dogs you do not own, misrepresent a dog&apos;s health or history, harass other members,
@@ -88,7 +88,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Your content</h2>
+          <h2 className="text-xl font-bold text-ink">Your content</h2>
           <p className="mt-3">
             Your photos and profile text remain yours. You give us permission to display them within
             the platform so other members can see your listing. You can remove them by deleting the
@@ -97,7 +97,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">No warranty, and limits on liability</h2>
+          <h2 className="text-xl font-bold text-ink">No warranty, and limits on liability</h2>
           <p className="mt-3">
             The service is provided as-is. We do not warrant that it will be uninterrupted or
             error-free, and we make no guarantee about any member, any dog, or any outcome of a
@@ -112,7 +112,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Ending your account</h2>
+          <h2 className="text-xl font-bold text-ink">Ending your account</h2>
           <p className="mt-3">
             You can delete your account at any time by emailing us. We may suspend or remove accounts
             that break these terms, falsify documents, or put animals or members at risk.
@@ -120,7 +120,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Changes</h2>
+          <h2 className="text-xl font-bold text-ink">Changes</h2>
           <p className="mt-3">
             We may update these terms as the platform grows. Substantive changes will be announced to
             members by email, and the date above will change.
@@ -128,7 +128,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-bold text-gray-900">Contact</h2>
+          <h2 className="text-xl font-bold text-ink">Contact</h2>
           <p className="mt-3">
             Questions go to{' '}
             <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
@@ -138,7 +138,7 @@ export default function TermsPage() {
           </p>
         </section>
 
-        <p className="border-t pt-6 text-sm text-gray-600">
+        <p className="border-t pt-6 text-sm text-ink-soft">
           See also our{' '}
           <Link href="/privacy" className="underline">
             Privacy Policy

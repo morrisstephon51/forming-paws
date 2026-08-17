@@ -23,6 +23,6 @@ export async function updateMyLocation(latitude: number, longitude: number, city
     .eq('id', userData.user.id)
 
   if (error) throw error
-  revalidatePath('/dashboard')
+  revalidatePath('/home')
   revalidatePath('/browse')
 }

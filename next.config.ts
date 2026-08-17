@@ -30,7 +30,10 @@ const nextConfig: NextConfig = {
       { source: '/app.html', destination: '/app', permanent: false },
       { source: '/join.html', destination: '/signup', permanent: false },
       { source: '/login.html', destination: '/login', permanent: false },
-      { source: '/home.html', destination: '/dashboard', permanent: false },
+      { source: '/home.html', destination: '/home', permanent: false },
+      // /dashboard is retired in favour of /home. Members have it bookmarked and
+      // it is where older emailed links point, so it redirects rather than 404s.
+      { source: '/dashboard', destination: '/home', permanent: false },
       // Emailed auth links carry either ?token_hash= (a {{ .TokenHash }}
       // template) or ?code= (the stock {{ .ConfirmationURL }} template, which
       // bounces the click through Supabase's own /verify endpoint first).

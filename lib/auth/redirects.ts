@@ -22,7 +22,7 @@ export function getRequestOrigin(request: Request): string {
  * attacker-suppliable. Only same-origin relative paths are honoured so a crafted
  * link can't bounce a freshly-authenticated user off to another site.
  */
-export function safeRedirectPath(next: string | null | undefined, fallback = '/dashboard'): string {
+export function safeRedirectPath(next: string | null | undefined, fallback = '/home'): string {
   if (!next) return fallback
   // `//evil.com` and `/\evil.com` are protocol-relative — browsers treat them as absolute.
   if (!next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return fallback

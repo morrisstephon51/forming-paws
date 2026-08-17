@@ -34,7 +34,7 @@ export default function PasswordForm() {
       return
     }
 
-    router.push('/dashboard')
+    router.push('/home')
     router.refresh()
   }
 

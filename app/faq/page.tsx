@@ -22,7 +22,7 @@ export default function FaqPage() {
       <main>
 
       <h1 className="mt-6 text-3xl font-bold">Questions people ask first</h1>
-      <p className="mt-3 text-gray-600">
+      <p className="mt-3 text-ink-soft">
         If yours isn&apos;t here,{' '}
         <Link href="/contact" className="underline">
           send it to us
@@ -34,14 +34,14 @@ export default function FaqPage() {
         {FAQS.map((faq) => (
           <div key={faq.question}>
             <dt className="text-lg font-semibold">{faq.question}</dt>
-            <dd className="mt-2 text-gray-700">{faq.answer}</dd>
+            <dd className="mt-2 text-ink-soft">{faq.answer}</dd>
           </div>
         ))}
       </dl>
 
-      <div className="mt-12 rounded-lg border bg-gray-50 p-6">
+      <div className="mt-12 rounded-lg border bg-ivory p-6">
         <h2 className="text-xl font-bold">Ready when you are</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-ink-soft">
           Creating your account and your dog&apos;s profile takes a few minutes, and costs nothing.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
