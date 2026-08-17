@@ -16,7 +16,7 @@ const EMPTY: ActionResult = { ok: false, message: '' }
 function Notice({ result }: { result: ActionResult }) {
   if (!result.message) return null
   return (
-    <p className={`mt-3 text-sm ${result.ok ? 'text-brand-dark' : 'text-accent-dark'}`} role="status">
+    <p className={`mt-3 text-sm ${result.ok ? 'text-brand-dark' : 'text-red-700'}`} role="status">
       {result.message}
     </p>
   )
@@ -125,7 +125,7 @@ export function NotificationForm({
 export function DangerZone() {
   const [result, action, pending] = useActionState(deactivateAccount, EMPTY)
   return (
-    <div className="mt-4 rounded-xl border-2 border-accent/40 bg-accent-soft p-5">
+    <div className="mt-4 rounded-xl border-2 border-red-300 bg-red-50 p-5">
       <h3 className="font-display text-lg font-bold text-ink">Delete your account</h3>
       <p className="mt-2 text-sm text-ink-soft">
         Your profile and dogs disappear from Forming Paws straight away. We keep the record for{' '}
@@ -150,7 +150,7 @@ export function DangerZone() {
           <button
             type="submit"
             disabled={pending}
-            className="fp-btn-accent whitespace-nowrap px-4 py-2 text-sm"
+            className="whitespace-nowrap rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
           >
             {pending ? 'Working…' : 'Delete account'}
           </button>
@@ -158,7 +158,7 @@ export function DangerZone() {
         <Notice result={result} />
       </form>
 
-      <form action="/auth/signout" method="post" className="mt-6 border-t border-accent/30 pt-4">
+      <form action="/auth/signout" method="post" className="mt-6 border-t border-red-200 pt-4">
         <p className="text-sm text-ink-soft">Just want to step away for now?</p>
         <button type="submit" className="fp-btn-ghost mt-2 px-4 py-2 text-sm">
           Sign out

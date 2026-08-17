@@ -36,7 +36,7 @@ export default function LocationSettings({ currentLabel }: { currentLabel: strin
           {isSaving ? 'Saving…' : 'Share location'}
         </button>
       </div>
-      {error && <p className="mt-2 text-sm text-accent-dark">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
     </div>
   )
 }
