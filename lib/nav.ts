@@ -73,3 +73,36 @@ export function initialCarouselIndex(pathname: string): number {
 export function step(index: number, delta: number, length = CAROUSEL_LINKS.length): number {
   return (((index + delta) % length) + length) % length
 }
+
+/**
+ * Top-of-funnel pages that carry the mobile "Join free" bar for signed-out
+ * visitors.
+ *
+ * Deliberately excludes /login and /signup — someone already converting does
+ * not need to be told to convert — and the legal pages, where a marketing bar
+ * over the terms is both tacky and slightly suspect.
+ */
+const JOIN_BAR_ROUTES = new Set([
+  '/',
+  '/about',
+  '/app',
+  '/contact',
+  '/donate',
+  '/education',
+  '/faq',
+  '/vets',
+])
+
+/**
+ * Whether the signed-out join bar belongs on this page.
+ *
+ * Paired with the member tab bar through a single either/or in AppChrome, so
+ * the two fixed bottom bars can never stack. They did: /faq, /contact and /app
+ * rendered the join bar unconditionally, so once the member tab bar existed a
+ * signed-in member on those pages got both, one on top of the other.
+ */
+export function showsJoinBar(pathname: string): boolean {
+  if (JOIN_BAR_ROUTES.has(pathname)) return true
+  // Guides are top-of-funnel too, and there are three of them and counting.
+  return pathname.startsWith('/education/')
+}

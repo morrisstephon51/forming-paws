@@ -6,6 +6,7 @@ import {
   MEMBER_HOME,
   initialCarouselIndex,
   step,
+  showsJoinBar,
 } from '@/lib/nav'
 
 describe('navLinks', () => {
@@ -60,6 +61,41 @@ describe('carousel model', () => {
   it('wraps to the first slide when the current page is last', () => {
     const last = CAROUSEL_LINKS[CAROUSEL_LINKS.length - 1]
     expect(initialCarouselIndex(last.href)).toBe(0)
+  })
+})
+
+describe('showsJoinBar', () => {
+  it('carries the join bar on top-of-funnel pages', () => {
+    for (const path of ['/', '/about', '/education', '/vets', '/donate', '/faq', '/contact', '/app'])
+      expect(showsJoinBar(path)).toBe(true)
+  })
+
+  it('covers individual guides, not just the hub', () => {
+    expect(showsJoinBar('/education/meeting-safely')).toBe(true)
+  })
+
+  // Someone already filling in a signup form does not need to be told to sign up.
+  it('stays off the auth pages', () => {
+    expect(showsJoinBar('/login')).toBe(false)
+    expect(showsJoinBar('/signup')).toBe(false)
+  })
+
+  it('stays off the legal pages', () => {
+    expect(showsJoinBar('/privacy')).toBe(false)
+    expect(showsJoinBar('/terms')).toBe(false)
+  })
+
+  it('stays off member surfaces', () => {
+    for (const path of ['/home', '/browse', '/matches', '/settings', '/dogs/new'])
+      expect(showsJoinBar(path)).toBe(false)
+  })
+
+  // The join bar and the member tab bar are both fixed to the bottom. Every
+  // page the join bar claims must therefore be a page a member never sees it
+  // on — AppChrome enforces that with an either/or, and this pins the intent.
+  it('never claims a member-only route', () => {
+    const memberRoutes = ['/home', '/browse', '/matches', '/settings', '/account/reactivate']
+    for (const route of memberRoutes) expect(showsJoinBar(route)).toBe(false)
   })
 })
 

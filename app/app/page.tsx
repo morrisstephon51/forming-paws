@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import StickyJoinBar from '@/components/StickyJoinBar'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -162,7 +161,6 @@ export default function AppTourPage() {
       </main>
 
       <SiteFooter />
-      <StickyJoinBar />
     </div>
   )
 }

@@ -48,8 +48,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <section key={section.heading}>
               <h2 className="text-xl font-bold">{section.heading}</h2>
               <div className="mt-3 flex flex-col gap-3 text-ink-soft">
-                {section.body.map((para) => (
-                  <p key={para.slice(0, 40)}>{para}</p>
+                {section.body.map((para, i) => (
+                  <p key={i}>{para}</p>
                 ))}
               </div>
             </section>

@@ -10,7 +10,6 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import StickyJoinBar from '@/components/StickyJoinBar'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -111,7 +110,7 @@ export default async function HomePage({
   if (signedIn) redirect(MEMBER_HOME)
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8 pb-28 sm:pb-8">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       <main>
         <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
           <section className="md:col-span-3">
@@ -304,7 +303,6 @@ export default async function HomePage({
       </main>
 
       <SiteFooter />
-      <StickyJoinBar />
     </div>
   )
 }

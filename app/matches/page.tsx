@@ -17,6 +17,17 @@ export default async function MatchesPage() {
   if (!userData.user) redirect('/login')
   const myOwnerId = userData.user.id
 
+  // Same gate as /home, /browse and /settings. Without it a deactivated member
+  // could still reach their threads by bookmark while every other member page
+  // bounced them — inconsistent, and it contradicts the deletion we told them
+  // was underway.
+  const { data: me } = await supabase
+    .from('owners')
+    .select('deactivated_at')
+    .eq('id', myOwnerId)
+    .maybeSingle()
+  if (me?.deactivated_at) redirect('/account/reactivate')
+
   const { data: myDogs } = await supabase.from('dogs').select('id').eq('owner_id', myOwnerId)
   const myDogIds = new Set((myDogs ?? []).map((d) => d.id))
 

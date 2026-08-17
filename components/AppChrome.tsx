@@ -3,6 +3,8 @@
 import { usePathname } from 'next/navigation'
 import SiteHeader from './SiteHeader'
 import MemberTabBar from './MemberTabBar'
+import StickyJoinBar from './StickyJoinBar'
+import { showsJoinBar } from '@/lib/nav'
 
 /**
  * The site-wide furniture: the header on every page, and the member tab bar
@@ -40,7 +42,13 @@ export default function AppChrome({
           displayName={displayName}
         />
       </div>
-      {signedIn && <MemberTabBar />}
+      {/*
+        One bottom bar, decided in one place. An either/or rather than two
+        independent conditions, so the member tab bar and the join bar cannot
+        both render — which is exactly what started happening on /faq, /contact
+        and /app, where the join bar was hard-coded into the page.
+      */}
+      {signedIn ? <MemberTabBar /> : showsJoinBar(pathname) && <StickyJoinBar />}
     </>
   )
 }

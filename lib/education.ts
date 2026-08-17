@@ -121,7 +121,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Meet somewhere neutral first',
         body: [
-          'A first meeting does not need to be at anyone home. A neutral, public, daylight location — a park you both know, or a vet practice car park — lets either person leave easily.',
+          "A first meeting does not need to be at anyone's home. A neutral, public, daylight location — a park you both know, or a vet practice car park — lets either person leave easily.",
           'Tell someone where you are going and when you expect to be back. This is ordinary advice for meeting any stranger from the internet, and it applies here.',
         ],
       },
