@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { threadSummaries, totalUnread } from '@/lib/chat/threads'
-import SiteHeader from '@/components/SiteHeader'
+import { threadSummaries } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -43,7 +42,6 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
-      <SiteHeader variant="member" pathname="/matches" unreadCount={totalUnread(threads)} />
       <main className="mt-6">
       <h1 className="text-2xl font-bold">Your matches</h1>
       <p className="mt-2 text-sm text-ink-soft">

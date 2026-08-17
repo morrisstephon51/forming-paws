@@ -27,6 +27,18 @@ export default function SiteFooter() {
         <Link href="/" className="fp-link">
           Home
         </Link>
+        <Link href="/about" className="fp-link">
+          About
+        </Link>
+        <Link href="/education" className="fp-link">
+          Learn
+        </Link>
+        <Link href="/vets" className="fp-link">
+          Vet partners
+        </Link>
+        <Link href="/donate" className="fp-link">
+          Support us
+        </Link>
         <Link href="/app" className="fp-link">
           See the app
         </Link>

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import LocationSettings from './LocationSettings'
 import { dogListLabel } from '@/lib/dogs/dogLabel'
@@ -66,12 +65,6 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-4">
-      <SiteHeader
-        variant="member"
-        pathname="/home"
-        unreadCount={unreadTotal}
-        displayName={owner?.display_name ?? null}
-      />
 
       <main className="mt-8">
         <h1 className="text-3xl font-bold">

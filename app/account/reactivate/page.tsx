@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import ReactivateForm from './ReactivateForm'
 import { purgeDateFrom, PURGE_GRACE_DAYS } from '@/lib/validators/settings'
@@ -40,7 +39,6 @@ export default async function ReactivatePage() {
 
   return (
     <div className="mx-auto max-w-xl px-6 py-4">
-      <SiteHeader variant="public" />
 
       <main className="mt-8">
         <h1 className="text-3xl font-bold">Your account is scheduled for deletion</h1>

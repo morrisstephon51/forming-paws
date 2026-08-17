@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import LocationSettings from '../home/LocationSettings'
 import { DisplayNameForm, EmailForm, NotificationForm, DangerZone } from './SettingsForms'
-import { threadSummaries, totalUnread } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -31,16 +29,9 @@ export default async function SettingsPage() {
   // lose; send them to the one page that offers a way back.
   if (owner?.deactivated_at) redirect('/account/reactivate')
 
-  const unreadTotal = totalUnread(await threadSummaries(supabase))
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
-      <SiteHeader
-        variant="member"
-        pathname="/settings"
-        unreadCount={unreadTotal}
-        displayName={owner?.display_name ?? null}
-      />
 
       <main className="mt-8">
         <h1 className="text-3xl font-bold">Settings</h1>
