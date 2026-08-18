@@ -75,6 +75,11 @@ as $$
   join public.owners o on o.id = d.owner_id
   left join public.owners me on me.id = auth.uid()
   where d.owner_id <> auth.uid()
+    -- Carried forward from 0022. This function is defined by CREATE OR REPLACE,
+    -- so any migration that restates it and omits this line silently un-hides
+    -- every deactivated owner's dogs from browse — a member who asked us to
+    -- delete their account would reappear in the feed.
+    and o.deactivated_at is null
     and (p_breed_id is null or d.breed_id = p_breed_id)
     and (p_sex is null or d.sex = p_sex)
     and (p_verified_only is false or public.dog_is_baseline_verified(d.id))
