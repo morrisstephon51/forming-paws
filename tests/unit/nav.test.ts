@@ -12,11 +12,21 @@ import {
 describe('navLinks', () => {
   it('gives the public variant its anchors and public pages', () => {
     expect(navLinks('public').map((l) => l.href)).toEqual([
-      '#how',
-      '#health',
+      '/#how',
+      '/#health',
       '/education',
       '/about',
     ])
+  })
+
+  // Regression guard for the #46 dead-link bug: the header renders on every
+  // page, so a bare '#how' would resolve against the current path (e.g.
+  // /about#how) and miss the section, which only exists on the homepage. Every
+  // in-page anchor must therefore be homepage-absolute so it works from anywhere.
+  it('anchors public in-page links to the homepage, not the current path', () => {
+    for (const link of navLinks('public')) {
+      if (link.href.includes('#')) expect(link.href.startsWith('/#')).toBe(true)
+    }
   })
 
   it('gives the member variant real routes, starting at home', () => {
@@ -132,5 +142,9 @@ describe('isActive', () => {
 
   it('never marks an anchor active', () => {
     expect(isActive('#how', '/')).toBe(false)
+    // The homepage-absolute form must stay inactive too, on the homepage and
+    // on any other page it appears in the header.
+    expect(isActive('/#how', '/')).toBe(false)
+    expect(isActive('/#how', '/about')).toBe(false)
   })
 })

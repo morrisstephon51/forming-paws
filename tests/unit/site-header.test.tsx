@@ -5,7 +5,8 @@ import SiteHeader from '@/components/SiteHeader'
 describe('SiteHeader', () => {
   it('shows marketing anchors and a join CTA in the public variant', () => {
     render(<SiteHeader variant="public" />)
-    expect(screen.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '#how')
+    // Homepage-absolute so it works from every page the header now renders on.
+    expect(screen.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/#how')
     expect(screen.getByRole('link', { name: /join/i })).toHaveAttribute('href', '/signup')
   })
 

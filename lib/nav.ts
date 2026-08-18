@@ -3,8 +3,13 @@ export type NavVariant = 'public' | 'member'
 export type NavLink = { href: string; label: string; icon?: string }
 
 const PUBLIC_LINKS: NavLink[] = [
-  { href: '#how', label: 'How It Works' },
-  { href: '#health', label: 'Health First' },
+  // Homepage-absolute anchors ('/#how', not '#how'). The header now renders on
+  // every page, and a bare-hash href resolves against the *current* path — so
+  // '#how' on /about points at /about#how, a section that only exists on the
+  // homepage. Anchoring to '/' sends the visitor home and scrolls to the section
+  // from anywhere.
+  { href: '/#how', label: 'How It Works' },
+  { href: '/#health', label: 'Health First' },
   { href: '/education', label: 'Learn' },
   { href: '/about', label: 'About' },
 ]
@@ -26,7 +31,8 @@ export function navLinks(variant: NavVariant): NavLink[] {
  * The trailing-slash check is what stops /match from matching /matches.
  */
 export function isActive(href: string, pathname: string): boolean {
-  if (href.startsWith('#')) return false
+  // Anchor links (e.g. '/#how') never light up as the active page.
+  if (href.includes('#')) return false
   if (pathname === href) return true
   return pathname.startsWith(`${href}/`)
 }
