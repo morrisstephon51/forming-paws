@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { threadSummaries, totalUnread } from '@/lib/chat/threads'
-import SiteHeader from '@/components/SiteHeader'
+import { threadSummaries } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -17,6 +16,17 @@ export default async function MatchesPage() {
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) redirect('/login')
   const myOwnerId = userData.user.id
+
+  // Same gate as /home, /browse and /settings. Without it a deactivated member
+  // could still reach their threads by bookmark while every other member page
+  // bounced them — inconsistent, and it contradicts the deletion we told them
+  // was underway.
+  const { data: me } = await supabase
+    .from('owners')
+    .select('deactivated_at')
+    .eq('id', myOwnerId)
+    .maybeSingle()
+  if (me?.deactivated_at) redirect('/account/reactivate')
 
   const { data: myDogs } = await supabase.from('dogs').select('id').eq('owner_id', myOwnerId)
   const myDogIds = new Set((myDogs ?? []).map((d) => d.id))
@@ -43,7 +53,6 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
-      <SiteHeader variant="member" pathname="/matches" unreadCount={totalUnread(threads)} />
       <main className="mt-6">
       <h1 className="text-2xl font-bold">Your matches</h1>
       <p className="mt-2 text-sm text-ink-soft">

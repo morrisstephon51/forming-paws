@@ -5,8 +5,6 @@ import { getBreeds } from '@/lib/breeds'
 import { getThumbnailUrl } from '@/lib/dogPhotos'
 import { ageInYears } from '@/lib/age'
 import LocationPrompt from './LocationPrompt'
-import SiteHeader from '@/components/SiteHeader'
-import { threadSummaries, totalUnread } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -56,10 +54,6 @@ export default async function BrowsePage({
 
   const hasLocation = !!me?.location_label
 
-  // The header badge has to be true on every page that shows it, so this page
-  // pays for one extra RPC rather than rendering a silently stale zero.
-  const unreadTotal = totalUnread(await threadSummaries(supabase))
-
   const breeds = await getBreeds()
 
   const { data: dogs, error } = await supabase.rpc('browse_dogs', {
@@ -82,7 +76,6 @@ export default async function BrowsePage({
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
-      <SiteHeader variant="member" pathname="/browse" unreadCount={unreadTotal} />
       <main className="mt-6">
       <h1 className="text-2xl font-bold">Browse dogs</h1>
 

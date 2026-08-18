@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import SiteFooter from '@/components/SiteFooter'
-import StickyJoinBar from '@/components/StickyJoinBar'
 import ContactForm from './ContactForm'
 import { RESPONSE_TIME } from '@/lib/promise'
 import { CONTACT_EMAIL } from '@/lib/site'
@@ -52,7 +51,6 @@ export default function ContactPage() {
       </main>
 
       <SiteFooter />
-      <StickyJoinBar />
     </div>
   )
 }

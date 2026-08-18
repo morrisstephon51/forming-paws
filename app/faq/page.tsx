@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import StickyJoinBar from '@/components/StickyJoinBar'
 import { FAQS, faqSchema } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
@@ -64,7 +63,6 @@ export default function FaqPage() {
       </main>
 
       <SiteFooter />
-      <StickyJoinBar />
 
       <script
         type="application/ld+json"

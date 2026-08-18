@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { MEMBER_HOME } from '@/lib/nav'
 import LoginForm from './(auth)/login/LoginForm'
 import WaitlistForm from './WaitlistForm'
 import { safeEmailParam } from '@/lib/auth/prefill'
@@ -8,8 +10,6 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import SiteHeader from '@/components/SiteHeader'
-import StickyJoinBar from '@/components/StickyJoinBar'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -75,9 +75,12 @@ const ROADMAP = [
     body: 'Referral pathways so under-documented dogs get affordable care and re-enter matching healthy.',
   },
   {
-    tag: 'Later',
+    // "Expert-reviewed" was aspirational and is now checkable: /education is
+    // live and no veterinarian has reviewed it. The claim moves to what is
+    // actually true, and the page says so itself.
+    tag: 'Started',
     title: 'Education hub',
-    body: 'Expert-reviewed guides on responsible breeding, whelping, and puppy health for every owner.',
+    body: 'Practical guides on documentation, questions for your vet, and meeting safely — live now, and growing as the vet network does.',
   },
   {
     tag: 'Vision',
@@ -96,162 +99,148 @@ export default async function HomePage({
   const { data } = await supabase.auth.getUser()
   const signedIn = Boolean(data.user)
 
+  // Signed-in members go straight to their own home rather than reading the
+  // pitch again. Stefan's call.
+  //
+  // Deliberately after getUser() and not in middleware: an implicit-flow auth
+  // link puts the session in the URL *fragment*, which never reaches the
+  // server. Those requests arrive here looking signed-out, render this page,
+  // and HashSessionRecovery — mounted in the root layout — claims the session
+  // client-side and forwards on. Redirecting earlier would break that path.
+  if (signedIn) redirect(MEMBER_HOME)
+
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8 pb-28 sm:pb-8">
-      {/*
-        The signed-in "Dashboard" chip that used to sit here is not lost: the
-        #signin panel below already renders a full-width dashboard button
-        whenever `signedIn`, which is a far bigger target than a header chip.
-      */}
-      <SiteHeader variant="public" />
-
+    <div className="mx-auto max-w-5xl px-6 py-8">
       <main>
-
-      <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
-        <section className="md:col-span-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-            Nonprofit · Community-driven · Health-verified
-          </p>
-          <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
-            Healthy matches.
-            <br />
-            Happy litters.
-          </h1>
-          <p className="mt-4 text-ink-soft">
-            Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
-            thoughtful matchmaking for dogs, with veterinary verification at the centre of
-            everything.
-          </p>
-          {/*
+        <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
+          <section className="md:col-span-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+              Nonprofit · Community-driven · Health-verified
+            </p>
+            <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
+              Healthy matches.
+              <br />
+              Happy litters.
+            </h1>
+            <p className="mt-4 text-ink-soft">
+              Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
+              thoughtful matchmaking for dogs, with veterinary verification at the centre of
+              everything.
+            </p>
+            {/*
             The primary action, above the fold on a phone. Before this, the only
             way in from the top of the page was the header's "Join Now" chip or
             the sign-in panel — which on mobile sits below the entire hero.
           */}
-          {!signedIn && (
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/signup"
-                className="fp-btn"
-              >
+              <Link href="/signup" className="fp-btn">
                 Join free — list your dog
               </Link>
               <Link href="/app" className="fp-btn-ghost">
                 See the app first
               </Link>
             </div>
-          )}
-          <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div>
-              <dt className="font-semibold">Health-gated</dt>
-              <dd className="text-sm text-ink-soft">
-                matching unlocks only after vet docs are verified
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold">Local-first</dt>
-              <dd className="text-sm text-ink-soft">
-                find partners by distance, never exact addresses
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold">Owner-safe</dt>
-              <dd className="text-sm text-ink-soft">
-                in-app chat, neutral meetup guidance, report tools
-              </dd>
-            </div>
-          </dl>
-        </section>
+            <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div>
+                <dt className="font-semibold">Health-gated</dt>
+                <dd className="text-sm text-ink-soft">
+                  matching unlocks only after vet docs are verified
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold">Local-first</dt>
+                <dd className="text-sm text-ink-soft">
+                  find partners by distance, never exact addresses
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold">Owner-safe</dt>
+                <dd className="text-sm text-ink-soft">
+                  in-app chat, neutral meetup guidance, report tools
+                </dd>
+              </div>
+            </dl>
+          </section>
 
-        <section id="signin" className="fp-card p-6 md:col-span-2">
-          {signedIn ? (
-            <>
-              <h2 className="text-xl font-bold">You&apos;re signed in</h2>
-              <p className="mt-2 text-sm text-ink-soft">
-                Pick up where you left off with your dogs and matches.
-              </p>
-              <Link
-                href="/home"
-                className="fp-btn mt-6 w-full"
-              >
-                Go to your dashboard
+          {/*
+          No signed-in branch here any more: a signed-in visitor was redirected
+          to /home before this rendered, so anyone reading this panel needs the
+          sign-in form.
+        */}
+          <section id="signin" className="fp-card p-6 md:col-span-2">
+            <h2 className="text-xl font-bold">Member sign in</h2>
+            <LoginForm
+              error={params.error ?? null}
+              offerResend={params.resend === '1'}
+              initialEmail={safeEmailParam(params.email)}
+            />
+            <p className="mt-6 border-t border-brand/15 pt-6 text-sm text-ink-soft">
+              New here?{' '}
+              <Link href="/signup" className="fp-link">
+                Create your account and dog profile
               </Link>
-            </>
-          ) : (
-            <>
-              <h2 className="text-xl font-bold">Member sign in</h2>
-              <LoginForm
-                error={params.error ?? null}
-                offerResend={params.resend === '1'}
-                initialEmail={safeEmailParam(params.email)}
-              />
-              <p className="mt-6 border-t border-brand/15 pt-6 text-sm text-ink-soft">
-                New here?{' '}
-                <Link href="/signup" className="fp-link">
-                  Create your account and dog profile
-                </Link>
-              </p>
-            </>
-          )}
-        </section>
-      </div>
-
-      <section id="how" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">
-          <span aria-hidden="true">🐾</span> How Forming Paws works
-        </h2>
-        <p className="mt-2 text-ink-soft">
-          Four steps from profile to a safe, well-documented match.
-        </p>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step) => (
-            <li key={step.n} className="fp-card">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
-                {step.n}
-              </span>
-              <h3 className="mt-3 font-semibold">{step.title}</h3>
-              <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section id="health" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">
-          <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
-        </h2>
-        <p className="mt-2 text-ink-soft">
-          Forming Paws exists to raise the standard of dog breeding, not just to make introductions.
-        </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {HEALTH.map((card) => (
-            <div key={card.title} className="fp-card">
-              <span className="text-2xl" aria-hidden="true">
-                {card.icon}
-              </span>
-              <h3 className="mt-3 font-semibold">{card.title}</h3>
-              <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
-            </div>
-          ))}
+            </p>
+          </section>
         </div>
-      </section>
 
-      <section id="roadmap" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">Where we&apos;re headed</h2>
-        <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ROADMAP.map((item) => (
-            <li key={item.tag} className="fp-card">
-              <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                {item.tag}
-              </span>
-              <h3 className="mt-2 font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+        <section id="how" className="mt-20 scroll-mt-8">
+          <h2 className="text-2xl font-bold">
+            <span aria-hidden="true">🐾</span> How Forming Paws works
+          </h2>
+          <p className="mt-2 text-ink-soft">
+            Four steps from profile to a safe, well-documented match.
+          </p>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((step) => (
+              <li key={step.n} className="fp-card">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
+                  {step.n}
+                </span>
+                <h3 className="mt-3 font-semibold">{step.title}</h3>
+                <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-      {!signedIn && (
+        <section id="health" className="mt-20 scroll-mt-8">
+          <h2 className="text-2xl font-bold">
+            <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
+          </h2>
+          <p className="mt-2 text-ink-soft">
+            Forming Paws exists to raise the standard of dog breeding, not just to make
+            introductions.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {HEALTH.map((card) => (
+              <div key={card.title} className="fp-card">
+                <span className="text-2xl" aria-hidden="true">
+                  {card.icon}
+                </span>
+                <h3 className="mt-3 font-semibold">{card.title}</h3>
+                <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="roadmap" className="mt-20 scroll-mt-8">
+          <h2 className="text-2xl font-bold">Where we&apos;re headed</h2>
+          <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {ROADMAP.map((item) => (
+              <li key={item.tag} className="fp-card">
+                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                  {item.tag}
+                </span>
+                <h3 className="mt-2 font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Visitors only reach this page signed out, so no guard is needed. */}
         <section id="waitlist" className="fp-band mt-20 scroll-mt-8">
           <h2 className="text-2xl font-bold">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
@@ -271,52 +260,49 @@ export default async function HomePage({
             first.
           </p>
         </section>
-      )}
 
-      <section id="faq" className="mt-20 scroll-mt-8">
-        <h2 className="text-2xl font-bold">Questions people ask first</h2>
-        <p className="mt-2 text-ink-soft">
-          The five that come up most.{' '}
-          <Link href="/faq" className="fp-link">
-            All of them, on one page
-          </Link>
-          .
-        </p>
-        <div className="mt-6 flex flex-col gap-3">
-          {FAQS.map((faq) => (
-            <details key={faq.question} className="fp-card">
-              <summary className="cursor-pointer font-semibold">{faq.question}</summary>
-              <p className="mt-3 text-sm text-ink-soft">{faq.answer}</p>
-            </details>
-          ))}
-        </div>
-      </section>
+        <section id="faq" className="mt-20 scroll-mt-8">
+          <h2 className="text-2xl font-bold">Questions people ask first</h2>
+          <p className="mt-2 text-ink-soft">
+            The five that come up most.{' '}
+            <Link href="/faq" className="fp-link">
+              All of them, on one page
+            </Link>
+            .
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            {FAQS.map((faq) => (
+              <details key={faq.question} className="fp-card">
+                <summary className="cursor-pointer font-semibold">{faq.question}</summary>
+                <p className="mt-3 text-sm text-ink-soft">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
 
-      <section className="fp-band mt-16">
-        <h2 className="text-2xl font-bold">Still deciding?</h2>
-        <p className="mt-2 text-ink-soft">
-          {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
-        </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/contact" className="fp-btn">
-            Ask a question
-          </Link>
-          <Link href="/app" className="fp-btn-ghost">
-            See the app
-          </Link>
-        </div>
-        <div className="mt-6">
-          <ShareButtons
-            url={SITE_URL}
-            title="Forming Paws — health-verified breeding matches for dog owners"
-          />
-        </div>
-      </section>
-
+        <section className="fp-band mt-16">
+          <h2 className="text-2xl font-bold">Still deciding?</h2>
+          <p className="mt-2 text-ink-soft">
+            {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/contact" className="fp-btn">
+              Ask a question
+            </Link>
+            <Link href="/app" className="fp-btn-ghost">
+              See the app
+            </Link>
+          </div>
+          <div className="mt-6">
+            <ShareButtons
+              url={SITE_URL}
+              title="Forming Paws — health-verified breeding matches for dog owners"
+            />
+          </div>
+        </section>
       </main>
 
       <SiteFooter />
-      {!signedIn && <StickyJoinBar />}
     </div>
   )
 }
