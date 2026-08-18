@@ -1,4 +1,4 @@
--- supabase/migrations/0023_lock_down_purge_helpers.sql
+-- supabase/migrations/0025_lock_down_purge_helpers.sql
 --
 -- Fixes a privacy leak introduced by 0022.
 --
