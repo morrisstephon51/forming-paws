@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getRequestOrigin } from '@/lib/auth/redirects'
 import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
@@ -58,5 +59,5 @@ export async function POST(request: Request) {
   })
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  return NextResponse.redirect(new URL(`/dogs/${dogId}`, request.url), 303)
+  return NextResponse.redirect(new URL(`/dogs/${dogId}`, getRequestOrigin(request)), 303)
 }
