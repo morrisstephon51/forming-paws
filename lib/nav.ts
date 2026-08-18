@@ -3,8 +3,8 @@ export type NavVariant = 'public' | 'member'
 export type NavLink = { href: string; label: string; icon?: string }
 
 const PUBLIC_LINKS: NavLink[] = [
-  { href: '#how', label: 'How It Works' },
-  { href: '#health', label: 'Health First' },
+  { href: '/#how', label: 'How It Works' },
+  { href: '/#health', label: 'Health First' },
   { href: '/education', label: 'Learn' },
   { href: '/about', label: 'About' },
 ]
