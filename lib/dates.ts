@@ -52,3 +52,50 @@ export function formatCalendarDate(value: string): string {
 
   return `${day} ${MONTHS[month - 1]} ${year}`
 }
+
+/**
+ * The zone the members live in. South-suburban Cook County is on Chicago time,
+ * and every date picker on the site shows them their own calendar — see the note
+ * on `formatCalendarDate` above for why that matters.
+ */
+const MEMBER_TIME_ZONE = 'America/Chicago'
+
+/**
+ * Today's calendar date in the members' timezone, as "YYYY-MM-DD".
+ *
+ * Anchored to the members' zone rather than the server's on purpose. Vercel runs
+ * in UTC, so from about 7pm Chicago onward the server clock has already crossed
+ * into tomorrow; a guard that asks "is this after *now*?" then treats a document
+ * a member dated tomorrow as if it were today. Formatting the instant in
+ * America/Chicago answers the question in the calendar the member actually used,
+ * and `Intl` follows the daylight-saving rules so the offset is right year round.
+ *
+ * `now` is injectable purely so the boundary can be pinned in tests.
+ */
+export function todayInMemberZone(now: Date = new Date()): string {
+  // en-CA renders a date as "YYYY-MM-DD".
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: MEMBER_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+}
+
+/**
+ * Whether a date-only "YYYY-MM-DD" is strictly after today in the members'
+ * calendar — for guarding a form that must not accept a future date, e.g. the
+ * date on a health document.
+ *
+ * The obvious `new Date(value) > new Date()` parses the value as UTC midnight and
+ * compares it to the current instant, which quietly accepts a member's local
+ * "tomorrow" every evening west of UTC (the same trap `formatCalendarDate`
+ * avoids). Comparing two zero-padded "YYYY-MM-DD" strings is an ordinary
+ * lexicographic comparison that matches their calendar order, and never builds a
+ * zoned instant. A value that isn't a plain calendar date returns `false`;
+ * callers reject a malformed value separately.
+ */
+export function isFutureCalendarDate(value: string, now: Date = new Date()): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  return value > todayInMemberZone(now)
+}
