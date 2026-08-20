@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { stripImageMetadata, UnsupportedImageError } from '@/lib/image'
+import { redirectToPath } from '@/lib/http'
 import { NextResponse } from 'next/server'
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024
@@ -65,5 +66,5 @@ export async function POST(request: Request) {
     .insert({ dog_id: dogId, storage_path: storagePath, position: count ?? 0 })
   if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-  return NextResponse.redirect(new URL(`/dogs/${dogId}`, request.url), 303)
+  return redirectToPath(request, `/dogs/${dogId}`)
 }
