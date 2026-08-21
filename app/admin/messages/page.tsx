@@ -41,7 +41,7 @@ export default async function MessagesPage() {
   return (
     <main className="mx-auto max-w-2xl p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-2xl font-bold">Contact messages</h1>
+        <h1 className="fp-h2">Contact messages</h1>
         <Link href="/home" className="text-sm underline text-ink-soft">
           Back to dashboard
         </Link>
@@ -51,7 +51,7 @@ export default async function MessagesPage() {
         already late.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">
+      <h2 className="mt-8 fp-h5">
         Waiting on a reply{waiting.length > 0 && ` (${waiting.length})`}
       </h2>
       {waiting.length === 0 && <p className="mt-2 text-ink-soft">Nothing waiting.</p>}
@@ -85,7 +85,7 @@ export default async function MessagesPage() {
 
       {done.length > 0 && (
         <>
-          <h2 className="mt-10 text-lg font-semibold">Replied</h2>
+          <h2 className="mt-10 fp-h5">Replied</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {done.map((message) => (
               <li key={message.id} className="rounded border p-3 text-sm text-ink-soft">

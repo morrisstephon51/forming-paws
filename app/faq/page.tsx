@@ -20,7 +20,7 @@ export default function FaqPage() {
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">Questions people ask first</h1>
+      <h1 className="mt-6 fp-h1">Questions people ask first</h1>
       <p className="mt-3 text-ink-soft">
         If yours isn&apos;t here,{' '}
         <Link href="/contact" className="underline">
@@ -39,7 +39,7 @@ export default function FaqPage() {
       </dl>
 
       <div className="mt-12 rounded-lg border bg-ivory p-6">
-        <h2 className="text-xl font-bold">Ready when you are</h2>
+        <h2 className="fp-h4">Ready when you are</h2>
         <p className="mt-2 text-sm text-ink-soft">
           Creating your account and your dog&apos;s profile takes a few minutes, and costs nothing.
         </p>

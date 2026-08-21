@@ -17,7 +17,7 @@ export default function EducationPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">📚</span> Learn
         </h1>
         <p className="mt-4 text-ink-soft">
@@ -46,7 +46,7 @@ export default function EducationPage() {
                 className="fp-card block transition-colors hover:border-brand/40"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="font-display text-xl font-bold text-ink">{guide.title}</h2>
+                  <h2 className="text-ink fp-h4">{guide.title}</h2>
                   <span className="fp-badge">{guide.readingMinutes} min read</span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">{guide.summary}</p>

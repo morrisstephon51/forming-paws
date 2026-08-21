@@ -77,7 +77,7 @@ export default async function BrowsePage({
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <main className="mt-6">
-      <h1 className="text-2xl font-bold">Browse dogs</h1>
+      <h1 className="fp-h2">Browse dogs</h1>
 
       {!hasLocation && <LocationPrompt />}
 

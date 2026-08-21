@@ -39,7 +39,7 @@ export default async function ReportsPage() {
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">Reported conversations</h1>
+      <h1 className="fp-h2">Reported conversations</h1>
       <p className="mt-2 text-sm text-ink-soft">
         You can read a reported conversation while its report is open or being reviewed. Resolving or
         dismissing it ends that access — that limit is enforced by the database, not by this page.

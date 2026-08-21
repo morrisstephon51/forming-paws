@@ -23,7 +23,7 @@ function Notice({ result }: { result: ActionResult }) {
 }
 
 const inputClass =
-  'w-full rounded-lg border border-brand/25 bg-white p-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand'
+  'w-full rounded-lg border border-hairline bg-wash p-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand'
 
 export function DisplayNameForm({ current }: { current: string }) {
   const [result, action, pending] = useActionState(updateDisplayName, EMPTY)
@@ -126,7 +126,7 @@ export function DangerZone() {
   const [result, action, pending] = useActionState(deactivateAccount, EMPTY)
   return (
     <div className="mt-4 rounded-xl border-2 border-red-300 bg-red-50 p-5">
-      <h3 className="font-display text-lg font-bold text-ink">Delete your account</h3>
+      <h3 className="text-ink fp-h5">Delete your account</h3>
       <p className="mt-2 text-sm text-ink-soft">
         Your profile and dogs disappear from Forming Paws straight away. We keep the record for{' '}
         {PURGE_GRACE_DAYS} days so you can change your mind, then it is permanently deleted.

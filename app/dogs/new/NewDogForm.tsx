@@ -66,7 +66,7 @@ export default function NewDogForm({ breeds }: { breeds: { id: number; name: str
 
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Add a dog</h1>
+      <h1 className="fp-h2">Add a dog</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
         <input name="name" placeholder="Dog's name" required className="border p-2" />
         <select name="breedId" required className="border p-2">

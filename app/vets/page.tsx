@@ -35,7 +35,7 @@ export default function VetsPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">🩺</span> Vet partners
         </h1>
 
@@ -85,7 +85,7 @@ export default function VetsPage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {LOOKING_FOR.map((item) => (
               <div key={item.title} className="fp-card">
-                <h3 className="font-semibold text-ink">{item.title}</h3>
+                <h3 className="text-ink fp-h5">{item.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
               </div>
             ))}

@@ -67,7 +67,7 @@ export default async function HomePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-3xl font-bold">
+        <h1 className="fp-h1">
           <span aria-hidden="true">🐾</span> Welcome back
           {owner?.display_name ? `, ${owner.display_name}` : ''}
         </h1>

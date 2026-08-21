@@ -103,7 +103,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">{dog.name}</h1>
+      <h1 className="fp-h2">{dog.name}</h1>
       {isVerified ? (
         <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mt-1">
           ✓ Baseline health verified
@@ -120,7 +120,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
       {!isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />}
 
-      <h2 className="mt-8 text-lg font-semibold">Photos</h2>
+      <h2 className="mt-8 fp-h5">Photos</h2>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {photoUrls.map((p) =>
           p.url ? (
@@ -146,7 +146,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
       {isOwnDog && (
         <>
-          <h2 className="mt-8 text-lg font-semibold">Health documents</h2>
+          <h2 className="mt-8 fp-h5">Health documents</h2>
           <ul className="mt-2 flex flex-col gap-2">
             {healthDocs?.map((doc) => (
               <li key={doc.id} className="flex justify-between border p-2 rounded text-sm">
