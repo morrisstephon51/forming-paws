@@ -69,7 +69,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col p-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">
+        <h1 className="fp-h4">
           {isParticipant
             ? `${nameById.get(mineId) ?? 'Your dog'} ↔ ${nameById.get(theirsId) ?? 'Their dog'}`
             : `${dogA} ↔ ${dogB}`}

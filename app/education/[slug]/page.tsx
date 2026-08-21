@@ -40,7 +40,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
 
         {art && <BannerArt src={art} className="mt-4" />}
 
-        <h1 className="mt-6 text-3xl font-bold leading-tight">{guide.title}</h1>
+        <h1 className="mt-6 fp-h1">{guide.title}</h1>
         <p className="mt-2 text-sm text-ink-soft">{guide.readingMinutes} min read</p>
         <p className="mt-4 text-ink-soft">{guide.summary}</p>
 
@@ -52,7 +52,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         <article className="mt-8 flex flex-col gap-8">
           {guide.sections.map((section) => (
             <section key={section.heading}>
-              <h2 className="text-xl font-bold">{section.heading}</h2>
+              <h2 className="fp-h4">{section.heading}</h2>
               <div className="mt-3 flex flex-col gap-3 text-ink-soft">
                 {section.body.map((para, i) => (
                   <p key={i}>{para}</p>
@@ -63,7 +63,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         </article>
 
         <nav aria-label="More guides" className="fp-band mt-12">
-          <h2 className="text-xl font-bold">Keep reading</h2>
+          <h2 className="fp-h4">Keep reading</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {GUIDES.filter((g) => g.slug !== guide.slug).map((g) => (
               <li key={g.slug}>

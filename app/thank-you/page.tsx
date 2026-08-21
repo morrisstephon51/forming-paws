@@ -73,7 +73,7 @@ export default async function ThankYouPage({
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">{copy.heading}</h1>
+      <h1 className="mt-6 fp-h1">{copy.heading}</h1>
       <p className="mt-4 text-ink-soft">
         {variant === 'signup' && email ? (
           <>

@@ -103,7 +103,7 @@ export default function Thread({
             <li
               key={m.id}
               className={`max-w-[80%] rounded-lg border p-3 ${
-                mine ? 'self-end bg-brand text-white' : 'self-start bg-white'
+                mine ? 'self-end bg-brand text-ivory' : 'self-start bg-paper border border-hairline'
               }`}
             >
               <p className="text-xs opacity-70">{mine ? 'You' : theirDogName}</p>

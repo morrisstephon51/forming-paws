@@ -23,7 +23,7 @@ export default function NotFound() {
     <div className="mx-auto max-w-2xl px-6 py-16">
       <main>
       <p className="text-sm font-semibold uppercase tracking-wide text-ink-soft">Error 404</p>
-      <h1 className="mt-3 text-3xl font-bold">We couldn&apos;t find that page</h1>
+      <h1 className="mt-3 fp-h1">We couldn&apos;t find that page</h1>
       <p className="mt-4 text-ink-soft">
         The link may be out of date, or the page may have moved when we rebuilt the site. Nothing is
         wrong with your account.

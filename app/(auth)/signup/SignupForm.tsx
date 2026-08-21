@@ -56,7 +56,7 @@ export default function SignupForm() {
 
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Create your account</h1>
+      <h1 className="fp-h2">Create your account</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
         <label htmlFor="signup-displayName" className="sr-only">
           Your name

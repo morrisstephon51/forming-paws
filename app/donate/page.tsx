@@ -47,7 +47,7 @@ export default function DonatePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">❤️</span> Support {SITE_NAME}
         </h1>
 
@@ -84,7 +84,7 @@ export default function DonatePage() {
                 <span aria-hidden="true" className="text-2xl">
                   {way.icon}
                 </span>
-                <h3 className="mt-3 font-semibold text-ink">{way.title}</h3>
+                <h3 className="mt-3 text-ink fp-h5">{way.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-ink-soft">{way.body}</p>
                 <Link href={way.href} className="fp-btn-ghost mt-4 self-start px-4 py-2 text-sm">
                   {way.cta}

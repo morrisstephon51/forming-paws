@@ -49,7 +49,7 @@ export default async function ReviewQueuePage({
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">Health document review queue</h1>
+      <h1 className="fp-h2">Health document review queue</h1>
       {reviewError && (
         <p className="mt-2 rounded bg-red-50 p-2 text-sm text-red-600">
           Failed to save review: {reviewError}

@@ -112,7 +112,7 @@ export default async function HomePage({
   if (signedIn) redirect(MEMBER_HOME)
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="fp-shell py-8">
       <main>
         {/*
           The hero grid is unchanged; it has just gained a backdrop and the
@@ -123,10 +123,10 @@ export default async function HomePage({
           <HeroScene />
           <div className="relative grid gap-10 md:grid-cols-5 md:items-start">
           <section className="md:col-span-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+            <p className="fp-eyebrow">
               Nonprofit · Community-driven · Health-verified
             </p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
+            <h1 className="mt-3 fp-display">
               Healthy matches.
               <br />
               Happy litters.
@@ -177,7 +177,7 @@ export default async function HomePage({
           sign-in form.
         */}
           <section id="signin" className="fp-card p-6 md:col-span-2">
-            <h2 className="text-xl font-bold">Member sign in</h2>
+            <h2 className="fp-h4">Member sign in</h2>
             <LoginForm
               error={params.error ?? null}
               offerResend={params.resend === '1'}
@@ -194,7 +194,7 @@ export default async function HomePage({
         </div>
 
         <section id="how" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">
+          <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> How Forming Paws works
           </h2>
           <p className="mt-2 text-ink-soft">
@@ -206,7 +206,7 @@ export default async function HomePage({
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
                   {step.n}
                 </span>
-                <h3 className="mt-3 font-semibold">{step.title}</h3>
+                <h3 className="mt-3 fp-h5">{step.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
               </li>
             ))}
@@ -217,7 +217,7 @@ export default async function HomePage({
         <SectionDivider className="mt-16" />
 
         <section id="health" className="mt-4 scroll-mt-8">
-          <h2 className="text-2xl font-bold">
+          <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
           </h2>
           <p className="mt-2 text-ink-soft">
@@ -230,7 +230,7 @@ export default async function HomePage({
                 <span className="text-2xl" aria-hidden="true">
                   {card.icon}
                 </span>
-                <h3 className="mt-3 font-semibold">{card.title}</h3>
+                <h3 className="mt-3 fp-h5">{card.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
               </div>
             ))}
@@ -238,15 +238,15 @@ export default async function HomePage({
         </section>
 
         <section id="roadmap" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Where we&apos;re headed</h2>
+          <h2 className="fp-h2">Where we&apos;re headed</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
           <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
               <li key={item.tag} className="fp-card">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                <span className="fp-eyebrow">
                   {item.tag}
                 </span>
-                <h3 className="mt-2 font-semibold">{item.title}</h3>
+                <h3 className="mt-2 fp-h5">{item.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
               </li>
             ))}
@@ -255,7 +255,7 @@ export default async function HomePage({
 
         {/* Visitors only reach this page signed out, so no guard is needed. */}
         <section id="waitlist" className="fp-band mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Be a Founding Member</h2>
+          <h2 className="fp-h2">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
             Join the waitlist — the first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
@@ -275,7 +275,7 @@ export default async function HomePage({
         </section>
 
         <section id="faq" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Questions people ask first</h2>
+          <h2 className="fp-h2">Questions people ask first</h2>
           <p className="mt-2 text-ink-soft">
             The five that come up most.{' '}
             <Link href="/faq" className="fp-link">
@@ -294,7 +294,7 @@ export default async function HomePage({
         </section>
 
         <section className="fp-band mt-16">
-          <h2 className="text-2xl font-bold">Still deciding?</h2>
+          <h2 className="fp-h2">Still deciding?</h2>
           <p className="mt-2 text-ink-soft">
             {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
           </p>

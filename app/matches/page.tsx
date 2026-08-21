@@ -54,7 +54,7 @@ export default async function MatchesPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <main className="mt-6">
-      <h1 className="text-2xl font-bold">Your matches</h1>
+      <h1 className="fp-h2">Your matches</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Matches are introductions only — Forming Paws is not a party to any breeding arrangement.
       </p>

@@ -36,10 +36,10 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+        <p className="fp-eyebrow">
           Nonprofit · Chicago · Community-driven
         </p>
-        <h1 className="mt-3 text-4xl font-bold leading-tight">
+        <h1 className="mt-3 fp-h1">
           <span aria-hidden="true">🐾</span> Why {SITE_NAME} exists
         </h1>
 
@@ -71,7 +71,7 @@ export default function AboutPage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {PRINCIPLES.map((p) => (
               <div key={p.title} className="fp-card">
-                <h3 className="font-semibold text-ink">{p.title}</h3>
+                <h3 className="text-ink fp-h5">{p.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{p.body}</p>
               </div>
             ))}

@@ -1,68 +1,265 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Forming Paws visual system.
+ *
+ * Structure adapted 2026-08-21 from Ease Health, Function and Steep on
+ * styles.refero.design. The palette and both typefaces are unchanged — what
+ * changed is how they are used. The three systems were picked for already
+ * sharing this brand's warmth, and they independently agree on four rules this
+ * site was breaking: no shadows on content cards, serif display never bold,
+ * negative tracking that scales with size, and card padding at 24px or more.
+ *
+ * Pages are not expected to restyle themselves. They keep calling .fp-card and
+ * .fp-btn; those definitions moved underneath them. That is the whole reason a
+ * site-wide overhaul touches no page logic.
+ */
 
-/* Forming Paws brand base: Fraunces display, Nunito body */
 @layer base {
   :root {
-    --fp-brand: #2F6B5C;
-    --fp-accent: #E8734A;
-    --fp-ivory: #FBF7F0;
+    --fp-brand: #2f6b5c;
+    --fp-accent: #e8734a;
+    --fp-ivory: #fbf7f0;
+
+    /* Section rhythm. References converge on 80–96px desktop; we step down to
+       56px on a phone, where 96px of empty space reads as a broken page. */
+    --fp-section-gap: 3.5rem;
   }
+
+  @media (min-width: 640px) {
+    :root {
+      --fp-section-gap: 6rem;
+    }
+  }
+
   body {
-    font-family: 'Nunito', system-ui, sans-serif;
+    font-family: var(--font-body), 'Nunito', system-ui, sans-serif;
+    /* Fraunces carries an optical-size axis; letting it engage is the
+       difference between a display face and a body face scaled up. */
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 {
-    font-family: 'Fraunces', Georgia, serif;
-    letter-spacing: -0.01em;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), 'Fraunces', Georgia, serif;
   }
 }
 
 /*
- * The brand vocabulary. Pages rebrand by swapping a utility soup like
- * "rounded bg-gray-900 px-4 py-2 text-white" for a single .fp-btn, which keeps
- * a fifteen-page rebrand a mechanical diff instead of fifteen redesigns.
+ * The type scale.
  *
- * Layout stays on Tailwind utilities; only visual identity lives here.
+ * Fluid rather than stepped: one clamp() covers 375px to 1440px, so there is no
+ * breakpoint at which a headline is momentarily the wrong size. The minimum is
+ * a plain rem and the middle term keeps a rem component, which is what stops
+ * the scale from ignoring browser text-resize — a vw-only clamp fails WCAG
+ * 1.4.4 outright.
+ *
+ * Weight splits at 24px. Above it the serif runs at 400, which is the single
+ * rule all three reference systems state most forcefully ("never bold", "never
+ * mix serif weights"). Below it 400 goes limp against body copy, so card and
+ * list titles stay at 700 — the brand keeps its warmth where the text is small
+ * and its composure where the text is large.
  */
 @layer components {
+  .fp-display,
+  .fp-h1,
+  .fp-h2,
+  .fp-h3 {
+    @apply font-display;
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  .fp-h4,
+  .fp-h5 {
+    @apply font-display;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .fp-display {
+    font-size: clamp(2.75rem, 2.046rem + 3.005vw, 4.75rem); /* 44 → 76 */
+    letter-spacing: -0.028em;
+    line-height: 1.02;
+  }
+  .fp-h1 {
+    font-size: clamp(2.375rem, 1.891rem + 2.066vw, 3.75rem); /* 38 → 60 */
+    letter-spacing: -0.022em;
+    line-height: 1.06;
+  }
+  .fp-h2 {
+    font-size: clamp(1.875rem, 1.655rem + 0.939vw, 2.5rem); /* 30 → 40 */
+    letter-spacing: -0.016em;
+    line-height: 1.14;
+  }
+  .fp-h3 {
+    font-size: clamp(1.375rem, 1.287rem + 0.376vw, 1.625rem); /* 22 → 26 */
+    letter-spacing: -0.008em;
+    line-height: 1.25;
+  }
+  .fp-h4 {
+    font-size: 1.25rem; /* 20 */
+    letter-spacing: -0.004em;
+    line-height: 1.35;
+  }
+  .fp-h5 {
+    font-size: 1.0625rem; /* 17 */
+    letter-spacing: -0.002em;
+    line-height: 1.4;
+  }
+
+  /*
+   * The eyebrow. Every reference system has one and this site had the pattern
+   * without the name — "Nonprofit · Community-driven · Health-verified" was
+   * hand-rolled utilities on the home page and nowhere else.
+   */
+  .fp-eyebrow {
+    @apply font-body font-bold uppercase text-ink-soft;
+    font-size: 0.6875rem; /* 11 */
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+
+  .fp-lead {
+    @apply font-body text-ink-soft;
+    font-size: clamp(1.0625rem, 1.019rem + 0.188vw, 1.1875rem); /* 17 → 19 */
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+  }
+}
+
+/*
+ * The component vocabulary.
+ *
+ * Pages rebrand by swapping a utility soup like "rounded bg-gray-900 px-4 py-2
+ * text-white" for a single .fp-btn, which keeps a fifteen-page rebrand a
+ * mechanical diff instead of fifteen redesigns. Layout stays on Tailwind
+ * utilities; only visual identity lives here.
+ */
+@layer components {
+  /*
+   * Pill buttons. Function specifies 40px radius, Steep and Ease Health go
+   * fully round. On a control this size the two are indistinguishable, and the
+   * pill is the shape that suits a brand about dogs rather than about banking.
+   */
   .fp-btn {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand px-5 py-2.5
-           font-body font-bold text-ivory transition-colors hover:bg-brand-dark
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-brand;
-  }
-  .fp-btn-accent {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5
-           font-body font-bold text-ivory transition-colors hover:bg-accent-dark
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-accent;
-  }
-  .fp-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-lg border-2 border-brand
-           bg-transparent px-5 py-2.5 font-body font-bold text-brand transition-colors
-           hover:bg-brand-soft focus-visible:outline focus-visible:outline-2
+    @apply inline-flex items-center justify-center rounded-full bg-brand px-6 py-3
+           font-body font-bold leading-none text-ivory transition-colors
+           hover:bg-brand-dark focus-visible:outline focus-visible:outline-2
            focus-visible:outline-offset-2 focus-visible:outline-brand;
   }
-  .fp-card {
-    @apply rounded-xl border border-brand/15 bg-white p-5 shadow-sm;
+  .fp-btn-accent {
+    @apply inline-flex items-center justify-center rounded-full bg-accent px-6 py-3
+           font-body font-bold leading-none text-ivory transition-colors
+           hover:bg-accent-dark focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
+  .fp-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border-[1.5px]
+           border-brand bg-transparent px-6 py-3 font-body font-bold leading-none
+           text-brand transition-colors hover:bg-brand-soft focus-visible:outline
+           focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-brand;
+  }
+
   /*
-   * Three distinct surfaces, or the layering reads as flat: the page is ivory,
-   * cards are white, and emphasis bands are pale brand green. An ivory band on
-   * an ivory page is a band nobody can see.
+   * Cards are flat. The shadow that used to sit here was doing the job the
+   * surface ramp now does, and doing it worse: a 1px grey blur under a warm
+   * card on a warm page reads as grime rather than as elevation.
+   *
+   * Padding is 28px because Ease Health's "no tight padding under 21px" is the
+   * rule that most visibly separates a designed card from a div.
+   */
+  .fp-card {
+    @apply rounded-xl border border-hairline bg-paper p-7;
+  }
+
+  /*
+   * The one exception, and only for things that genuinely leave the page: a
+   * card the cursor has picked up. Transform and shadow only, so the lift
+   * costs a compositor layer rather than a layout pass.
+   */
+  .fp-card-float {
+    @apply rounded-xl border border-hairline bg-paper p-7 transition-[transform,box-shadow]
+           duration-300 hover:-translate-y-1 hover:shadow-float;
+  }
+
+  /*
+   * Emphasis bands, climbing the ramp. An ivory band on an ivory page is a band
+   * nobody can see; three distinct rungs is what makes the page feel layered.
    */
   .fp-band {
-    @apply rounded-2xl bg-brand-soft p-8;
+    @apply rounded-2xl bg-brand-soft p-8 sm:p-10;
   }
+  .fp-band-deep {
+    @apply rounded-2xl bg-brand-moss p-8 sm:p-10;
+  }
+  .fp-band-invert {
+    @apply rounded-2xl bg-brand p-8 text-ivory sm:p-10;
+  }
+
   .fp-link {
-    @apply text-brand underline underline-offset-2 hover:text-brand-dark;
+    @apply text-brand underline decoration-brand/30 underline-offset-4
+           transition-colors hover:text-brand-dark hover:decoration-brand;
   }
+
   .fp-badge {
-    @apply inline-flex items-center rounded-full bg-brand-soft px-2.5 py-0.5
-           text-xs font-bold text-brand-dark;
+    @apply inline-flex items-center rounded-full bg-brand-soft px-3 py-1
+           font-body text-xs font-bold text-brand-dark;
+  }
+
+  /* Inputs sit one rung *down* the ramp from cards, not up: a recessed well
+     rather than another raised panel. */
+  .fp-input {
+    @apply w-full rounded-lg border border-hairline bg-wash px-4 py-2.5 font-body
+           text-ink placeholder:text-ink-soft/60 focus:border-brand focus:outline-none
+           focus:ring-2 focus:ring-brand/20;
+  }
+
+  .fp-hairline {
+    @apply border-t border-hairline;
+  }
+
+  /* Images get the card radius so a photo and a panel read as the same family. */
+  .fp-figure {
+    @apply overflow-hidden rounded-2xl;
+  }
+
+  .fp-shell {
+    @apply mx-auto w-full max-w-shell px-6;
+  }
+
+  .fp-section {
+    margin-top: var(--fp-section-gap);
+  }
+}
+
+/*
+ * Paper grain.
+ *
+ * A single tiling SVG at 2.5% opacity, fixed to the viewport and
+ * pointer-events-none. It is what stops a large flat ivory field from looking
+ * like an unpainted div at 1440px — the references all describe their canvas as
+ * paper, and paper is not perfectly smooth. Cheap: one 120-byte data URI, no
+ * network request, no repaint (it never moves).
+ */
+.fp-grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .fp-grain::before {
+    display: none;
   }
 }

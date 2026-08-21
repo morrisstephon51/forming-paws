@@ -72,7 +72,7 @@ export default function AppTourPage() {
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">What you get after you join</h1>
+      <h1 className="mt-6 fp-h1">What you get after you join</h1>
       <p className="mt-4 text-ink-soft">
         Forming Paws is a working web app, not a waiting list. This is what it does — and the four
         rules that shape all of it.
@@ -98,8 +98,8 @@ export default function AppTourPage() {
 
       <section className="mt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-2xl font-bold">Browsing looks like this</h2>
-          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-800">
+          <h2 className="fp-h2">Browsing looks like this</h2>
+          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
             Example dogs — not real listings
           </p>
         </div>
@@ -112,7 +112,7 @@ export default function AppTourPage() {
           {SAMPLE_DOGS.map((dog) => (
             <li key={dog.name} className="rounded-lg border p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="font-semibold">{dog.name}</h3>
+                <h3 className="fp-h5">{dog.name}</h3>
                 {dog.verified ? (
                   <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">
                     ✓ Verified
@@ -134,11 +134,11 @@ export default function AppTourPage() {
       </section>
 
       <section className="mt-14">
-        <h2 className="text-2xl font-bold">The four rules behind it</h2>
+        <h2 className="fp-h2">The four rules behind it</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {TOUR.map((item) => (
             <div key={item.title} className="rounded-lg border p-5">
-              <h3 className="font-semibold">{item.title}</h3>
+              <h3 className="fp-h5">{item.title}</h3>
               <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
             </div>
           ))}
@@ -146,7 +146,7 @@ export default function AppTourPage() {
       </section>
 
       <section className="mt-14 rounded-lg border bg-ivory p-6">
-        <h2 className="text-xl font-bold">Set your dog up in a few minutes</h2>
+        <h2 className="fp-h4">Set your dog up in a few minutes</h2>
         <p className="mt-2 text-sm text-ink-soft">
           Joining is free. You can create the profile now and upload vet records whenever you have
           them to hand.
