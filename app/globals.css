@@ -263,3 +263,113 @@
     display: none;
   }
 }
+
+/*
+ * Scroll motion.
+ *
+ * The hidden half of a reveal lives in CSS but is only ever applied by JS, and
+ * only after the element is being observed. That ordering is the whole safety
+ * story: server-rendered HTML carries no hiding styles, so a visitor with no
+ * JavaScript, a crawler, or a hydration failure sees every section in full
+ * rather than a page of invisible boxes.
+ */
+@layer components {
+  .fp-reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  .fp-reveal-in {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+}
+
+/*
+ * The reduced-motion contract, enforced in CSS rather than only in JS.
+ *
+ * Every component already checks the media query before it touches an element,
+ * so this block is a second, independent guarantee: even if that check
+ * regressed, or a class were applied by hand, content stays visible and static.
+ * Motion is the thing that disappears — never the content.
+ *
+ * !important is load-bearing. These rules have to beat the utility classes and
+ * the transitions declared above, whatever order the cascade puts them in.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .fp-reveal,
+  .fp-reveal-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .fp-sticky-card {
+    position: static !important;
+    transform: none !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .fp-sticky-card:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/*
+ * The sticky step stack. Desktop only: on a phone, four cards pinned in
+ * sequence means four screens of scrolling to read what a plain list shows in
+ * one, which is a worse page dressed up as a richer one.
+ */
+@media (min-width: 768px) {
+  /*
+   * The cards are siblings sharing one containing block, which is what lets a
+   * later card ride up over an earlier one. The first attempt gave each card its
+   * own wrapper to stick inside; each wrapper became a separate containing
+   * block, so the cards pinned independently and could never overlap — a list
+   * with large gaps rather than a deck.
+   *
+   * The margin is the scroll runway between one card pinning and the next
+   * arriving. It lives here, next to the position it exists to serve, because
+   * reduced motion has to collapse both together.
+   */
+  .fp-sticky-card {
+    position: sticky;
+    margin-bottom: 16vh;
+  }
+  .fp-sticky-card:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/*
+ * The hero's parallax planes.
+ *
+ * Each plane declares its own transform reading a custom property that defaults
+ * to zero, so the server-rendered page is correct and static before any script
+ * runs — and stays that way if the script never runs at all. HeroParallax sets
+ * the properties; nothing else touches them.
+ *
+ * translate3d rather than translateY to keep each plane on its own compositor
+ * layer, which is what makes the whole effect a GPU transform per frame instead
+ * of a repaint.
+ */
+.fp-plane-sky {
+  transform: scale(1.1) translate3d(0, var(--fp-y-sky, 0px), 0);
+}
+.fp-plane-hills {
+  transform: translate3d(0, var(--fp-y-hills, 0px), 0);
+}
+.fp-plane-meadow {
+  transform: translate3d(0, var(--fp-y-meadow, 0px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-plane {
+    transform: none !important;
+  }
+  .fp-plane-sky {
+    transform: scale(1.1) !important;
+  }
+}
