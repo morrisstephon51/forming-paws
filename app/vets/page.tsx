@@ -57,7 +57,7 @@ export default function VetsPage() {
         </div>
 
         <section aria-labelledby="why" className="mt-12">
-          <h2 id="why" className="text-2xl font-bold">
+          <h2 id="why" className="fp-h2">
             What the network is for
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -79,7 +79,7 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="looking" className="mt-12">
-          <h2 id="looking" className="text-2xl font-bold">
+          <h2 id="looking" className="fp-h2">
             What we are looking for
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -93,7 +93,7 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="vets-contact" className="fp-band mt-12">
-          <h2 id="vets-contact" className="text-2xl font-bold">
+          <h2 id="vets-contact" className="fp-h2">
             If you are a veterinarian
           </h2>
           <p className="mt-2 text-ink-soft">
@@ -112,7 +112,7 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="owners" className="mt-12">
-          <h2 id="owners" className="text-2xl font-bold">
+          <h2 id="owners" className="fp-h2">
             If you are an owner whose dog did not pass
           </h2>
           <p className="mt-4 text-ink-soft">

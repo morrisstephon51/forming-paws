@@ -76,7 +76,7 @@ export default async function HomePage() {
         </h1>
 
         <section aria-labelledby="next-up" className="fp-band mt-6">
-          <h2 id="next-up" className="text-xs font-bold uppercase tracking-wide text-brand-dark">
+          <h2 id="next-up" className="fp-eyebrow text-brand-dark">
             Next up
           </h2>
           <p className="mt-2 font-display text-xl font-bold text-ink">{action.label}</p>
@@ -88,7 +88,7 @@ export default async function HomePage() {
 
         <section aria-labelledby="your-dogs" className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id="your-dogs" className="text-2xl font-bold">
+            <h2 id="your-dogs" className="fp-h2">
               Your dogs
             </h2>
             <Link href="/dogs/new" className="fp-btn-ghost px-4 py-2 text-sm">
@@ -118,7 +118,7 @@ export default async function HomePage() {
         </section>
 
         <section aria-labelledby="your-location" className="mt-10">
-          <h2 id="your-location" className="text-2xl font-bold">
+          <h2 id="your-location" className="fp-h2">
             Your location
           </h2>
           <LocationSettings currentLabel={owner?.location_label ?? null} />

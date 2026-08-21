@@ -39,11 +39,22 @@ const config: Config = {
         },
         /*
          * Terracotta is a seal, not a surface. Function's rule: reserve it for
-         * CTAs, active states and labels. At #E8734A it clears 3:1 on ivory —
-         * fine for fills and large display, short of body text, which is what
-         * accent.dark exists for.
+         * CTAs, active states and labels.
+         *
+         * Measured, not assumed. An earlier version of this comment claimed
+         * #E8734A "clears 3:1 on ivory"; it does not — it is 2.82:1 on ivory
+         * and 2.94:1 on paper, so it fails even the large-text floor. It is a
+         * FILL ONLY. It must never carry text and must never be a focus ring.
+         *
+         * accent.dark is the escape hatch for accent-coloured text, and it was
+         * darkened from #C95A33 to #AD4727 so that it is actually one: #C95A33
+         * measured 3.94:1 on ivory and 3.72:1 on accent.soft, both short of
+         * 4.5:1, which meant the settings notice already shipping in that
+         * colour was failing. #AD4727 clears 4.5:1 on every warm ground here —
+         * ivory 5.30, paper 5.53, accent.soft 5.01, wash 4.85 — and still
+         * carries ivory text at 5.30:1 when used as a fill.
          */
-        accent: { DEFAULT: '#E8734A', dark: '#C95A33', soft: '#FDEEE7' },
+        accent: { DEFAULT: '#E8734A', dark: '#AD4727', soft: '#FDEEE7' },
         ink: { DEFAULT: '#26221C', soft: '#6C6155' },
       },
 

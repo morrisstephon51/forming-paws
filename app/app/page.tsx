@@ -79,10 +79,10 @@ export default function AppTourPage() {
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
+        <Link href="/signup" className="fp-btn">
           Join free
         </Link>
-        <Link href="/faq" className="rounded border px-5 py-2 font-semibold">
+        <Link href="/faq" className="fp-btn-ghost">
           Read the FAQ
         </Link>
       </div>
@@ -99,7 +99,7 @@ export default function AppTourPage() {
       <section className="mt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="fp-h2">Browsing looks like this</h2>
-          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
+          <p className="rounded-full border border-hairline border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
             Example dogs — not real listings
           </p>
         </div>
@@ -110,7 +110,7 @@ export default function AppTourPage() {
 
         <ul className="mt-6 grid gap-4 sm:grid-cols-3">
           {SAMPLE_DOGS.map((dog) => (
-            <li key={dog.name} className="rounded-lg border p-4">
+            <li key={dog.name} className="rounded-lg border border-hairline p-4">
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="fp-h5">{dog.name}</h3>
                 {dog.verified ? (
@@ -137,7 +137,7 @@ export default function AppTourPage() {
         <h2 className="fp-h2">The four rules behind it</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {TOUR.map((item) => (
-            <div key={item.title} className="rounded-lg border p-5">
+            <div key={item.title} className="rounded-lg border border-hairline p-5">
               <h3 className="fp-h5">{item.title}</h3>
               <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
             </div>
@@ -145,17 +145,17 @@ export default function AppTourPage() {
         </div>
       </section>
 
-      <section className="mt-14 rounded-lg border bg-ivory p-6">
+      <section className="mt-14 rounded-lg border border-hairline bg-ivory p-6">
         <h2 className="fp-h4">Set your dog up in a few minutes</h2>
         <p className="mt-2 text-sm text-ink-soft">
           Joining is free. You can create the profile now and upload vet records whenever you have
           them to hand.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
+          <Link href="/signup" className="fp-btn">
             Create your account
           </Link>
-          <Link href="/contact" className="rounded border px-5 py-2 font-semibold">
+          <Link href="/contact" className="fp-btn-ghost">
             Ask us something first
           </Link>
         </div>

@@ -306,6 +306,16 @@
     transition: none !important;
   }
 
+}
+
+/*
+ * Scoped to the widths where the sticky treatment actually exists. Unscoped,
+ * the margin-bottom took effect below 768px too — where StepStack is already a
+ * `flex flex-col gap-4` list. Flex-item margins add to gap rather than
+ * collapsing into it, so a reduced-motion visitor on a phone got 32px between
+ * cards where everyone else got 16px.
+ */
+@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
   .fp-sticky-card {
     position: static !important;
     transform: none !important;

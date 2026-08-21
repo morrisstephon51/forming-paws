@@ -83,7 +83,7 @@ export default async function BrowsePage({
       {!hasLocation && <LocationPrompt />}
 
       <form method="get" className="mt-6 flex flex-wrap gap-2">
-        <select name="breedId" defaultValue={params.breedId ?? ''} className="border p-2 text-sm">
+        <select name="breedId" defaultValue={params.breedId ?? ''} className="fp-input text-sm">
           <option value="">Any breed</option>
           {breeds.map((b) => (
             <option key={b.id} value={b.id}>
@@ -91,7 +91,7 @@ export default async function BrowsePage({
             </option>
           ))}
         </select>
-        <select name="sex" defaultValue={params.sex ?? ''} className="border p-2 text-sm">
+        <select name="sex" defaultValue={params.sex ?? ''} className="fp-input text-sm">
           <option value="">Any sex</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
@@ -101,21 +101,21 @@ export default async function BrowsePage({
           type="number"
           placeholder="Min age"
           defaultValue={params.minAge ?? ''}
-          className="border p-2 text-sm w-24"
+          className="fp-input text-sm w-24"
         />
         <input
           name="maxAge"
           type="number"
           placeholder="Max age"
           defaultValue={params.maxAge ?? ''}
-          className="border p-2 text-sm w-24"
+          className="fp-input text-sm w-24"
         />
         <input
           name="radiusMiles"
           type="number"
           placeholder="Radius (mi)"
           defaultValue={params.radiusMiles ?? ''}
-          className="border p-2 text-sm w-28"
+          className="fp-input text-sm w-28"
         />
         <label className="flex items-center gap-1 text-sm">
           <input
@@ -126,7 +126,7 @@ export default async function BrowsePage({
           />
           Verified only
         </label>
-        <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
+        <button type="submit" className="fp-btn px-4 py-1.5 text-sm">
           Filter
         </button>
       </form>
@@ -134,12 +134,12 @@ export default async function BrowsePage({
       <ul className="mt-6 flex flex-col gap-3">
         {dogsWithPhotos.map((dog) => (
           <li key={dog.id}>
-            <Link href={`/dogs/${dog.id}`} className="flex gap-3 border p-3 rounded hover:bg-brand-soft">
+            <Link href={`/dogs/${dog.id}`} className="flex gap-3 rounded-xl border border-hairline p-3 hover:bg-brand-soft">
               {dog.photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={dog.photoUrl} alt={dog.name} className="h-16 w-16 rounded object-cover" />
               ) : (
-                <div className="h-16 w-16 rounded bg-brand-soft" />
+                <div className="h-16 w-16 rounded-lg bg-brand-soft" />
               )}
               <div>
                 <p className="font-medium">
@@ -158,8 +158,8 @@ export default async function BrowsePage({
         {dogsWithPhotos.length === 0 && (
           <li className="col-span-full">
             <SageNote mood="thinking" title="Nothing matches those filters yet">
-              Try widening the distance, or clearing a filter or two — new dogs appear as owners
-              finish verification.
+              Try widening the distance, or clearing a filter or two. If the verified-only
+              filter is on, turning it off will show more.
             </SageNote>
           </li>
         )}

@@ -25,7 +25,7 @@ export default function EducationPage() {
           needed, what to ask a professional, and how to handle the first meeting.
         </p>
 
-        <BannerArt src={learnHub} className="mt-8" />
+        <BannerArt priority src={learnHub} className="mt-8" />
 
         {/*
           Prominent and near the top, not in a footer. Nothing here is written or
@@ -56,7 +56,7 @@ export default function EducationPage() {
         </ul>
 
         <section aria-labelledby="more" className="fp-band mt-12">
-          <h2 id="more" className="text-2xl font-bold">
+          <h2 id="more" className="fp-h2">
             More is coming
           </h2>
           <p className="mt-2 text-ink-soft">

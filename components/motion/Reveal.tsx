@@ -47,19 +47,40 @@ export default function Reveal({
   as?: 'div' | 'section' | 'li'
 }) {
   const ref = useRef<HTMLElement>(null)
+  // Set when the element was on screen at mount and therefore never hidden.
+  const revealed = useRef(false)
 
   // Before paint, so the element is never seen in its visible state and then
   // snapped away — a plain useEffect here produces a flash on every reveal.
+  //
+  // The viewport check is load-bearing, not an optimisation. On a 1440x900
+  // screen the first section below the hero is already on screen when
+  // hydration runs, and hiding it there does not produce a reveal — it makes
+  // content disappear. Worse, it did not come back: the observer's -12% bottom
+  // rootMargin excludes an element parked at the viewport edge, so the section
+  // stayed at opacity 0 until the reader scrolled, having been visible a moment
+  // earlier. Measured at 1440x900 on the home page: #how went 1.00 -> 0.00 and
+  // stayed there for 100 frames.
+  //
+  // So: only ever hide what is still below the fold. Anything the reader can
+  // already see is left exactly as the server rendered it, which is also the
+  // correct behaviour — a section does not need to animate in when it never
+  // arrived.
   useIsomorphicLayoutEffect(() => {
     const el = ref.current
     if (!el) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+      revealed.current = true
+      return
+    }
     el.classList.add('fp-reveal')
   }, [])
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (revealed.current) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const observer = new IntersectionObserver(

@@ -6,6 +6,8 @@
  * something you can't deliver is the one a member will read.
  */
 export const RESPONSE_TIME = {
+  /** The bound itself, for anywhere that needs the number rather than a phrase. */
+  hours: 24,
   /** Used inside sentences: "we reply {within}". */
   within: 'within 24 hours',
   short: '24-hour reply',

@@ -67,13 +67,13 @@ export default async function MatchesPage() {
           const preview = lastByMatch.get(m.id)
           return (
             <li key={m.id}>
-              <Link href={`/matches/${m.id}`} className="block rounded border p-4 hover:bg-brand-soft">
+              <Link href={`/matches/${m.id}`} className="block rounded-xl border border-hairline p-4 hover:bg-brand-soft">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">
                     {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
                   </p>
                   {count > 0 && (
-                    <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white">
+                    <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-ivory">
                       {count}
                     </span>
                   )}

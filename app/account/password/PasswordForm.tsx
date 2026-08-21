@@ -51,7 +51,7 @@ export default function PasswordForm() {
         autoComplete="new-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="border p-2"
+        className="border border-hairline p-2"
       />
 
       <label htmlFor="confirmation" className="text-sm font-medium">
@@ -65,7 +65,7 @@ export default function PasswordForm() {
         autoComplete="new-password"
         value={confirmation}
         onChange={(e) => setConfirmation(e.target.value)}
-        className="border p-2"
+        className="border border-hairline p-2"
       />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -73,7 +73,7 @@ export default function PasswordForm() {
       <button
         type="submit"
         disabled={saving}
-        className="bg-brand text-white p-2 rounded disabled:opacity-50"
+        className="fp-btn disabled:opacity-50"
       >
         {saving ? 'Saving…' : 'Save new password'}
       </button>

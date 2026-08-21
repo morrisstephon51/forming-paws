@@ -8,7 +8,7 @@ import SageNote from '@/components/mascot/SageNote'
 export default function Loading() {
   return (
     <div className="fp-shell py-16">
-      <SageNote mood="sleeping" title="Fetching dogs nearby…">
+      <SageNote status mood="sleeping" title="Fetching dogs nearby…">
         Sage is rounding them up.
       </SageNote>
     </div>

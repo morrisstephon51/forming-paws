@@ -57,7 +57,7 @@ export default async function ReviewQueuePage({
       )}
       <ul className="mt-6 flex flex-col gap-4">
         {docs.map((doc) => (
-          <li key={doc.id} className="border p-4 rounded">
+          <li key={doc.id} className="border border-hairline p-4 rounded">
             <p className="font-medium">
               {doc.dogName ?? 'Unknown dog'} — {doc.doc_type} ({formatCalendarDate(doc.document_date)})
             </p>
@@ -90,11 +90,11 @@ export default async function ReviewQueuePage({
               }}
               className="mt-2 flex gap-2 items-center"
             >
-              <input name="notes" placeholder="Notes (optional)" className="border p-1 text-sm flex-1" />
-              <button name="decision" value="verified" className="bg-green-600 text-white px-3 py-1 rounded text-sm">
+              <input name="notes" placeholder="Notes (optional)" className="border border-hairline p-1 text-sm flex-1" />
+              <button name="decision" value="verified" className="bg-green-600 text-ivory px-3 py-1 rounded text-sm">
                 Verify
               </button>
-              <button name="decision" value="rejected" className="bg-red-600 text-white px-3 py-1 rounded text-sm">
+              <button name="decision" value="rejected" className="inline-flex items-center justify-center rounded-full bg-red-600 px-4 py-1.5 font-body text-sm font-bold text-ivory transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
                 Reject
               </button>
             </form>

@@ -43,7 +43,7 @@ export default function AboutPage() {
           <span aria-hidden="true">🐾</span> Why {SITE_NAME} exists
         </h1>
 
-        <BannerArt src={neighbourhood} className="mt-8" />
+        <BannerArt priority src={neighbourhood} className="mt-8" />
 
         <div className="mt-6 flex flex-col gap-4 text-ink-soft">
           <p>
@@ -65,7 +65,7 @@ export default function AboutPage() {
         </div>
 
         <section aria-labelledby="principles" className="mt-12">
-          <h2 id="principles" className="text-2xl font-bold">
+          <h2 id="principles" className="fp-h2">
             What we hold to
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -79,7 +79,7 @@ export default function AboutPage() {
         </section>
 
         <section aria-labelledby="structure" className="mt-12">
-          <h2 id="structure" className="text-2xl font-bold">
+          <h2 id="structure" className="fp-h2">
             Where we actually are
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -108,7 +108,7 @@ export default function AboutPage() {
         </section>
 
         <section aria-labelledby="help" className="fp-band mt-12">
-          <h2 id="help" className="text-2xl font-bold">
+          <h2 id="help" className="fp-h2">
             The most useful thing you can do
           </h2>
           <p className="mt-2 text-ink-soft">

@@ -150,7 +150,7 @@ export function DangerZone() {
           <button
             type="submit"
             disabled={pending}
-            className="whitespace-nowrap rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+            className="whitespace-nowrap rounded-lg bg-red-700 px-4 py-2 text-sm font-bold text-ivory transition-colors hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
           >
             {pending ? 'Working…' : 'Delete account'}
           </button>
