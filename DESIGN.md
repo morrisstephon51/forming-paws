@@ -40,9 +40,11 @@ to full `brand` with nothing between.
 
 `hairline` `#E7DFD1` for all borders and dividers.
 
-**Terracotta is a seal, not a surface.** `accent` `#E8734A` clears 3:1 on ivory —
-fine for fills and large display, short of body text. Use `accent.dark` `#C95A33`
-when accent-coloured text is genuinely needed. Never tint a large background with it.
+**Terracotta is a seal, not a surface.** `accent` `#E8734A` is **fill only** —
+measured at 2.82:1 on ivory and 2.94:1 on paper, it fails even the 3:1 large-text
+floor, so it must never carry text and never be a focus ring. Use `accent.dark`
+`#AD4727` when accent-coloured text is needed: 5.30:1 on ivory, 5.53:1 on paper,
+5.01:1 on `accent.soft`. Never tint a large background with either.
 
 ## Type
 

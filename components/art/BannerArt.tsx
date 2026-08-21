@@ -11,16 +11,29 @@ import Image, { type StaticImageData } from 'next/image'
  * container whose height is derived from its own width, so the space is
  * reserved before a single byte of the image arrives.
  *
- * No `priority` here, deliberately, and no prop to opt into it: these all sit
- * below the fold on every page that uses them, and the hero is the only image
- * on the site that should ever preload.
+ * `priority` is opt-in per call site, and it exists because the original claim
+ * here — "these all sit below the fold on every page that uses them" — was
+ * false. Measured against the shipped build, the banner is inside the initial
+ * viewport on every page that renders one, at both widths tested:
+ *
+ *   /education/[slug]   top 148px @1440   top 260px @375
+ *   /education          top 280px @1440   top 416px @375
+ *   /about              top 302px @1440   top 344px @375
+ *
+ * So the largest above-the-fold image on three pages was being lazy-loaded,
+ * which is the one thing lazy loading must never be applied to. Pages that
+ * render the banner above the fold pass `priority`; any that place it lower
+ * should not.
  */
 export default function BannerArt({
   src,
   className = '',
+  priority = false,
 }: {
   src: StaticImageData
   className?: string
+  /** Set on call sites where the banner is inside the initial viewport. */
+  priority?: boolean
 }) {
   return (
     <div
@@ -31,7 +44,7 @@ export default function BannerArt({
         src={src}
         alt=""
         fill
-        loading="lazy"
+        {...(priority ? { priority: true as const } : { loading: "lazy" as const })}
         placeholder="blur"
         sizes="(max-width: 768px) 100vw, 768px"
         className="object-cover"

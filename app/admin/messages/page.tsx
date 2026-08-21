@@ -57,7 +57,7 @@ export default async function MessagesPage() {
       {waiting.length === 0 && <p className="mt-2 text-ink-soft">Nothing waiting.</p>}
       <ul className="mt-4 flex flex-col gap-4">
         {waiting.map((message) => (
-          <li key={message.id} className="rounded border p-4">
+          <li key={message.id} className="rounded border border-hairline p-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-medium">{message.name}</p>
               <time className="text-xs text-ink-soft" dateTime={message.created_at}>
@@ -75,7 +75,7 @@ export default async function MessagesPage() {
               }}
               className="mt-4"
             >
-              <button className="rounded border px-3 py-1 text-sm hover:bg-brand-soft">
+              <button className="fp-btn-ghost px-3 py-1 text-sm">
                 Mark replied
               </button>
             </form>
@@ -88,7 +88,7 @@ export default async function MessagesPage() {
           <h2 className="mt-10 fp-h5">Replied</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {done.map((message) => (
-              <li key={message.id} className="rounded border p-3 text-sm text-ink-soft">
+              <li key={message.id} className="rounded border border-hairline p-3 text-sm text-ink-soft">
                 <span className="font-medium text-ink">{message.name}</span> · {message.email} ·{' '}
                 {new Date(message.created_at).toLocaleDateString()}
               </li>

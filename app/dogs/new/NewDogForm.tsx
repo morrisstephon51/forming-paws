@@ -68,8 +68,8 @@ export default function NewDogForm({ breeds }: { breeds: { id: number; name: str
     <main className="mx-auto max-w-sm p-8">
       <h1 className="fp-h2">Add a dog</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
-        <input name="name" placeholder="Dog's name" required className="border p-2" />
-        <select name="breedId" required className="border p-2">
+        <input name="name" placeholder="Dog's name" required className="border border-hairline p-2" />
+        <select name="breedId" required className="border border-hairline p-2">
           <option value="">Select breed</option>
           {breeds.map((b) => (
             <option key={b.id} value={b.id}>
@@ -77,15 +77,15 @@ export default function NewDogForm({ breeds }: { breeds: { id: number; name: str
             </option>
           ))}
         </select>
-        <select name="sex" required className="border p-2">
+        <select name="sex" required className="border border-hairline p-2">
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>
-        <input name="birthDate" type="date" required className="border p-2" />
-        <input name="weightLbs" type="number" placeholder="Weight (lbs)" className="border p-2" />
-        <textarea name="temperamentNotes" placeholder="Temperament notes" className="border p-2" />
+        <input name="birthDate" type="date" required className="border border-hairline p-2" />
+        <input name="weightLbs" type="number" placeholder="Weight (lbs)" className="border border-hairline p-2" />
+        <textarea name="temperamentNotes" placeholder="Temperament notes" className="border border-hairline p-2" />
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="bg-brand text-white p-2 rounded">
+        <button type="submit" className="fp-btn">
           Save
         </button>
       </form>

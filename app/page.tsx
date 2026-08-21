@@ -277,9 +277,9 @@ export default async function HomePage({
             </p>
             <p>
               <span className="fp-h2 block text-brand">
-                <CountUp to={24} suffix="h" />
+                <CountUp to={RESPONSE_TIME.hours} suffix="h" />
               </span>
-              <span className="fp-eyebrow mt-1 block">reply, every message</span>
+              <span className="fp-eyebrow mt-1 block">max reply time</span>
             </p>
           </div>
           <WaitlistForm />

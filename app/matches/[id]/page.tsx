@@ -87,7 +87,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
           Meet in a public place. Forming Paws is not a party to any breeding arrangement.
         </p>
       ) : (
-        <p className="mt-1 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="mt-1 rounded border border-hairline border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
           You are reading this conversation because it was reported. Your access ends when the report
           is resolved or dismissed. You cannot post here.
         </p>

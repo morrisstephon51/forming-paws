@@ -50,7 +50,7 @@ export default function HeroScene() {
           fill
           priority
           placeholder="blur"
-          sizes="(max-width: 1024px) 100vw, 1024px"
+          sizes="(max-width: 1200px) 100vw, 1270px"
           className="object-cover object-bottom"
         />
       </div>

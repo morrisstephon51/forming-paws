@@ -55,7 +55,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
       <p className="text-sm text-ink-soft">
         Reporting lets a Forming Paws reviewer read this conversation while they look into it.
       </p>
-      <select name="reason" required className="rounded border p-2 text-sm">
+      <select name="reason" required className="fp-input text-sm">
         <option value="">Choose a reason…</option>
         {REASONS.map(([value, label]) => (
           <option key={value} value={value}>
@@ -67,10 +67,10 @@ export default function ReportForm({ matchId }: { matchId: string }) {
         name="detail"
         maxLength={1000}
         placeholder="Anything else we should know (optional)"
-        className="rounded border p-2 text-sm"
+        className="fp-input text-sm"
       />
       <div className="flex items-center gap-3">
-        <button type="submit" className="rounded bg-brand px-4 py-2 text-sm text-white">
+        <button type="submit" className="fp-btn px-4 py-2 text-sm">
           Send report
         </button>
         <button

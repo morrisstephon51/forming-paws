@@ -46,7 +46,7 @@ export default async function ReportsPage() {
       </p>
       <ul className="mt-6 flex flex-col gap-4">
         {reports?.map((r) => (
-          <li key={r.id} className="rounded border p-4">
+          <li key={r.id} className="rounded border border-hairline p-4">
             <p className="font-medium">{REASON_LABELS[r.reason] ?? r.reason}</p>
             {r.detail && <p className="mt-1 text-sm text-ink-soft">{r.detail}</p>}
             <p className="mt-1 text-xs text-ink-soft">
@@ -66,7 +66,7 @@ export default async function ReportsPage() {
               }}
               className="mt-3 flex flex-wrap items-center gap-2"
             >
-              <select name="status" defaultValue="reviewing" className="rounded border p-1.5 text-sm">
+              <select name="status" defaultValue="reviewing" className="rounded border border-hairline p-1.5 text-sm">
                 <option value="reviewing">Reviewing</option>
                 <option value="resolved">Resolved</option>
                 <option value="dismissed">Dismissed</option>
@@ -74,9 +74,9 @@ export default async function ReportsPage() {
               <input
                 name="notes"
                 placeholder="Reviewer notes"
-                className="flex-1 rounded border p-1.5 text-sm"
+                className="flex-1 rounded border border-hairline p-1.5 text-sm"
               />
-              <button type="submit" className="rounded bg-brand px-3 py-1.5 text-sm text-white">
+              <button type="submit" className="fp-btn px-4 py-1.5 text-sm">
                 Save
               </button>
             </form>

@@ -38,7 +38,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         {/* Breadcrumbs prepends Home itself, and leaves the last crumb unlinked. */}
         <Breadcrumbs trail={[{ label: 'Learn', href: '/education' }, { label: guide.title }]} />
 
-        {art && <BannerArt src={art} className="mt-4" />}
+        {art && <BannerArt priority src={art} className="mt-4" />}
 
         <h1 className="mt-6 fp-h1">{guide.title}</h1>
         <p className="mt-2 text-sm text-ink-soft">{guide.readingMinutes} min read</p>

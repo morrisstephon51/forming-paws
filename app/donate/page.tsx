@@ -72,7 +72,7 @@ export default function DonatePage() {
         </div>
 
         <section aria-labelledby="instead" className="mt-12">
-          <h2 id="instead" className="text-2xl font-bold">
+          <h2 id="instead" className="fp-h2">
             What actually helps right now
           </h2>
           <p className="mt-2 text-ink-soft">
@@ -95,7 +95,7 @@ export default function DonatePage() {
         </section>
 
         <section aria-labelledby="funding" className="mt-12">
-          <h2 id="funding" className="text-2xl font-bold">
+          <h2 id="funding" className="fp-h2">
             How this is funded
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -112,7 +112,7 @@ export default function DonatePage() {
         </section>
 
         <section aria-labelledby="org" className="fp-band mt-12">
-          <h2 id="org" className="text-2xl font-bold">
+          <h2 id="org" className="fp-h2">
             Funder, grantmaker, or sponsor?
           </h2>
           <p className="mt-2 text-ink-soft">

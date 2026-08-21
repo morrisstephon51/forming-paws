@@ -66,7 +66,7 @@ export default function WaitlistForm() {
         required
         placeholder="Your email"
         aria-label="Your email"
-        className="min-w-0 flex-1 rounded border p-2"
+        className="fp-input min-w-0 flex-1"
       />
       <input
         name="city"
@@ -75,7 +75,7 @@ export default function WaitlistForm() {
         type="text"
         placeholder="Your city"
         aria-label="Your city"
-        className="min-w-0 flex-1 rounded border p-2"
+        className="fp-input min-w-0 flex-1"
       />
       <input
         name="dogBreed"
@@ -84,12 +84,12 @@ export default function WaitlistForm() {
         type="text"
         placeholder="Your dog's breed (optional)"
         aria-label="Your dog's breed"
-        className="min-w-0 flex-1 rounded border p-2"
+        className="fp-input min-w-0 flex-1"
       />
       <button
         type="submit"
         disabled={state === 'sending'}
-        className="rounded bg-brand px-5 py-2 text-white disabled:opacity-50"
+        className="fp-btn disabled:opacity-50"
       >
         {state === 'sending' ? 'Joining…' : 'Join the Waitlist'}
       </button>

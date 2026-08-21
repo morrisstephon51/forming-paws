@@ -44,6 +44,6 @@ in words produces the same palette without the artefact.
 - Sources live in `assets/art/`, not `public/`. Static imports are what give
   `next/image` intrinsic dimensions and an automatic blur placeholder; files in
   `public/` get neither.
-- Flat illustration compresses extraordinarily well: the five committed sources
+- Flat illustration compresses extraordinarily well: the six committed sources
   total 380KB, and AVIF variants served at real layout widths land between 1KB
   and 11KB per page.
