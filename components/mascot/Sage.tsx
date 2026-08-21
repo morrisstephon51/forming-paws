@@ -6,9 +6,10 @@
  * perked, one folded — because a recognisable purebred head would be the
  * mascot quietly endorsing a breed this platform exists to be neutral about.
  *
- * That asymmetry is also what makes the mark work at 26px in the nav. A
- * symmetrical dog head at that size is a circle with two bumps; the hanging ear
- * is the one feature that still reads when everything else has collapsed.
+ * That asymmetry is also what makes the mark hold up at 30px in the footer
+ * sign-off — the smallest instance that actually ships. At that size a
+ * symmetrical dog head is a circle with two bumps; the hanging ear is the one
+ * feature that still reads when everything else has collapsed.
  *
  * Every mood shares one 72×72 viewBox, including the moods that use none of the
  * outer margin. That is deliberate: swapping mood in place — an empty state

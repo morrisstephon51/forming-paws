@@ -73,7 +73,7 @@ export default async function MatchesPage() {
                     {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
                   </p>
                   {count > 0 && (
-                    <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-ivory">
+                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent-dark">
                       {count}
                     </span>
                   )}

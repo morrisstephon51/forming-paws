@@ -35,10 +35,18 @@ to full `brand` with nothing between.
 | 1 | `paper` | `#FFFCF7` | Card surfaces — warm, never `#fff` |
 | 2 | `wash` | `#F2EDE3` | Inset surfaces: inputs, stripes |
 | 3 | `brand.soft` | `#E3EFE9` | Emphasis bands |
-| 4 | `brand.moss` | `#CFE2D8` | Deeper bands, transitions *(new rung)* |
+| 4 | `brand.moss` | `#D2E4DA` | Deeper bands — the closing CTA *(new rung)* |
 | 5 | `brand` | `#2F6B5C` | Inverted sections, primary fills |
 
 `hairline` `#E7DFD1` for all borders and dividers.
+
+Every rung is chosen so `ink-soft` `#6C6155` still clears 4.5:1 on it — that is
+what set `brand.moss`, whose first value missed by four hundredths.
+
+**One pair to avoid:** `accent.dark` on `brand.moss` is 4.28:1 and fails AA. It
+does not occur anywhere today and must not be introduced. Every other
+text-token / surface-rung combination clears 4.5:1; the worst that ships is
+`ink-soft` on `brand.moss` at 4.56:1.
 
 **Terracotta is a seal, not a surface.** `accent` `#E8734A` is **fill only** —
 measured at 2.82:1 on ivory and 2.94:1 on paper, it fails even the 3:1 large-text
@@ -88,9 +96,16 @@ Pages do not restyle themselves. They keep calling `.fp-card` and `.fp-btn`; tho
 definitions moved underneath them. That is why a site-wide overhaul touched no
 page logic.
 
-`.fp-btn` · `.fp-btn-accent` · `.fp-btn-ghost` · `.fp-card` · `.fp-card-float`
-· `.fp-band` · `.fp-band-deep` · `.fp-band-invert` · `.fp-badge` · `.fp-link`
-· `.fp-input` · `.fp-hairline` · `.fp-figure` · `.fp-shell` · `.fp-section`
+**In use:** `.fp-btn` · `.fp-btn-ghost` · `.fp-card` · `.fp-band` · `.fp-band-deep`
+· `.fp-badge` · `.fp-link` · `.fp-input` · `.fp-shell` · `.fp-depth`
+
+**Defined and available, not yet used:** `.fp-btn-accent` · `.fp-card-float`
+· `.fp-band-invert` · `.fp-figure` · `.fp-hairline` · `.fp-section` · `.fp-h3`
+
+Listed honestly rather than implied — a vocabulary that documents primitives as
+though they were in use is a vocabulary nobody can trust. Note that
+`.fp-btn-accent` is unused *and* puts `text-ivory` on `accent`, which is 2.82:1;
+it needs a darker fill before it is used anywhere.
 
 ## Layout
 
@@ -113,8 +128,9 @@ A mascot for an anti-puppy-mill platform has a hard constraint before it has a
 style: **it cannot look like a breed.** Sage is deliberately mixed — one ear
 perked, one folded — because a recognisable purebred head would be the mascot
 quietly endorsing a breed this platform exists to be neutral about. That
-asymmetry is also what makes the mark work at 26px in the nav, where a
-symmetrical dog head is a circle with two bumps.
+asymmetry is also what makes the mark hold up at 30px in the footer sign-off,
+the smallest instance that actually ships — a symmetrical dog head at that size
+is a circle with two bumps.
 
 Drawn in **Line & Wash**: a single-weight brand-green line over flat `brand.soft`
 fills, with an offset `accent.soft` wash behind it — a risograph misregistration,
@@ -136,9 +152,17 @@ becoming a confirmation — must not shift the mark a pixel.
 | `happy` | Footer sign-off |
 | `waving` | Signup, member home welcome |
 | `thinking` | Browse empty, matches empty, no-dogs-yet |
-| `sleeping` | `/browse`, `/matches`, `/dogs/[id]` loading |
+| `sleeping` | *(none — see note)* |
 | `confused` | 404, route error boundary |
 | `celebrating` | Thank-you (waitlist, signup, contact) |
+
+**`sleeping` is currently unwired.** It was on four route `loading.tsx` files
+until those were removed: a `loading.tsx` introduces a Suspense boundary, and on
+a segment whose auth gate is a server-side `redirect()` that downgrades the
+response from `307 → /login` to `200` plus a client-side redirect. Measured on
+`/browse` and `/matches`. Restoring the loading states needs the auth gate moved
+ahead of the boundary — a segment `layout.tsx` works, at the cost of one extra
+`getUser()` per request — so it is a deliberate decision rather than a default.
 
 `SageNote` wraps the mascot with a heading and body for empty, loading and error
 states, so a dead end never looks like a broken page and the next one nobody

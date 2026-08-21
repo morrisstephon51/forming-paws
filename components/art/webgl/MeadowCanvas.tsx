@@ -126,7 +126,14 @@ export default function MeadowCanvas() {
         )
       }
       const onResize = () => handle.resize()
-      const onVisibility = () => (document.hidden ? handle.stop() : handle.start())
+
+      // Both conditions live in one place now. Previously visibilitychange
+      // consulted only document.hidden, so returning to the tab after
+      // scrolling past the hero restarted a 60fps loop for an off-screen
+      // canvas, and nothing stopped it until the hero crossed the edge again.
+      let onScreen = true
+      const settle = () => (onScreen && !document.hidden ? handle.start() : handle.stop())
+      const onVisibility = settle
 
       window.addEventListener('scroll', onScroll, { passive: true })
       window.addEventListener('pointermove', onPointer, { passive: true })
@@ -135,18 +142,34 @@ export default function MeadowCanvas() {
 
       // Only render while the hero is actually on screen.
       const io = new IntersectionObserver(
-        ([entry]) => (entry.isIntersecting && !document.hidden ? handle.start() : handle.stop()),
+        ([entry]) => {
+          onScreen = entry.isIntersecting
+          settle()
+        },
         { threshold: 0 },
       )
       if (hero) io.observe(hero)
 
+      // preventDefault() asks the browser to restore the context, so something
+      // must listen for that. Without a restored handler one GPU reset left the
+      // canvas blank permanently AND the SVG ridges faded out behind it, since
+      // is-live and data-fp-webgl were cleared and never set again.
       const onLost = (e: Event) => {
         e.preventDefault()
         handle.stop()
         setLive(false)
         if (hero) delete hero.dataset.fpWebgl
       }
+      const onRestored = () => {
+        handle.resize()
+        handle.setScroll(progress())
+        handle.render()
+        setLive(true)
+        if (hero) hero.dataset.fpWebgl = 'on'
+        settle()
+      }
       canvasRef.current.addEventListener('webglcontextlost', onLost)
+      canvasRef.current.addEventListener('webglcontextrestored', onRestored)
 
       cleanup = () => {
         io.disconnect()
@@ -155,6 +178,7 @@ export default function MeadowCanvas() {
         window.removeEventListener('resize', onResize)
         document.removeEventListener('visibilitychange', onVisibility)
         canvasRef.current?.removeEventListener('webglcontextlost', onLost)
+        canvasRef.current?.removeEventListener('webglcontextrestored', onRestored)
         if (frame) cancelAnimationFrame(frame)
         handle.dispose()
         if (hero) delete hero.dataset.fpWebgl

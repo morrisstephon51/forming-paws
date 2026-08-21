@@ -134,7 +134,7 @@ export default async function HomePage({
               <br />
               Happy litters.
             </h1>
-            <p className="mt-4 text-ink-soft">
+            <p className="fp-lead mt-4">
               Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
               thoughtful matchmaking for dogs, with veterinary verification at the centre of
               everything.
@@ -315,7 +315,7 @@ export default async function HomePage({
           </div>
         </Reveal>
 
-        <Reveal as="section" className="fp-band mt-16">
+        <Reveal as="section" className="fp-band-deep mt-16">
           <h2 className="fp-h2">Still deciding?</h2>
           <p className="mt-2 text-ink-soft">
             {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.

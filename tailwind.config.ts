@@ -35,7 +35,15 @@ const config: Config = {
           DEFAULT: '#2F6B5C', // 5
           dark: '#245448',
           soft: '#E3EFE9', // 3
-          moss: '#CFE2D8', // 4 — the rung that was missing
+          /*
+           * 4 — the rung that was missing. #CFE2D8 was the first value and it
+           * put ink-soft at 4.46:1, which fails AA by four hundredths. Nothing
+           * used the rung at the time so nothing was failing yet; the moment it
+           * was applied to the closing CTA band it would have been. #D2E4DA
+           * clears it at 4.56:1 and keeps the most separation from brand.soft
+           * of any value that does.
+           */
+          moss: '#D2E4DA',
         },
         /*
          * Terracotta is a seal, not a surface. Function's rule: reserve it for

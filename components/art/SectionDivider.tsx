@@ -1,7 +1,7 @@
 /**
  * A soft organic band that separates two full-width sections.
  *
- * Hand-drawn rather than generated: it is three paths and about 700 bytes, it
+ * Hand-drawn rather than generated: it is two paths and about 700 bytes, it
  * inherits the brand palette exactly instead of approximately, and it scales to
  * any width without a second asset. A raster here would have cost forty
  * kilobytes to do less.
