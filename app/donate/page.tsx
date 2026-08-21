@@ -78,7 +78,7 @@ export default function DonatePage() {
           <p className="mt-2 text-ink-soft">
             All of these are worth more to the project today than a small donation would be.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-2">
             {WAYS_TO_HELP.map((way) => (
               <div key={way.title} className="fp-card flex flex-col">
                 <span aria-hidden="true" className="text-2xl">

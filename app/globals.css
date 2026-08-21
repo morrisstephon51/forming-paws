@@ -413,3 +413,85 @@
     transform: none !important;
   }
 }
+
+/*
+ * The WebGL meadow.
+ *
+ * Hidden until it has actually rendered a frame — `is-live` is set by the
+ * component after its first render() returns, never on mount. That ordering is
+ * what makes every failure path invisible: no WebGL, a refused context, a
+ * save-data device, or a chunk that never arrives all leave the SVG ridges
+ * exactly where they were, because nothing was taken away first.
+ */
+.fp-meadow-canvas {
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+  pointer-events: none;
+}
+
+.fp-meadow-canvas.is-live {
+  opacity: 1;
+}
+
+/*
+ * And only once it is live do the SVG ridges step aside. Fading them rather than
+ * removing them keeps the handover from ever showing a gap between the two.
+ */
+[data-fp-webgl='on'] .fp-plane-hills,
+[data-fp-webgl='on'] .fp-plane-meadow {
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-meadow-canvas {
+    transition: none !important;
+  }
+  [data-fp-webgl='on'] .fp-plane-hills,
+  [data-fp-webgl='on'] .fp-plane-meadow {
+    transition: none !important;
+  }
+}
+
+/*
+ * Depth cues on cards.
+ *
+ * A pointer-driven tilt in real 3D space, on the surfaces the reader is already
+ * pointing at. Perspective lives on the container rather than the card, so a
+ * row of cards shares one vanishing point and the row reads as a plane rather
+ * than as several unrelated boxes each with their own camera.
+ *
+ * transform only, GPU composited, and the whole thing is a no-op on touch —
+ * `@media (hover: hover)` — because a tilt that needs a cursor is dead weight on
+ * a phone and would only ever fire on tap.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .fp-depth {
+    perspective: 1100px;
+  }
+
+  .fp-depth > * {
+    transition:
+      transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .fp-depth > *:hover {
+    transform: translate3d(0, -6px, 26px) rotateX(2.2deg);
+    box-shadow: theme('boxShadow.float');
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-depth {
+    perspective: none;
+  }
+  .fp-depth > *,
+  .fp-depth > *:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
+}

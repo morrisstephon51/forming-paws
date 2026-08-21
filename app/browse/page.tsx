@@ -131,7 +131,7 @@ export default async function BrowsePage({
         </button>
       </form>
 
-      <ul className="mt-6 flex flex-col gap-3">
+      <ul className="fp-depth mt-6 flex flex-col gap-3">
         {dogsWithPhotos.map((dog) => (
           <li key={dog.id}>
             <Link href={`/dogs/${dog.id}`} className="flex gap-3 rounded-xl border border-hairline p-3 hover:bg-brand-soft">

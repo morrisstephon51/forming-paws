@@ -31,7 +31,7 @@ export default function NotFound() {
         wrong with your account.
       </p>
 
-      <ul className="mt-8 flex flex-col gap-3">
+      <ul className="fp-depth mt-8 flex flex-col gap-3">
         <li>
           <Link href="/" className="block rounded-lg border border-hairline p-4 hover:bg-brand-soft">
             <span className="font-semibold">Start at the beginning</span>

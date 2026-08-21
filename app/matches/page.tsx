@@ -59,7 +59,7 @@ export default async function MatchesPage() {
       <p className="mt-2 text-sm text-ink-soft">
         Matches are introductions only — Forming Paws is not a party to any breeding arrangement.
       </p>
-      <ul className="mt-6 flex flex-col gap-3">
+      <ul className="fp-depth mt-6 flex flex-col gap-3">
         {matches?.map((m) => {
           const mineId = myDogIds.has(m.dog_a_id) ? m.dog_a_id : m.dog_b_id
           const theirsId = myDogIds.has(m.dog_a_id) ? m.dog_b_id : m.dog_a_id
