@@ -96,7 +96,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-3">
+          <ul className="fp-depth mt-4 flex flex-col gap-3">
             {dogsWithStatus.map((dog) => (
               <li key={dog.id}>
                 <Link

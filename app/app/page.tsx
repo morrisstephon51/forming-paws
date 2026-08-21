@@ -108,7 +108,7 @@ export default function AppTourPage() {
           and only within the distance you choose.
         </p>
 
-        <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+        <ul className="fp-depth mt-6 grid gap-4 sm:grid-cols-3">
           {SAMPLE_DOGS.map((dog) => (
             <li key={dog.name} className="rounded-lg border border-hairline p-4">
               <div className="flex items-baseline justify-between gap-2">
@@ -135,7 +135,7 @@ export default function AppTourPage() {
 
       <section className="mt-14">
         <h2 className="fp-h2">The four rules behind it</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-2">
           {TOUR.map((item) => (
             <div key={item.title} className="rounded-lg border border-hairline p-5">
               <h3 className="fp-h5">{item.title}</h3>

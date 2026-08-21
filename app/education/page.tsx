@@ -38,7 +38,7 @@ export default function EducationPage() {
           has been written or reviewed by a veterinarian, and none of it is a substitute for one.
         </p>
 
-        <ul className="mt-8 flex flex-col gap-4">
+        <ul className="fp-depth mt-8 flex flex-col gap-4">
           {GUIDES.map((guide) => (
             <li key={guide.slug}>
               <Link

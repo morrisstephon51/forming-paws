@@ -232,7 +232,7 @@ export default async function HomePage({
             Forming Paws exists to raise the standard of dog breeding, not just to make
             introductions.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-3">
             {HEALTH.map((card) => (
               <div key={card.title} className="fp-card">
                 <span className="text-2xl" aria-hidden="true">
@@ -248,7 +248,7 @@ export default async function HomePage({
         <Reveal as="section" id="roadmap" className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">Where we&apos;re headed</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="fp-depth mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
               <li key={item.tag} className="fp-card">
                 <span className="fp-eyebrow">
@@ -305,7 +305,7 @@ export default async function HomePage({
             </Link>
             .
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="fp-depth mt-6 flex flex-col gap-3">
             {FAQS.map((faq) => (
               <details key={faq.question} className="fp-card">
                 <summary className="cursor-pointer font-semibold">{faq.question}</summary>

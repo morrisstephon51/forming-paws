@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import heroSky from '@/assets/art/hero-sky.jpg'
 import HeroParallax from '@/components/motion/HeroParallax'
+import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
 
 /**
  * The layered backdrop behind the landing hero.
@@ -56,6 +57,16 @@ export default function HeroScene() {
       </div>
 
       {/*
+        The 3D ridges. Layered here — over the sky, under the scrim — so it
+        occupies exactly the slot the SVG planes below occupy, and the scrim goes
+        on protecting the headline whichever one is showing.
+
+        It renders nothing until it has a frame, and only then does CSS fade the
+        SVG ridges out. If it never starts, they simply stay.
+      */}
+      <MeadowCanvas />
+
+      {/*
         The contrast guarantee, and it sits here — above the sky, below the
         meadow — rather than on top of the whole stack. Scrimming the SVG planes
         too was the first version, and it desaturated the greens into a grey fog
@@ -64,7 +75,7 @@ export default function HeroScene() {
         Deliberately not parallaxed: the scrim protects text, and text does not
         move, so neither does it.
       */}
-      <div className="absolute inset-0 bg-ivory/30 md:bg-gradient-to-r md:from-ivory/75 md:via-ivory/25 md:to-transparent" />
+      <div className="absolute inset-0 bg-ivory/25 md:bg-gradient-to-r md:from-ivory/65 md:via-ivory/20 md:to-transparent" />
 
       {/* Plane 2 — midground hills. */}
       <svg
