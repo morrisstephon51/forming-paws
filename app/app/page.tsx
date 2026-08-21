@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
+import SectionDivider from '@/components/art/SectionDivider'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -86,7 +87,16 @@ export default function AppTourPage() {
         </Link>
       </div>
 
-      <section className="mt-14">
+      {/*
+        The shot list originally put a full illustrated hero here. It got cut:
+        this page's whole job is to show sample dog cards, and an atmospheric
+        banner directly above them competed with the thing a visitor came to
+        look at. A divider gives the page the same visual rhythm as the rest of
+        the site without picking that fight.
+      */}
+      <SectionDivider className="mt-12" />
+
+      <section className="mt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-2xl font-bold">Browsing looks like this</h2>
           <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-800">

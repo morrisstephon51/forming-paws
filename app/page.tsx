@@ -10,6 +10,8 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
+import HeroScene from '@/components/art/HeroScene'
+import SectionDivider from '@/components/art/SectionDivider'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -112,7 +114,14 @@ export default async function HomePage({
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
       <main>
-        <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
+        {/*
+          The hero grid is unchanged; it has just gained a backdrop and the
+          padding to sit inside one. HeroScene is absolutely positioned, so the
+          columns below still lay out exactly as they did before it existed.
+        */}
+        <div className="relative mt-12 px-5 pb-24 pt-10 sm:px-9 sm:pb-28 sm:pt-12">
+          <HeroScene />
+          <div className="relative grid gap-10 md:grid-cols-5 md:items-start">
           <section className="md:col-span-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
               Nonprofit · Community-driven · Health-verified
@@ -181,6 +190,7 @@ export default async function HomePage({
               </Link>
             </p>
           </section>
+          </div>
         </div>
 
         <section id="how" className="mt-20 scroll-mt-8">
@@ -203,7 +213,10 @@ export default async function HomePage({
           </ol>
         </section>
 
-        <section id="health" className="mt-20 scroll-mt-8">
+        {/* Breathing room between the two heaviest sections on the page. */}
+        <SectionDivider className="mt-16" />
+
+        <section id="health" className="mt-4 scroll-mt-8">
           <h2 className="text-2xl font-bold">
             <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
           </h2>

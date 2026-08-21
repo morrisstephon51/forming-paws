@@ -2,6 +2,8 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { GUIDES } from '@/lib/education'
 import { pageMetadata } from '@/lib/seo'
+import BannerArt from '@/components/art/BannerArt'
+import learnHub from '@/assets/art/learn-hub.jpg'
 
 export const metadata = pageMetadata({
   title: 'Learn',
@@ -22,6 +24,8 @@ export default function EducationPage() {
           Short, practical guides for owners thinking about breeding responsibly — what paperwork is
           needed, what to ask a professional, and how to handle the first meeting.
         </p>
+
+        <BannerArt src={learnHub} className="mt-8" />
 
         {/*
           Prominent and near the top, not in a footer. Nothing here is written or
