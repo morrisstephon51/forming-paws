@@ -373,3 +373,33 @@
     transform: scale(1.1) !important;
   }
 }
+
+/*
+ * Sage, asleep. A loading state that sits perfectly still reads as a page that
+ * has hung, so the mark breathes — a four-second scale of four percent, which is
+ * visible as life and invisible as motion.
+ *
+ * transform only, so it costs a compositor layer and nothing else, and it stops
+ * entirely for anyone who asked for less motion.
+ */
+@keyframes fp-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.fp-sage-breathe {
+  animation: fp-breathe 4s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-sage-breathe {
+    animation: none !important;
+    transform: none !important;
+  }
+}

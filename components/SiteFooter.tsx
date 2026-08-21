@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Logo from './Logo'
+import Sage from './mascot/Sage'
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/site'
 import { RESPONSE_TIME } from '@/lib/promise'
 
@@ -62,7 +63,15 @@ export default function SiteFooter() {
         </a>
       </nav>
 
-      <p className="mt-4">{RESPONSE_TIME.sentence}</p>
+      {/*
+        The sign-off. Sage sits here rather than beside the logo, where the two
+        marks were competing for the same job — the paw is the brand, this is
+        just the dog seeing you out.
+      */}
+      <p className="mt-4 flex items-center gap-2">
+        <Sage mood="happy" size={30} />
+        {RESPONSE_TIME.sentence}
+      </p>
     </footer>
   )
 }

@@ -6,6 +6,7 @@ import { getThumbnailUrl } from '@/lib/dogPhotos'
 import { ageInYears } from '@/lib/age'
 import LocationPrompt from './LocationPrompt'
 import { pageMetadata } from '@/lib/seo'
+import SageNote from '@/components/mascot/SageNote'
 
 export const metadata = pageMetadata({
   title: 'Browse dogs near you',
@@ -154,7 +155,14 @@ export default async function BrowsePage({
             </Link>
           </li>
         ))}
-        {dogsWithPhotos.length === 0 && <p className="text-ink-soft">No dogs match your filters.</p>}
+        {dogsWithPhotos.length === 0 && (
+          <li className="col-span-full">
+            <SageNote mood="thinking" title="Nothing matches those filters yet">
+              Try widening the distance, or clearing a filter or two — new dogs appear as owners
+              finish verification.
+            </SageNote>
+          </li>
+        )}
       </ul>
       </main>
     </div>

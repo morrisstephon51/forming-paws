@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import Sage from '@/components/mascot/Sage'
+import SageNote from '@/components/mascot/SageNote'
 import SiteFooter from '@/components/SiteFooter'
 import LocationSettings from './LocationSettings'
 import { dogListLabel } from '@/lib/dogs/dogLabel'
@@ -67,8 +69,9 @@ export default async function HomePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="fp-h1">
-          <span aria-hidden="true">🐾</span> Welcome back
+        <h1 className="flex items-center gap-3 fp-h1">
+          <Sage mood="waving" size={56} />
+          Welcome back
           {owner?.display_name ? `, ${owner.display_name}` : ''}
         </h1>
 
@@ -107,9 +110,10 @@ export default async function HomePage() {
           </ul>
 
           {dogsWithStatus.length === 0 && (
-            <p className="mt-4 text-ink-soft">
-              No dogs yet — <span aria-hidden="true">🐾</span> add one to get started.
-            </p>
+            <SageNote mood="thinking" title="No dogs yet" size={76}>
+              Add your first dog to start matching — it takes a few minutes, and health
+              verification begins as soon as the records are in.
+            </SageNote>
           )}
         </section>
 
