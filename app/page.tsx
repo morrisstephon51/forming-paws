@@ -12,6 +12,9 @@ import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
 import HeroScene from '@/components/art/HeroScene'
 import SectionDivider from '@/components/art/SectionDivider'
+import Reveal from '@/components/motion/Reveal'
+import StepStack from '@/components/motion/StepStack'
+import CountUp from '@/components/motion/CountUp'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -193,30 +196,35 @@ export default async function HomePage({
           </div>
         </div>
 
-        <section id="how" className="mt-20 scroll-mt-8">
+        <Reveal as="section" id="how" className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> How Forming Paws works
           </h2>
           <p className="mt-2 text-ink-soft">
             Four steps from profile to a safe, well-documented match.
           </p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step) => (
-              <li key={step.n} className="fp-card">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
-                  {step.n}
-                </span>
-                <h3 className="mt-3 fp-h5">{step.title}</h3>
-                <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+          <StepStack
+            items={STEPS.map((step) => ({
+              key: step.n,
+              children: (
+                <div className="fp-card md:flex md:items-start md:gap-7">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-ivory">
+                    {step.n}
+                  </span>
+                  <div className="mt-3 md:mt-0">
+                    <h3 className="fp-h4">{step.title}</h3>
+                    <p className="mt-2 text-ink-soft">{step.body}</p>
+                  </div>
+                </div>
+              ),
+            }))}
+          />
+        </Reveal>
 
         {/* Breathing room between the two heaviest sections on the page. */}
         <SectionDivider className="mt-16" />
 
-        <section id="health" className="mt-4 scroll-mt-8">
+        <Reveal as="section" id="health" className="mt-4 scroll-mt-8">
           <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
           </h2>
@@ -235,9 +243,9 @@ export default async function HomePage({
               </div>
             ))}
           </div>
-        </section>
+        </Reveal>
 
-        <section id="roadmap" className="mt-20 scroll-mt-8">
+        <Reveal as="section" id="roadmap" className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">Where we&apos;re headed</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
           <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -251,15 +259,29 @@ export default async function HomePage({
               </li>
             ))}
           </ol>
-        </section>
+        </Reveal>
 
         {/* Visitors only reach this page signed out, so no guard is needed. */}
-        <section id="waitlist" className="fp-band mt-20 scroll-mt-8">
+        <Reveal as="section" id="waitlist" className="fp-band mt-20 scroll-mt-8">
           <h2 className="fp-h2">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
             Join the waitlist — the first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
           </p>
+          <div className="mt-7 grid gap-6 sm:max-w-md sm:grid-cols-2">
+            <p>
+              <span className="fp-h2 block text-brand">
+                <CountUp to={20} />
+              </span>
+              <span className="fp-eyebrow mt-1 block">founding spots</span>
+            </p>
+            <p>
+              <span className="fp-h2 block text-brand">
+                <CountUp to={24} suffix="h" />
+              </span>
+              <span className="fp-eyebrow mt-1 block">reply, every message</span>
+            </p>
+          </div>
           <WaitlistForm />
           <p className="mt-4 text-sm text-ink-soft">
             Ready now?{' '}
@@ -272,9 +294,9 @@ export default async function HomePage({
             </Link>{' '}
             first.
           </p>
-        </section>
+        </Reveal>
 
-        <section id="faq" className="mt-20 scroll-mt-8">
+        <Reveal as="section" id="faq" className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">Questions people ask first</h2>
           <p className="mt-2 text-ink-soft">
             The five that come up most.{' '}
@@ -291,9 +313,9 @@ export default async function HomePage({
               </details>
             ))}
           </div>
-        </section>
+        </Reveal>
 
-        <section className="fp-band mt-16">
+        <Reveal as="section" className="fp-band mt-16">
           <h2 className="fp-h2">Still deciding?</h2>
           <p className="mt-2 text-ink-soft">
             {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
@@ -312,7 +334,7 @@ export default async function HomePage({
               title="Forming Paws — health-verified breeding matches for dog owners"
             />
           </div>
-        </section>
+        </Reveal>
       </main>
 
       <SiteFooter />
