@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { threadSummaries } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
+import SageNote from '@/components/mascot/SageNote'
 
 export const metadata = pageMetadata({
   title: 'Your matches',
@@ -84,7 +85,14 @@ export default async function MatchesPage() {
             </li>
           )
         })}
-        {matches?.length === 0 && <p className="text-ink-soft">No matches yet.</p>}
+        {matches?.length === 0 && (
+          <li className="col-span-full">
+            <SageNote mood="thinking" title="No matches yet">
+              Express interest in a dog from Browse. When it&apos;s mutual, the conversation
+              unlocks and appears here.
+            </SageNote>
+          </li>
+        )}
       </ul>
       </main>
     </div>

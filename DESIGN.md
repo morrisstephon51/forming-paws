@@ -102,3 +102,45 @@ Self-hosted via `next/font`. The previous `@import` in `globals.css` was a
 three-hop critical path — our CSS, then Google's CSS, then the files — with first
 paint blocked behind hop three. Weight lists are exactly what renders and nothing
 more.
+
+---
+
+## Sage — the mascot
+
+A mascot for an anti-puppy-mill platform has a hard constraint before it has a
+style: **it cannot look like a breed.** Sage is deliberately mixed — one ear
+perked, one folded — because a recognisable purebred head would be the mascot
+quietly endorsing a breed this platform exists to be neutral about. That
+asymmetry is also what makes the mark work at 26px in the nav, where a
+symmetrical dog head is a circle with two bumps.
+
+Drawn in **Line & Wash**: a single-weight brand-green line over flat `brand.soft`
+fills, with an offset `accent.soft` wash behind it — a risograph misregistration,
+which is what makes the mark read as printed rather than as clip art.
+
+**API.** One component, one prop:
+
+```tsx
+<Sage mood="thinking" size={88} />          // decorative — the default
+<Sage mood="happy" size={30} label="Sage" /> // only when the mark alone carries meaning
+```
+
+Every mood shares one 72×72 viewBox, including moods that use none of the outer
+margin. Swapping mood in place — an empty state becoming a result, a form
+becoming a confirmation — must not shift the mark a pixel.
+
+| Mood | Wired into |
+|---|---|
+| `happy` | Footer sign-off |
+| `waving` | Signup, member home welcome |
+| `thinking` | Browse empty, matches empty, no-dogs-yet |
+| `sleeping` | `/browse`, `/matches`, `/dogs/[id]` loading |
+| `confused` | 404, route error boundary |
+| `celebrating` | Thank-you (waitlist, signup, contact) |
+
+`SageNote` wraps the mascot with a heading and body for empty, loading and error
+states, so a dead end never looks like a broken page and the next one nobody
+invents a fourth layout for.
+
+Terracotta appears only in props — the paw, the question mark, the confetti,
+the tongue. Never on the dog itself, which keeps the accent-as-seal rule intact.
