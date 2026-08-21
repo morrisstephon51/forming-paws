@@ -21,7 +21,7 @@ export default function ContactPage() {
 
       <h1 className="mt-6 fp-h1">Talk to a person</h1>
 
-      <p className="mt-4 rounded-lg border border-hairline border-green-200 bg-green-50 p-4 text-green-900">
+      <p className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-green-900">
         <strong>{RESPONSE_TIME.sentence}</strong> Every message goes to the team behind Forming
         Paws, not a queue.
       </p>

@@ -36,10 +36,15 @@
 
   body {
     font-family: var(--font-body), 'Nunito', system-ui, sans-serif;
-    /* Fraunces carries an optical-size axis; letting it engage is the
-       difference between a display face and a body face scaled up. */
-    font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
+    /*
+     * No font-optical-sizing here. Fraunces does carry an opsz axis, but
+     * next/font only forwards non-wght axes when weight: 'variable' is paired
+     * with an explicit axes array, and app/layout.tsx requests named weights —
+     * so Google returns a wght-only instance and the declaration was inert.
+     * Enabling it means switching that request to the variable face, which
+     * changes the font payload; worth doing deliberately, not as a side effect.
+     */
   }
 
   h1,
@@ -217,7 +222,7 @@
      rather than another raised panel. */
   .fp-input {
     @apply w-full rounded-lg border border-hairline bg-wash px-4 py-2.5 font-body
-           text-ink placeholder:text-ink-soft/60 focus:border-brand focus:outline-none
+           text-ink placeholder:text-ink-soft focus:border-brand focus:outline-none
            focus:ring-2 focus:ring-brand/20;
   }
 
@@ -471,6 +476,8 @@
   }
 
   .fp-depth > * {
+    /* So box-shadow traces the card, not the class-less <li> wrapping it. */
+    border-radius: 1.25rem;
     transition:
       transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
       box-shadow 420ms cubic-bezier(0.22, 0.61, 0.36, 1);

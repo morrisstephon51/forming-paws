@@ -99,7 +99,7 @@ export default function AppTourPage() {
       <section className="mt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="fp-h2">Browsing looks like this</h2>
-          <p className="rounded-full border border-hairline border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
+          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
             Example dogs — not real listings
           </p>
         </div>

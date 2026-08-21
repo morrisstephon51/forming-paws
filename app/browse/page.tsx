@@ -83,7 +83,7 @@ export default async function BrowsePage({
       {!hasLocation && <LocationPrompt />}
 
       <form method="get" className="mt-6 flex flex-wrap gap-2">
-        <select name="breedId" defaultValue={params.breedId ?? ''} className="fp-input text-sm">
+        <select name="breedId" defaultValue={params.breedId ?? ''} className="fp-input w-auto text-sm">
           <option value="">Any breed</option>
           {breeds.map((b) => (
             <option key={b.id} value={b.id}>
@@ -91,7 +91,7 @@ export default async function BrowsePage({
             </option>
           ))}
         </select>
-        <select name="sex" defaultValue={params.sex ?? ''} className="fp-input text-sm">
+        <select name="sex" defaultValue={params.sex ?? ''} className="fp-input w-auto text-sm">
           <option value="">Any sex</option>
           <option value="male">Male</option>
           <option value="female">Female</option>

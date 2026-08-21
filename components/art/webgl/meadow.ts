@@ -32,6 +32,7 @@ import {
   BufferAttribute,
   Points,
   PointsMaterial,
+  CanvasTexture,
   AdditiveBlending,
   DoubleSide,
 } from 'three'
@@ -136,20 +137,54 @@ export function createMeadow(canvas: HTMLCanvasElement, reduced: boolean): Meado
     drift[i * 2 + 1] = rnd() * Math.PI * 2
   }
   const pGeo = new BufferGeometry()
-  pGeo.setAttribute('position', new BufferAttribute(pos, 3))
+  /*
+   * The attribute gets its OWN copy. BufferAttribute stores the array by
+   * reference, so handing it `pos` directly made setY() write back into the
+   * seed positions — each frame's offset landing on top of the last one
+   * instead of replacing it. Measured at 702 units of drift per second
+   * against a visible half-height of ~70-170: every mote left the frustum
+   * inside a second, so the glow was never actually on screen.
+   */
+  pGeo.setAttribute('position', new BufferAttribute(new Float32Array(pos), 3))
+  /*
+   * A soft round sprite, generated rather than shipped. PointsMaterial draws a
+   * hard square by default, and 260 hard squares scattered over the sky read as
+   * rendering artefacts rather than as motes in the air — visibly worse than
+   * having none. Sixty-four pixels of radial gradient on a canvas fixes it for
+   * no network cost and no asset to keep in sync.
+   */
+  function moteSprite() {
+    const c = document.createElement('canvas')
+    c.width = c.height = 64
+    const g = c.getContext('2d')
+    if (g) {
+      const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32)
+      grad.addColorStop(0, 'rgba(255,255,255,1)')
+      grad.addColorStop(0.35, 'rgba(255,255,255,0.55)')
+      grad.addColorStop(1, 'rgba(255,255,255,0)')
+      g.fillStyle = grad
+      g.fillRect(0, 0, 64, 64)
+    }
+    return new CanvasTexture(c)
+  }
+
+  const moteMap = moteSprite()
+
   const pMat = new PointsMaterial({
+    map: moteMap,
+    alphaMap: moteMap,
     color: new Color('#E8A97A'),
-    size: 7.5,
+    size: 11,
     sizeAttenuation: true,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.85,
     blending: AdditiveBlending,
     depthWrite: false,
     fog: true,
   })
   const motes = new Points(pGeo, pMat)
   scene.add(motes)
-  disposables.push(pGeo, pMat)
+  disposables.push(pGeo, pMat, moteMap)
 
   let scroll = 0
   let px = 0
@@ -174,6 +209,12 @@ export function createMeadow(canvas: HTMLCanvasElement, reduced: boolean): Meado
     camera.updateProjectionMatrix()
   }
 
+  function updateCamera() {
+    camera.position.x = px * 26
+    camera.position.y = 22 - scroll * 90 + py * 14
+    camera.lookAt(px * 10, 6 - scroll * 42, 0)
+  }
+
   function frame(now: number) {
     if (!t0) t0 = now
     const elapsed = (now - t0) / 1000
@@ -184,9 +225,7 @@ export function createMeadow(canvas: HTMLCanvasElement, reduced: boolean): Meado
 
     // The camera does the parallax. Moving one camera through real depth is
     // what the three CSS multipliers were imitating; here it is just true.
-    camera.position.x = px * 26
-    camera.position.y = 22 - scroll * 90 + py * 14
-    camera.lookAt(px * 10, 6 - scroll * 42, 0)
+    updateCamera()
 
     if (!reduced) {
       const p = motes.geometry.getAttribute('position') as BufferAttribute
@@ -214,6 +253,11 @@ export function createMeadow(canvas: HTMLCanvasElement, reduced: boolean): Meado
     },
     resize,
     render() {
+      // Poses the camera first. Without this the reduced-motion path — which
+      // renders exactly once and never enters frame() — composed its single
+      // frame with an unposed camera, so those visitors saw a different
+      // picture from everyone else rather than the same one held still.
+      updateCamera()
       renderer.render(scene, camera)
     },
     start() {
