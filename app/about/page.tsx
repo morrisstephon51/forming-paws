@@ -2,6 +2,8 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { pageMetadata } from '@/lib/seo'
 import { SITE_NAME } from '@/lib/site'
+import BannerArt from '@/components/art/BannerArt'
+import neighbourhood from '@/assets/art/about-neighbourhood.jpg'
 
 export const metadata = pageMetadata({
   title: 'About us',
@@ -40,6 +42,8 @@ export default function AboutPage() {
         <h1 className="mt-3 text-4xl font-bold leading-tight">
           <span aria-hidden="true">🐾</span> Why {SITE_NAME} exists
         </h1>
+
+        <BannerArt src={neighbourhood} className="mt-8" />
 
         <div className="mt-6 flex flex-col gap-4 text-ink-soft">
           <p>

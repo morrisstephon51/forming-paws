@@ -4,6 +4,8 @@ import SiteFooter from '@/components/SiteFooter'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { GUIDES, guideBySlug } from '@/lib/education'
 import { pageMetadata } from '@/lib/seo'
+import BannerArt from '@/components/art/BannerArt'
+import { guideArt } from '@/components/art/guideArt'
 
 /** Static params so each guide prerenders and is crawlable as its own URL. */
 export function generateStaticParams() {
@@ -27,6 +29,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const guide = guideBySlug(slug)
   if (!guide) notFound()
 
+  const art = guideArt(guide.slug)
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
 
@@ -34,7 +38,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         {/* Breadcrumbs prepends Home itself, and leaves the last crumb unlinked. */}
         <Breadcrumbs trail={[{ label: 'Learn', href: '/education' }, { label: guide.title }]} />
 
-        <h1 className="mt-4 text-3xl font-bold leading-tight">{guide.title}</h1>
+        {art && <BannerArt src={art} className="mt-4" />}
+
+        <h1 className="mt-6 text-3xl font-bold leading-tight">{guide.title}</h1>
         <p className="mt-2 text-sm text-ink-soft">{guide.readingMinutes} min read</p>
         <p className="mt-4 text-ink-soft">{guide.summary}</p>
 
