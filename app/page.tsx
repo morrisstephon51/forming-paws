@@ -10,7 +10,7 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import HeroScene from '@/components/art/HeroScene'
+import Splash from '@/components/landing/Splash'
 import SectionDivider from '@/components/art/SectionDivider'
 import Reveal from '@/components/motion/Reveal'
 import StepStack from '@/components/motion/StepStack'
@@ -115,43 +115,23 @@ export default async function HomePage({
   if (signedIn) redirect(MEMBER_HOME)
 
   return (
-    <div className="fp-shell py-8">
+    <>
       <main>
+        <Splash />
+
+        <div className="fp-shell py-8">
         {/*
-          The hero grid is unchanged; it has just gained a backdrop and the
-          padding to sit inside one. HeroScene is absolutely positioned, so the
-          columns below still lay out exactly as they did before it existed.
+          The first thing below the splash, and the reason the splash can afford
+          to carry nothing but a statement: everything functional that used to
+          compete with the headline is here instead — the three trust points and
+          the sign-in panel, one scroll down and nothing hidden.
         */}
-        <div className="relative mt-12 px-5 pb-24 pt-10 sm:px-9 sm:pb-28 sm:pt-12">
-          <HeroScene />
-          <div className="relative grid gap-10 md:grid-cols-5 md:items-start">
+        <div id="start" className="grid scroll-mt-6 gap-10 pt-10 md:grid-cols-5 md:items-start">
           <section className="md:col-span-3">
-            <p className="fp-eyebrow">
-              Nonprofit · Community-driven · Health-verified
+            <h2 className="fp-h2">Start here</h2>
+            <p className="fp-lead mt-3">
+              Three things that shape every match on Forming Paws.
             </p>
-            <h1 className="mt-3 fp-display">
-              Healthy matches.
-              <br />
-              Happy litters.
-            </h1>
-            <p className="fp-lead mt-4">
-              Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
-              thoughtful matchmaking for dogs, with veterinary verification at the centre of
-              everything.
-            </p>
-            {/*
-            The primary action, above the fold on a phone. Before this, the only
-            way in from the top of the page was the header's "Join Now" chip or
-            the sign-in panel — which on mobile sits below the entire hero.
-          */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/signup" className="fp-btn">
-                Join free — list your dog
-              </Link>
-              <Link href="/app" className="fp-btn-ghost">
-                See the app first
-              </Link>
-            </div>
             <dl className="mt-6 grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="font-semibold">Health-gated</dt>
@@ -193,7 +173,6 @@ export default async function HomePage({
               </Link>
             </p>
           </section>
-          </div>
         </div>
 
         <Reveal as="section" id="how" className="mt-20 scroll-mt-8">
@@ -335,9 +314,12 @@ export default async function HomePage({
             />
           </div>
         </Reveal>
+        </div>
       </main>
 
-      <SiteFooter />
-    </div>
+      <div className="fp-shell">
+        <SiteFooter />
+      </div>
+    </>
   )
 }

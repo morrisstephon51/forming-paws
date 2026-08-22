@@ -24,12 +24,12 @@ export default function SiteHeader({
   const links = navLinks(variant)
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 py-4">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <Link href={variant === 'member' ? '/home' : '/'} className="shrink-0">
         <Logo size="md" withWordmark />
       </Link>
 
-      <nav aria-label="Main" className="flex flex-wrap items-center gap-4 text-sm">
+      <nav aria-label="Main" className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm sm:gap-x-4">
         {links.map((link) => {
           const active = isActive(link.href, pathname)
           return (
@@ -58,9 +58,20 @@ export default function SiteHeader({
         })}
 
         {variant === 'public' ? (
-          <Link href="/signup" className="fp-btn px-4 py-2 text-sm">
-            Join free
-          </Link>
+          <>
+            {/*
+              The way back in. Until the splash landed, the only sign-in route
+              from the home page was the panel inside the hero — and that is now
+              a scroll below the fold, so a returning member had no visible way
+              to reach it from the top of any public page.
+            */}
+            <Link href="/login" className="text-ink-soft hover:text-brand-dark hover:underline">
+              Log in
+            </Link>
+            <Link href="/signup" className="fp-btn px-4 py-2 text-sm">
+              Join free
+            </Link>
+          </>
         ) : (
           <>
             {displayName && <span className="text-sm text-ink-soft">{displayName}</span>}

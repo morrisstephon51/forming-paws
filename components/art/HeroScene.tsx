@@ -31,12 +31,14 @@ import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
  * absolutely positioned inside a relative parent, so it cannot move the text a
  * pixel and contributes exactly zero to CLS.
  */
-export default function HeroScene() {
+export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
   return (
     <div
       data-fp-hero=""
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl bg-ivory"
+      className={`pointer-events-none absolute inset-0 overflow-hidden bg-ivory ${
+        bleed ? '' : 'rounded-3xl'
+      }`}
     >
       {/* Plane 1 — the generated sky. The only priority image on the site: it is
           the largest element in the viewport on load and therefore the LCP
