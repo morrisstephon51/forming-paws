@@ -143,7 +143,7 @@ export default async function BrowsePage({
               )}
               <div>
                 <p className="font-medium">
-                  {dog.name} — {dog.breed_name}, {ageInYears(dog.birth_date)}yo {dog.sex}
+                  {dog.name} · {dog.breed_name}, {ageInYears(dog.birth_date)}yo {dog.sex}
                 </p>
                 {dog.distance_miles != null && (
                   <p className="text-sm text-ink-soft">

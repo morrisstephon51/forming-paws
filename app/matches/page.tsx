@@ -57,7 +57,7 @@ export default async function MatchesPage() {
       <main className="mt-6">
       <h1 className="fp-h2">Your matches</h1>
       <p className="mt-2 text-sm text-ink-soft">
-        Matches are introductions only — Forming Paws is not a party to any breeding arrangement.
+        Matches are introductions only. Forming Paws is not a party to any breeding arrangement.
       </p>
       <ul className="fp-depth mt-6 flex flex-col gap-3">
         {matches?.map((m) => {

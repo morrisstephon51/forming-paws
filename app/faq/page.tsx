@@ -25,8 +25,8 @@ export default function FaqPage() {
         If yours isn&apos;t here,{' '}
         <Link href="/contact" className="underline">
           send it to us
-        </Link>{' '}
-        — we reply {RESPONSE_TIME.within}.
+        </Link>
+        {'. '}We reply {RESPONSE_TIME.within}.
       </p>
 
       <dl className="mt-10 flex flex-col gap-8">
@@ -56,7 +56,7 @@ export default function FaqPage() {
       <div className="mt-10">
         <ShareButtons
           url={absoluteUrl('/faq')}
-          title="Forming Paws — health-verified breeding matches for dog owners"
+          title="Forming Paws: health-verified breeding matches for dog owners"
         />
       </div>
 

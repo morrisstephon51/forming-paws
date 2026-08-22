@@ -7,7 +7,7 @@ import { RESPONSE_TIME } from '@/lib/promise'
 export const metadata = pageMetadata({
   title: 'Vet partners',
   description:
-    'The veterinary referral network Forming Paws is building — what it is for, what we are looking for in a partner, and how to get involved.',
+    'The veterinary referral network Forming Paws is building: what it is for, what we are looking for in a partner, and how to get involved.',
   path: '/vets',
 })
 
@@ -41,7 +41,7 @@ export default function VetsPage() {
 
         {/*
           The honest state, first and unmissable. A directory page that implies
-          partners exist would send owners looking for a clinic that isn't there —
+          partners exist would send owners looking for a clinic that isn't there,
           and the first thing a real vet would notice is that we listed nobody
           they recognise.
         */}
@@ -63,7 +63,7 @@ export default function VetsPage() {
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
             <p>
               {SITE_NAME} locks matching until a dog&apos;s health documents are verified. That
-              gate does its job — but it also creates a group of owners whose dogs are simply
+              gate does its job, but it also creates a group of owners whose dogs are simply
               behind on care, often for reasons of cost rather than neglect.
             </p>
             <p>
@@ -97,7 +97,7 @@ export default function VetsPage() {
             If you are a veterinarian
           </h2>
           <p className="mt-2 text-ink-soft">
-            We would genuinely like to hear from you — including if you think this is a bad idea, or
+            We would genuinely like to hear from you, including if you think this is a bad idea, or
             that the baseline we ask for is wrong. That feedback is worth more to us right now than
             a signup. {RESPONSE_TIME.sentence}
           </p>

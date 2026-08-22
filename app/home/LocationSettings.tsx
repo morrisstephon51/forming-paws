@@ -19,7 +19,7 @@ export default function LocationSettings({ currentLabel }: { currentLabel: strin
       <p className="text-sm text-ink-soft">
         {currentLabel
           ? `Currently set to ${currentLabel}.`
-          : 'Not set — browse still works without it, but we cannot show distances.'}
+          : 'Not set. Browse still works without it, but we cannot show distances.'}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <label htmlFor="city-label" className="sr-only">

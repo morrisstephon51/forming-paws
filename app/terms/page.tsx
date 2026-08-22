@@ -51,7 +51,7 @@ export default function TermsPage() {
           <p className="mt-3">
             It is <strong>not</strong> a veterinary examination, a diagnosis, a genetic guarantee, or
             a promise about any dog&apos;s health, temperament, fertility, or offspring. A verified
-            badge means paperwork was checked — nothing more.{' '}
+            badge means paperwork was checked, nothing more.{' '}
             <strong>
               Always consult your own veterinarian before breeding, and have any dog you are
               considering examined independently.

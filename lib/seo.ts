@@ -31,14 +31,14 @@ export function pageMetadata({
     openGraph: {
       type: 'website',
       siteName: SITE_NAME,
-      title: `${title} — ${SITE_NAME}`,
+      title: `${title} · ${SITE_NAME}`,
       description,
       url: path,
       locale: 'en_US',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} — ${SITE_NAME}`,
+      title: `${title} · ${SITE_NAME}`,
       description,
     },
     ...(index ? {} : { robots: { index: false, follow: false } }),

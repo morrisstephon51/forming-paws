@@ -6,7 +6,7 @@ import { SITE_NAME } from '@/lib/site'
  * in sync with the wording and needs no binary in the repo.
  */
 export const runtime = 'edge'
-export const alt = `${SITE_NAME} — health-verified dog breeding matches`
+export const alt = `${SITE_NAME}: health-verified dog breeding matches`
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
