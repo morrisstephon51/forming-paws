@@ -1,5 +1,6 @@
-import Image from 'next/image'
+import { getImageProps } from 'next/image'
 import heroSky from '@/assets/art/hero-sky.jpg'
+import heroSkyPortrait from '@/assets/art/hero-sky-portrait.jpg'
 import HeroParallax from '@/components/motion/HeroParallax'
 import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
 
@@ -32,6 +33,32 @@ import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
  * pixel and contributes exactly zero to CLS.
  */
 export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
+  /*
+   * Two skies, chosen by the browser, because one shape cannot serve both boxes.
+   *
+   * `sizes` describes the *layout* slot, but `object-cover` draws to whichever
+   * axis needs the most scaling — and full-bleed on a phone that axis is height.
+   * A 2560x695 panorama filling a 390x716 box is drawn ~2820 CSS px wide, so the
+   * browser fetched an 828w candidate and stretched a ~14% slice of it across
+   * the screen. No `sizes` value fixes that: the honest one asks a phone for a
+   * 5000px image. The portrait source is shaped for the box instead — cover
+   * scales it by width there, a 10% overdraw rather than 700%.
+   *
+   * The switch is aspect-ratio, not a width breakpoint, because the blowup is
+   * caused by the *shape* of the box and nothing else. Measured at 768x1024 —
+   * a portrait tablet, comfortably above any phone breakpoint — the panorama
+   * was still being drawn 3822 CSS px wide into an 845px box, a 4.4x upscale.
+   * Any viewport taller than it is wide has the same problem whatever its width.
+   *
+   * getImageProps + <picture> rather than two <Image>s because `priority` on
+   * both would emit two preloads with no `media` between them, and every device
+   * would fetch both. A <picture> the preload scanner can read picks one.
+   */
+  const sizes = bleed ? '100vw' : '(max-width: 1200px) 100vw, 1270px'
+  const common = { alt: '', fill: true, priority: true, sizes, placeholder: 'blur' as const }
+  const { props: wide } = getImageProps({ ...common, src: heroSky })
+  const { props: tall } = getImageProps({ ...common, src: heroSkyPortrait })
+
   return (
     <div
       data-fp-hero=""
@@ -47,15 +74,18 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
           Scaled slightly past the frame so its own downward travel never
           uncovers the top edge. */}
       <div className="fp-plane fp-plane-sky absolute inset-0">
-        <Image
-          src={heroSky}
-          alt=""
-          fill
-          priority
-          placeholder="blur"
-          sizes="(max-width: 1200px) 100vw, 1270px"
-          className="object-cover object-bottom"
-        />
+        <picture>
+          {/* Only the full-bleed splash is tall enough to want the portrait
+              source; the constrained usage is a wide card and takes the
+              panorama at every width. */}
+          {bleed && (
+            <source media="(max-aspect-ratio: 1/1)" srcSet={tall.srcSet} sizes={tall.sizes} />
+          )}
+          <source srcSet={wide.srcSet} sizes={wide.sizes} />
+          {/* alt is already in `wide`; repeated so the rule can see it through
+              the spread. Decorative — the whole scene is aria-hidden. */}
+          <img {...wide} alt="" className="object-cover object-bottom" />
+        </picture>
       </div>
 
       {/*

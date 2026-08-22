@@ -105,7 +105,9 @@ page logic.
 Listed honestly rather than implied — a vocabulary that documents primitives as
 though they were in use is a vocabulary nobody can trust. Note that
 `.fp-btn-accent` is unused *and* puts `text-ivory` on `accent`, which is 2.82:1;
-it needs a darker fill before it is used anywhere.
+it needs a darker fill before it is used anywhere. Its focus ring was `accent`
+too — the thing the token comment above forbids in as many words — and is now
+`accent.dark`; the fill is still the open half.
 
 ## Layout
 

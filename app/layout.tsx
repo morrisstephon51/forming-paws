@@ -18,10 +18,17 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
  * The weight lists are exactly what the site uses and nothing more. Fraunces
  * shed 800 and Nunito shed 800 when the display scale moved to 400; requesting
  * a weight nothing renders is bytes spent on nothing.
+ *
+ * Fraunces 600 went the same way, later and for the same reason. Nothing could
+ * select it: the type scale splits the display face at 400 (.fp-display/.fp-h1/
+ * .fp-h2/.fp-h3) and 700 (.fp-h4/.fp-h5), bare h1-h4 inherit 400 through
+ * preflight, and all three `font-display` call sites pair it with `font-bold`.
+ * It survived the move off @import only because an unselected weight in a
+ * stylesheet costs nothing, whereas next/font downloads every weight listed.
  */
 const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  weight: ['400', '700'],
   display: 'swap',
   variable: '--font-display',
 })

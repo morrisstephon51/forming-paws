@@ -10,6 +10,21 @@ describe('SiteHeader', () => {
     expect(screen.getByRole('link', { name: /join/i })).toHaveAttribute('href', '/signup')
   })
 
+  // The only login affordance anywhere outside the login route itself and the
+  // form embedded below the fold on the home page. It exists because the splash
+  // pushed that form a full screen down, leaving a returning member no visible
+  // way in from the top of any public page — so losing it is a silent
+  // regression of the fix, not a cosmetic one.
+  it('offers a way back in from every public page', () => {
+    render(<SiteHeader variant="public" />)
+    expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login')
+  })
+
+  it('does not offer log in to someone already signed in', () => {
+    render(<SiteHeader variant="member" pathname="/home" />)
+    expect(screen.queryByRole('link', { name: 'Log in' })).toBeNull()
+  })
+
   it('shows member routes in the member variant', () => {
     render(<SiteHeader variant="member" pathname="/home" />)
     expect(screen.getByRole('link', { name: 'Browse' })).toHaveAttribute('href', '/browse')

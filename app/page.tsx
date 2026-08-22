@@ -126,7 +126,21 @@ export default async function HomePage({
           compete with the headline is here instead — the three trust points and
           the sign-in panel, one scroll down and nothing hidden.
         */}
-        <div id="start" className="grid scroll-mt-6 gap-10 pt-10 md:grid-cols-5 md:items-start">
+        {/*
+          tabIndex={-1} is what makes the splash's scroll cue keep its promise.
+          next/link preventDefaults the click, so the browser never performs the
+          native fragment navigation that would set the sequential-focus starting
+          point here. Next scrolls this element and then calls focus() on it —
+          which is a no-op on an element that is not focusable, and a bare <div>
+          is not. The result was a cue that moved the page and the URL but left
+          focus back on the cue, so the next Tab went to the header rather than
+          into the section the visitor just asked for.
+        */}
+        <div
+          id="start"
+          tabIndex={-1}
+          className="grid scroll-mt-6 gap-10 pt-10 outline-none md:grid-cols-5 md:items-start"
+        >
           <section className="md:col-span-3">
             <h2 className="fp-h2">Start here</h2>
             <p className="fp-lead mt-3">
