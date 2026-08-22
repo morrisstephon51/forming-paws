@@ -103,7 +103,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">{dog.name}</h1>
+      <h1 className="fp-h2">{dog.name}</h1>
       {isVerified ? (
         <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mt-1">
           ✓ Baseline health verified
@@ -120,7 +120,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
       {!isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />}
 
-      <h2 className="mt-8 text-lg font-semibold">Photos</h2>
+      <h2 className="mt-8 fp-h5">Photos</h2>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {photoUrls.map((p) =>
           p.url ? (
@@ -138,7 +138,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
         >
           <input type="hidden" name="dogId" value={dog.id} />
           <input type="file" name="file" accept="image/*" required />
-          <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
+          <button type="submit" className="fp-btn px-4 py-1.5 text-sm">
             Upload photo
           </button>
         </form>
@@ -146,10 +146,10 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
       {isOwnDog && (
         <>
-          <h2 className="mt-8 text-lg font-semibold">Health documents</h2>
+          <h2 className="mt-8 fp-h5">Health documents</h2>
           <ul className="mt-2 flex flex-col gap-2">
             {healthDocs?.map((doc) => (
-              <li key={doc.id} className="flex justify-between border p-2 rounded text-sm">
+              <li key={doc.id} className="flex justify-between border border-hairline p-2 rounded text-sm">
                 <span>
                   {doc.doc_type} ({formatCalendarDate(doc.document_date)})
                 </span>
@@ -174,15 +174,15 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
             className="mt-4 flex flex-col gap-2 max-w-xs"
           >
             <input type="hidden" name="dogId" value={dog.id} />
-            <select name="docType" required className="border p-2">
+            <select name="docType" required className="border border-hairline p-2">
               <option value="vet_exam">Vet wellness exam</option>
               <option value="vaccination">Vaccination record</option>
               <option value="ofa">OFA hip/elbow certification</option>
               <option value="dna_panel">DNA panel</option>
             </select>
-            <input name="documentDate" type="date" required className="border p-2" />
+            <input name="documentDate" type="date" required className="border border-hairline p-2" />
             <input type="file" name="file" accept="application/pdf,image/*" required />
-            <button type="submit" className="bg-brand text-white px-3 py-1 rounded text-sm">
+            <button type="submit" className="fp-btn px-4 py-1.5 text-sm">
               Upload document
             </button>
           </form>

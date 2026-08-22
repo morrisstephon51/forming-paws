@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import Sage from '@/components/mascot/Sage'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
 import ResendConfirmation from './ResendConfirmation'
@@ -73,7 +74,8 @@ export default async function ThankYouPage({
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">{copy.heading}</h1>
+      <Sage mood="celebrating" size={104} className="mt-6" />
+      <h1 className="mt-5 fp-h1">{copy.heading}</h1>
       <p className="mt-4 text-ink-soft">
         {variant === 'signup' && email ? (
           <>
@@ -94,8 +96,8 @@ export default async function ThankYouPage({
             href={link.href}
             className={
               'primary' in link && link.primary
-                ? 'rounded bg-brand px-5 py-2 font-semibold text-white'
-                : 'rounded border px-5 py-2 font-semibold'
+                ? 'fp-btn'
+                : 'fp-btn-ghost'
             }
           >
             {link.label}

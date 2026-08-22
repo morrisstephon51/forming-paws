@@ -1,68 +1,867 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Forming Paws visual system.
+ *
+ * Structure adapted 2026-08-21 from Ease Health, Function and Steep on
+ * styles.refero.design. The palette and both typefaces are unchanged — what
+ * changed is how they are used. The three systems were picked for already
+ * sharing this brand's warmth, and they independently agree on four rules this
+ * site was breaking: no shadows on content cards, serif display never bold,
+ * negative tracking that scales with size, and card padding at 24px or more.
+ *
+ * Pages are not expected to restyle themselves. They keep calling .fp-card and
+ * .fp-btn; those definitions moved underneath them. That is the whole reason a
+ * site-wide overhaul touches no page logic.
+ */
 
-/* Forming Paws brand base: Fraunces display, Nunito body */
 @layer base {
   :root {
-    --fp-brand: #2F6B5C;
-    --fp-accent: #E8734A;
-    --fp-ivory: #FBF7F0;
+    --fp-brand: #2f6b5c;
+    --fp-accent: #e8734a;
+    --fp-ivory: #fbf7f0;
+
+    /* Section rhythm. References converge on 80–96px desktop; we step down to
+       56px on a phone, where 96px of empty space reads as a broken page. */
+    --fp-section-gap: 3.5rem;
+
+    /*
+     * What the splash has to subtract from the viewport to be exactly one
+     * screenful: the header above it, and the join bar fixed over the bottom.
+     *
+     * These are measured, not guessed. The header is not a fixed height — it
+     * wraps from one row to two as the viewport narrows, at ~674px and ~466px,
+     * and those are content wraps rather than media queries, so they move if
+     * the nav copy changes. The splash previously hardcoded 5.5rem for the
+     * header at every width; on a phone the real height is 8.9375rem, and the
+     * 3.4375rem shortfall pushed the section's last child — the scroll cue —
+     * underneath the join bar on every screen 464px and narrower.
+     *
+     * tests/splash-cue-clearance.spec.ts sweeps the widths and fails if these
+     * drift out of date, because a wrap point is not something CSS can observe.
+     */
+    --fp-header-h: 4.4375rem; /* 71px — one row */
+    --fp-joinbar-h: 0px; /* the bar is sm:hidden — it only exists below 640px */
+    --fp-splash-gap: 0.75rem; /* breathing room between the cue and the bar */
   }
+
+  @media (min-width: 640px) {
+    :root {
+      --fp-section-gap: 6rem;
+    }
+  }
+
+  /* Header wraps to two rows. Measured 115px. */
+  @media (max-width: 675px) {
+    :root {
+      --fp-header-h: 7.1875rem;
+    }
+  }
+
+  /* StickyJoinBar renders below Tailwind's sm breakpoint. Measured 61px. */
+  @media (max-width: 639px) {
+    :root {
+      --fp-joinbar-h: 3.8125rem;
+    }
+  }
+
+  /* Header wraps again — nav and brand stack. Measured 143px. */
+  @media (max-width: 467px) {
+    :root {
+      --fp-header-h: 8.9375rem;
+    }
+  }
+
   body {
-    font-family: 'Nunito', system-ui, sans-serif;
+    font-family: var(--font-body), 'Nunito', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /*
+     * No font-optical-sizing here. Fraunces does carry an opsz axis, but
+     * next/font only forwards non-wght axes when weight: 'variable' is paired
+     * with an explicit axes array, and app/layout.tsx requests named weights —
+     * so Google returns a wght-only instance and the declaration was inert.
+     * Enabling it means switching that request to the variable face, which
+     * changes the font payload; worth doing deliberately, not as a side effect.
+     */
   }
-  h1, h2, h3 {
-    font-family: 'Fraunces', Georgia, serif;
-    letter-spacing: -0.01em;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), 'Fraunces', Georgia, serif;
   }
 }
 
 /*
- * The brand vocabulary. Pages rebrand by swapping a utility soup like
- * "rounded bg-gray-900 px-4 py-2 text-white" for a single .fp-btn, which keeps
- * a fifteen-page rebrand a mechanical diff instead of fifteen redesigns.
+ * The type scale.
  *
- * Layout stays on Tailwind utilities; only visual identity lives here.
+ * Fluid rather than stepped: one clamp() covers 375px to 1440px, so there is no
+ * breakpoint at which a headline is momentarily the wrong size. The minimum is
+ * a plain rem and the middle term keeps a rem component, which is what stops
+ * the scale from ignoring browser text-resize — a vw-only clamp fails WCAG
+ * 1.4.4 outright.
+ *
+ * Weight splits at 24px. Above it the serif runs at 400, which is the single
+ * rule all three reference systems state most forcefully ("never bold", "never
+ * mix serif weights"). Below it 400 goes limp against body copy, so card and
+ * list titles stay at 700 — the brand keeps its warmth where the text is small
+ * and its composure where the text is large.
  */
 @layer components {
+  .fp-display,
+  .fp-h1,
+  .fp-h2,
+  .fp-h3 {
+    @apply font-display;
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  .fp-h4,
+  .fp-h5 {
+    @apply font-display;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .fp-display {
+    font-size: clamp(2.75rem, 2.046rem + 3.005vw, 4.75rem); /* 44 → 76 */
+    letter-spacing: -0.028em;
+    line-height: 1.02;
+  }
+  .fp-h1 {
+    font-size: clamp(2.375rem, 1.891rem + 2.066vw, 3.75rem); /* 38 → 60 */
+    letter-spacing: -0.022em;
+    line-height: 1.06;
+  }
+  .fp-h2 {
+    font-size: clamp(1.875rem, 1.655rem + 0.939vw, 2.5rem); /* 30 → 40 */
+    letter-spacing: -0.016em;
+    line-height: 1.14;
+  }
+  .fp-h3 {
+    font-size: clamp(1.375rem, 1.287rem + 0.376vw, 1.625rem); /* 22 → 26 */
+    letter-spacing: -0.008em;
+    line-height: 1.25;
+  }
+  .fp-h4 {
+    font-size: 1.25rem; /* 20 */
+    letter-spacing: -0.004em;
+    line-height: 1.35;
+  }
+  .fp-h5 {
+    font-size: 1.0625rem; /* 17 */
+    letter-spacing: -0.002em;
+    line-height: 1.4;
+  }
+
+  /*
+   * The eyebrow. Every reference system has one and this site had the pattern
+   * without the name — "Nonprofit · Community-driven · Health-verified" was
+   * hand-rolled utilities on the home page and nowhere else.
+   */
+  .fp-eyebrow {
+    @apply font-body font-bold uppercase text-ink-soft;
+    font-size: 0.6875rem; /* 11 */
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+
+  .fp-lead {
+    @apply font-body text-ink-soft;
+    font-size: clamp(1.0625rem, 1.019rem + 0.188vw, 1.1875rem); /* 17 → 19 */
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+  }
+}
+
+/*
+ * The component vocabulary.
+ *
+ * Pages rebrand by swapping a utility soup like "rounded bg-gray-900 px-4 py-2
+ * text-white" for a single .fp-btn, which keeps a fifteen-page rebrand a
+ * mechanical diff instead of fifteen redesigns. Layout stays on Tailwind
+ * utilities; only visual identity lives here.
+ */
+@layer components {
+  /*
+   * Pill buttons. Function specifies 40px radius, Steep and Ease Health go
+   * fully round. On a control this size the two are indistinguishable, and the
+   * pill is the shape that suits a brand about dogs rather than about banking.
+   */
   .fp-btn {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand px-5 py-2.5
-           font-body font-bold text-ivory transition-colors hover:bg-brand-dark
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-brand;
-  }
-  .fp-btn-accent {
-    @apply inline-flex items-center justify-center rounded-lg bg-accent px-5 py-2.5
-           font-body font-bold text-ivory transition-colors hover:bg-accent-dark
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-           focus-visible:outline-accent;
-  }
-  .fp-btn-ghost {
-    @apply inline-flex items-center justify-center rounded-lg border-2 border-brand
-           bg-transparent px-5 py-2.5 font-body font-bold text-brand transition-colors
-           hover:bg-brand-soft focus-visible:outline focus-visible:outline-2
+    @apply inline-flex items-center justify-center rounded-full bg-brand px-6 py-3
+           font-body font-bold leading-none text-ivory transition-colors
+           hover:bg-brand-dark focus-visible:outline focus-visible:outline-2
            focus-visible:outline-offset-2 focus-visible:outline-brand;
   }
-  .fp-card {
-    @apply rounded-xl border border-brand/15 bg-white p-5 shadow-sm;
+  .fp-btn-accent {
+    @apply inline-flex items-center justify-center rounded-full bg-accent px-6 py-3
+           font-body font-bold leading-none text-ivory transition-colors
+           hover:bg-accent-dark focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-accent;
   }
+  .fp-btn-ghost {
+    @apply inline-flex items-center justify-center rounded-full border-[1.5px]
+           border-brand bg-transparent px-6 py-3 font-body font-bold leading-none
+           text-brand transition-colors hover:bg-brand-soft focus-visible:outline
+           focus-visible:outline-2 focus-visible:outline-offset-2
+           focus-visible:outline-brand;
+  }
+
   /*
-   * Three distinct surfaces, or the layering reads as flat: the page is ivory,
-   * cards are white, and emphasis bands are pale brand green. An ivory band on
-   * an ivory page is a band nobody can see.
+   * Cards are flat. The shadow that used to sit here was doing the job the
+   * surface ramp now does, and doing it worse: a 1px grey blur under a warm
+   * card on a warm page reads as grime rather than as elevation.
+   *
+   * Padding is 28px because Ease Health's "no tight padding under 21px" is the
+   * rule that most visibly separates a designed card from a div.
+   */
+  .fp-card {
+    @apply rounded-xl border border-hairline bg-paper p-7;
+  }
+
+  /*
+   * The one exception, and only for things that genuinely leave the page: a
+   * card the cursor has picked up. Transform and shadow only, so the lift
+   * costs a compositor layer rather than a layout pass.
+   */
+  .fp-card-float {
+    @apply rounded-xl border border-hairline bg-paper p-7 transition-[transform,box-shadow]
+           duration-300 hover:-translate-y-1 hover:shadow-float;
+  }
+
+  /*
+   * Emphasis bands, climbing the ramp. An ivory band on an ivory page is a band
+   * nobody can see; three distinct rungs is what makes the page feel layered.
    */
   .fp-band {
-    @apply rounded-2xl bg-brand-soft p-8;
+    @apply rounded-2xl bg-brand-soft p-8 sm:p-10;
   }
+  .fp-band-deep {
+    @apply rounded-2xl bg-brand-moss p-8 sm:p-10;
+  }
+  .fp-band-invert {
+    @apply rounded-2xl bg-brand p-8 text-ivory sm:p-10;
+  }
+
   .fp-link {
-    @apply text-brand underline underline-offset-2 hover:text-brand-dark;
+    @apply text-brand underline decoration-brand/30 underline-offset-4
+           transition-colors hover:text-brand-dark hover:decoration-brand;
   }
+
   .fp-badge {
-    @apply inline-flex items-center rounded-full bg-brand-soft px-2.5 py-0.5
-           text-xs font-bold text-brand-dark;
+    @apply inline-flex items-center rounded-full bg-brand-soft px-3 py-1
+           font-body text-xs font-bold text-brand-dark;
+  }
+
+  /* Inputs sit one rung *down* the ramp from cards, not up: a recessed well
+     rather than another raised panel. */
+  .fp-input {
+    @apply w-full rounded-lg border border-hairline bg-wash px-4 py-2.5 font-body
+           text-ink placeholder:text-ink-soft focus:border-brand focus:outline-none
+           focus:ring-2 focus:ring-brand/20;
+  }
+
+  .fp-hairline {
+    @apply border-t border-hairline;
+  }
+
+  /* Images get the card radius so a photo and a panel read as the same family. */
+  .fp-figure {
+    @apply overflow-hidden rounded-2xl;
+  }
+
+  .fp-shell {
+    @apply mx-auto w-full max-w-shell px-6;
+  }
+
+  .fp-section {
+    margin-top: var(--fp-section-gap);
+  }
+}
+
+/*
+ * Paper grain.
+ *
+ * A single tiling SVG at 2.5% opacity, fixed to the viewport and
+ * pointer-events-none. It is what stops a large flat ivory field from looking
+ * like an unpainted div at 1440px — the references all describe their canvas as
+ * paper, and paper is not perfectly smooth. Cheap: one 120-byte data URI, no
+ * network request, no repaint (it never moves).
+ */
+.fp-grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .fp-grain::before {
+    display: none;
+  }
+}
+
+/*
+ * Scroll motion.
+ *
+ * The hidden half of a reveal lives in CSS but is only ever applied by JS, and
+ * only after the element is being observed. That ordering is the whole safety
+ * story: server-rendered HTML carries no hiding styles, so a visitor with no
+ * JavaScript, a crawler, or a hydration failure sees every section in full
+ * rather than a page of invisible boxes.
+ */
+@layer components {
+  .fp-reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  .fp-reveal-in {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+}
+
+/*
+ * The reduced-motion contract, enforced in CSS rather than only in JS.
+ *
+ * Every component already checks the media query before it touches an element,
+ * so this block is a second, independent guarantee: even if that check
+ * regressed, or a class were applied by hand, content stays visible and static.
+ * Motion is the thing that disappears — never the content.
+ *
+ * !important is load-bearing. These rules have to beat the utility classes and
+ * the transitions declared above, whatever order the cascade puts them in.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .fp-reveal,
+  .fp-reveal-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+}
+
+/*
+ * Scoped to the widths where the sticky treatment actually exists. Unscoped,
+ * the margin-bottom took effect below 768px too — where StepStack is already a
+ * `flex flex-col gap-4` list. Flex-item margins add to gap rather than
+ * collapsing into it, so a reduced-motion visitor on a phone got 32px between
+ * cards where everyone else got 16px.
+ */
+@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
+  .fp-sticky-card {
+    position: static !important;
+    transform: none !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .fp-sticky-card:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+/*
+ * The sticky step stack. Desktop only: on a phone, four cards pinned in
+ * sequence means four screens of scrolling to read what a plain list shows in
+ * one, which is a worse page dressed up as a richer one.
+ */
+@media (min-width: 768px) {
+  /*
+   * The cards are siblings sharing one containing block, which is what lets a
+   * later card ride up over an earlier one. The first attempt gave each card its
+   * own wrapper to stick inside; each wrapper became a separate containing
+   * block, so the cards pinned independently and could never overlap — a list
+   * with large gaps rather than a deck.
+   *
+   * The margin is the scroll runway between one card pinning and the next
+   * arriving. It lives here, next to the position it exists to serve, because
+   * reduced motion has to collapse both together.
+   */
+  .fp-sticky-card {
+    position: sticky;
+    margin-bottom: 16vh;
+  }
+  .fp-sticky-card:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/*
+ * The hero's parallax planes.
+ *
+ * Each plane declares its own transform reading a custom property that defaults
+ * to zero, so the server-rendered page is correct and static before any script
+ * runs — and stays that way if the script never runs at all. HeroParallax sets
+ * the properties; nothing else touches them.
+ *
+ * translate3d rather than translateY to keep each plane on its own compositor
+ * layer, which is what makes the whole effect a GPU transform per frame instead
+ * of a repaint.
+ */
+.fp-plane-sky {
+  transform: scale(1.1) translate3d(0, var(--fp-y-sky, 0px), 0);
+}
+.fp-plane-hills {
+  transform: translate3d(0, var(--fp-y-hills, 0px), 0);
+}
+.fp-plane-meadow {
+  transform: translate3d(0, var(--fp-y-meadow, 0px), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-plane {
+    transform: none !important;
+  }
+  .fp-plane-sky {
+    transform: scale(1.1) !important;
+  }
+}
+
+/*
+ * Sage, asleep. A loading state that sits perfectly still reads as a page that
+ * has hung, so the mark breathes — a four-second scale of four percent, which is
+ * visible as life and invisible as motion.
+ *
+ * transform only, so it costs a compositor layer and nothing else, and it stops
+ * entirely for anyone who asked for less motion.
+ */
+@keyframes fp-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.fp-sage-breathe {
+  animation: fp-breathe 4s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-sage-breathe {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/*
+ * The WebGL meadow.
+ *
+ * Hidden until it has actually rendered a frame — `is-live` is set by the
+ * component after its first render() returns, never on mount. That ordering is
+ * what makes every failure path invisible: no WebGL, a refused context, a
+ * save-data device, or a chunk that never arrives all leave the SVG ridges
+ * exactly where they were, because nothing was taken away first.
+ */
+.fp-meadow-canvas {
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+  pointer-events: none;
+}
+
+.fp-meadow-canvas.is-live {
+  opacity: 1;
+}
+
+/*
+ * And only once it is live do the SVG ridges step aside. Fading them rather than
+ * removing them keeps the handover from ever showing a gap between the two.
+ */
+[data-fp-webgl='on'] .fp-plane-hills,
+[data-fp-webgl='on'] .fp-plane-meadow {
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-meadow-canvas {
+    transition: none !important;
+  }
+  [data-fp-webgl='on'] .fp-plane-hills,
+  [data-fp-webgl='on'] .fp-plane-meadow {
+    transition: none !important;
+  }
+}
+
+/*
+ * Depth cues on cards.
+ *
+ * A pointer-driven tilt in real 3D space, on the surfaces the reader is already
+ * pointing at. Perspective lives on the container rather than the card, so a
+ * row of cards shares one vanishing point and the row reads as a plane rather
+ * than as several unrelated boxes each with their own camera.
+ *
+ * transform only, GPU composited, and the whole thing is a no-op on touch —
+ * `@media (hover: hover)` — because a tilt that needs a cursor is dead weight on
+ * a phone and would only ever fire on tap.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .fp-depth {
+    perspective: 1100px;
+  }
+
+  .fp-depth > * {
+    /* So box-shadow traces the card, not the class-less <li> wrapping it. */
+    border-radius: 1.25rem;
+    transition:
+      transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .fp-depth > *:hover {
+    transform: translate3d(0, -6px, 26px) rotateX(2.2deg);
+    box-shadow: theme('boxShadow.float');
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-depth {
+    perspective: none;
+  }
+  .fp-depth > *,
+  .fp-depth > *:hover {
+    transform: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/*
+ * The splash.
+ *
+ * Full-bleed, one viewport tall, and the only thing above the fold. It breaks
+ * out of .fp-shell deliberately — the scene has to reach the window edges or it
+ * reads as a large picture on a page rather than as the page itself.
+ *
+ * svh rather than vh. On mobile Safari `vh` measures the *expanded* viewport,
+ * so a 100vh section pushes its own scroll cue underneath the browser chrome —
+ * hiding the one affordance that tells a first-time visitor there is anything
+ * below the fold.
+ */
+.fp-splash {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(
+    100svh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
+  );
+}
+
+@supports not (min-height: 100svh) {
+  .fp-splash {
+    min-height: calc(
+      100vh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
+    );
+  }
+}
+
+.fp-splash-inner {
+  position: relative;
+  z-index: 3;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 1.5rem 6.5rem;
+}
+
+/*
+ * The glass card.
+ *
+ * The blur is load-bearing, not decoration: the scene behind it is a moving
+ * camera over shifting greens, so a fixed scrim either greys the artwork out or
+ * fails to protect the headline somewhere in the travel. Blurring what is
+ * actually behind the text solves both, and keeps the landscape readable.
+ *
+ * Where backdrop-filter is unsupported the background steps up to near-opaque,
+ * because a 55% panel over an unblurred landscape is not legible.
+ */
+.fp-splash-card {
+  max-width: 46rem;
+  padding: 2rem;
+  border-radius: 1.75rem;
+  border: 1px solid rgba(251, 247, 240, 0.55);
+  background: rgba(251, 247, 240, 0.94);
+  box-shadow: 0 24px 60px -32px rgba(38, 34, 28, 0.45);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .fp-splash-card {
+    background: rgba(251, 247, 240, 0.62);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
+  }
+}
+
+@media (min-width: 640px) {
+  .fp-splash-card {
+    padding: 2.75rem 3rem;
+  }
+}
+
+/*
+ * Sage's stage.
+ *
+ * The perspective lives here and the mascot sits forward of it, so a rotation
+ * of the stage swings Sage further across the screen than the ridges behind
+ * him. That difference in travel is the whole pop-out — the browser derives it
+ * from the projection rather than us faking it with scale.
+ */
+.fp-sage-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  perspective: 1400px;
+  pointer-events: none;
+}
+
+/*
+ * Absolute only once there is a column to be absolute *in*.
+ *
+ * This was `min-width: 768px`, reusing the breakpoint the rest of the splash
+ * uses, and the stage carries z-index 2 against the card's effective 0 — so
+ * between 768px and roughly 1188px (portrait, where 27vmin keys off width) or
+ * 1002px (landscape 16:9) the `right: 9vw` box landed *inside* the 46rem card
+ * and painted over the right-hand end of the lead paragraph. At 800x1280 the
+ * overlap was total: stage x 512-728 against a card spanning 24-760.
+ *
+ * 1280px clears both thresholds with room to spare — at 1280 the card ends at
+ * 800 and the stage starts at 829 even with the mark at its 21rem cap.
+ */
+@media (min-width: 1280px) {
+  .fp-sage-stage {
+    position: absolute;
+    right: 9vw;
+    bottom: 30%;
+    margin-bottom: 0;
+  }
+}
+
+.fp-sage-plane {
+  position: relative;
+  transform: translate3d(0, var(--fp-sage-y, 0px), 120px)
+    rotateX(var(--fp-sage-rx, 0deg)) rotateY(var(--fp-sage-ry, 0deg));
+  opacity: var(--fp-sage-fade, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.fp-sage-mark {
+  position: relative;
+  z-index: 1;
+  width: clamp(10rem, 27vmin, 21rem);
+  height: auto;
+  filter: drop-shadow(0 22px 34px rgba(38, 34, 28, 0.26));
+}
+
+/*
+ * Tablet and small laptop: in flow above the card, the way the phone does it,
+ * because there is no free column beside a 46rem card at these widths.
+ *
+ * The mark has to be smaller here than the 27vmin it takes when it is floating,
+ * because in flow it is now buying its height from the same budget the card
+ * spends. At 1279x700 — the shortest window in this band — 27vmin plus the
+ * 6.5rem gutter pushed the splash 27px past one viewport and took the scroll
+ * cue with it, which is the exact failure the mobile rules already exist to
+ * avoid. 13vmin and a 4.5rem gutter (still clear of the ~4rem cue) fit it.
+ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .fp-sage-mark {
+    width: clamp(6rem, 13vmin, 9rem);
+  }
+  .fp-splash-inner {
+    padding-bottom: 4.5rem;
+  }
+}
+
+
+
+/* The way down. A real link, so it works from the keyboard. */
+.fp-splash-cue {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 1.75rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(38, 34, 28, 0.12);
+  background: rgba(251, 247, 240, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #26221c;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 200ms ease-out;
+}
+
+.fp-splash-cue:hover {
+  background: rgba(251, 247, 240, 0.92);
+}
+
+/*
+ * A two-tone ring, because this is the one focusable control on the site that
+ * does not sit on a warm ivory ground.
+ *
+ * `outline-brand` is what every other control uses and it measures 5.82:1 there.
+ * Here the cue sits at the bottom of the splash, directly over the midground
+ * hills — whose fill is #2F6B5C, the *same hex* as brand. The ivory scrim is an
+ * earlier sibling than the ridge SVGs and nothing carries a z-index, so the
+ * ridges paint on top of it and reach the cue unattenuated: a brand ring on the
+ * hill band measured 1.00:1, i.e. no indicator at all, and 1.39:1 on the meadow.
+ * The WebGL ridges do sit under the scrim and were still only 1.06-2.40:1.
+ *
+ * So the ring cannot depend on the scene. Ink alone is not enough either — it is
+ * 2.54:1 against #2F6B5C, still under the 3:1 of WCAG 1.4.11. The ivory inner
+ * ring is what fixes it: the ink/ivory boundary is 14.8:1 and is carried by the
+ * indicator itself, so the contrast holds over any ridge colour, over the sky,
+ * and over the canvas.
+ */
+.fp-splash-cue:focus-visible {
+  outline: 2px solid #26221c;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fbf7f0;
+}
+
+.fp-splash-cue svg {
+  animation: fp-cue-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes fp-cue-bob {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/*
+ * Placed AFTER every base .fp-splash rule on purpose. A media query adds no
+ * specificity, so source order decides — while this block sat above them the
+ * cue kept its `position: absolute` and landed under the fixed join bar no
+ * matter how much content was trimmed to make room.
+ */
+@media (max-width: 767px) {
+  /*
+   * Tighter everywhere: the card plus a 44px three-line headline plus the
+   * mascot has to clear one phone viewport, and it did not.
+   *
+   * The join bar is no longer subtracted here. It is in --fp-joinbar-h, gated
+   * on the breakpoint where the bar actually renders (639px, Tailwind's sm),
+   * rather than on this block's 767px — which reserved 60px between 640 and
+   * 767px for a bar that is not on screen.
+   */
+  /*
+   * In flow on a phone, not pinned. The splash can exceed the viewport once the
+   * card wraps to four lines, and an absolutely-positioned cue then lands
+   * wherever the splash happens to end — which twice was underneath the fixed
+   * join bar. In flow it simply follows the card and cannot collide.
+   */
+  .fp-splash-cue {
+    position: static;
+    align-self: center;
+    margin-top: 1rem;
+    transform: none;
+  }
+  .fp-splash-inner {
+    padding-bottom: 3rem;
+  }
+  .fp-splash-card {
+    padding: 1.25rem 1.25rem 1.375rem;
+  }
+  .fp-sage-mark {
+    width: clamp(5rem, 21vw, 6.5rem);
+  }
+  .fp-sage-stage {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/*
+ * Below 640px the splash competes with both a two-row header and the fixed join
+ * bar, which between them take 204px of an 844px phone — a quarter of the
+ * screen before any content. What is left is not enough for the mascot, the
+ * card, and the cue at the spacing used higher up, so the gaps close rather
+ * than letting the cue fall off the reserved area.
+ *
+ * The inner's 3rem bottom padding goes first because it is pure spacing and the
+ * cue already carries its own margin — the two were stacking to 4rem of gap
+ * between the card and the one control that has to stay on screen.
+ */
+@media (max-width: 639px) {
+  .fp-splash-inner {
+    padding-bottom: 0;
+  }
+  .fp-splash-cue {
+    margin-top: 0.75rem;
+  }
+}
+
+/*
+ * The narrow band — 320px to 374px, which is still an iPhone SE.
+ *
+ * Here the two-row header and the join bar leave 628px, and the splash at the
+ * spacing above wants 701px. The overflow is typographic: at 44px the headline
+ * breaks to four lines and the lead to six, so the card alone is 559px.
+ *
+ * These overrides are scoped to the splash on purpose. .fp-display and .fp-lead
+ * are design-system tokens used on every page; the problem is this one section
+ * having to fit a fixed box, not the scale being wrong. Changing the tokens to
+ * fix one section is how a type scale stops meaning anything.
+ */
+@media (max-width: 374px) {
+  .fp-splash-card .fp-display {
+    font-size: 2.25rem; /* 36 — four lines at 44 is what overflows */
+    line-height: 1.05;
+  }
+  .fp-splash-card .fp-lead {
+    font-size: 1rem; /* 16 — the floor for body copy, not below it */
+    line-height: 1.5;
+  }
+  .fp-splash-card > .mt-7 {
+    margin-top: 1rem;
+  }
+  .fp-splash-card {
+    padding: 1rem 1rem 1.125rem;
+  }
+  .fp-sage-mark {
+    width: clamp(3.25rem, 15vw, 4.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-splash-cue svg {
+    animation: none !important;
+  }
+  .fp-sage-plane {
+    transform: translate3d(0, 0, 120px) !important;
+    opacity: 1 !important;
   }
 }

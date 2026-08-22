@@ -1,10 +1,37 @@
 import type { Metadata } from 'next'
+import { Fraunces, Nunito } from 'next/font/google'
 import './globals.css'
 import HashSessionRecovery from './auth/HashSessionRecovery'
 import AppChrome from '@/components/AppChrome'
 import { createClient } from '@/lib/supabase/server'
 import { threadSummaries, totalUnread } from '@/lib/chat/threads'
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
+
+/*
+ * Both faces are self-hosted rather than pulled in by an @import at the top of
+ * globals.css. That @import was a three-hop chain on the critical path — our
+ * CSS, then Google's CSS, then the font files — with the whole page blocked
+ * behind hop three. next/font inlines the @font-face rules, serves the files
+ * from our own origin, and preloads them, which removes two round trips before
+ * first paint.
+ *
+ * The weight lists are exactly what the site uses and nothing more. Fraunces
+ * shed 800 and Nunito shed 800 when the display scale moved to 400; requesting
+ * a weight nothing renders is bytes spent on nothing.
+ */
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+  variable: '--font-display',
+})
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-body',
+})
 
 export const metadata: Metadata = {
   // Makes every relative URL below resolve absolutely, which Open Graph requires.
@@ -78,7 +105,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
       {/*
         Clearance for whichever fixed bottom bar AppChrome renders, so neither
         can sit on top of the last element of a page — most often a submit
@@ -88,7 +115,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         `sm:pb-8` on the visitor case because the join bar is mobile-only.
       */}
       <body
-        className={`min-h-screen bg-ivory font-body text-ink ${
+        className={`fp-grain min-h-screen bg-ivory font-body text-ink ${
           signedIn ? 'pb-36' : 'pb-28 sm:pb-8'
         }`}
       >

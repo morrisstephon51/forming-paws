@@ -34,7 +34,7 @@ export default function AppChrome({
 
   return (
     <>
-      <div className="mx-auto max-w-5xl px-6">
+      <div className="fp-shell">
         <SiteHeader
           variant={signedIn ? 'member' : 'public'}
           pathname={pathname}

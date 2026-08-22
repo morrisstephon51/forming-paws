@@ -44,12 +44,12 @@ export default function ShareButtons({ url, title }: { url: string; title: strin
           href={target.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded border px-3 py-1 text-sm hover:bg-brand-soft"
+          className="fp-btn-ghost px-3 py-1 text-sm"
         >
           {target.name}
         </a>
       ))}
-      <button onClick={copyLink} className="rounded border px-3 py-1 text-sm hover:bg-brand-soft">
+      <button onClick={copyLink} className="fp-btn-ghost px-3 py-1 text-sm">
         {copied ? 'Link copied' : 'Copy link'}
       </button>
     </div>

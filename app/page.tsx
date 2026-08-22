@@ -10,6 +10,11 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
+import Splash from '@/components/landing/Splash'
+import SectionDivider from '@/components/art/SectionDivider'
+import Reveal from '@/components/motion/Reveal'
+import StepStack from '@/components/motion/StepStack'
+import CountUp from '@/components/motion/CountUp'
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -110,36 +115,23 @@ export default async function HomePage({
   if (signedIn) redirect(MEMBER_HOME)
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <>
       <main>
-        <div className="mt-12 grid gap-10 md:grid-cols-5 md:items-start">
+        <Splash />
+
+        <div className="fp-shell py-8">
+        {/*
+          The first thing below the splash, and the reason the splash can afford
+          to carry nothing but a statement: everything functional that used to
+          compete with the headline is here instead — the three trust points and
+          the sign-in panel, one scroll down and nothing hidden.
+        */}
+        <div id="start" className="grid scroll-mt-6 gap-10 pt-10 md:grid-cols-5 md:items-start">
           <section className="md:col-span-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-              Nonprofit · Community-driven · Health-verified
+            <h2 className="fp-h2">Start here</h2>
+            <p className="fp-lead mt-3">
+              Three things that shape every match on Forming Paws.
             </p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">
-              Healthy matches.
-              <br />
-              Happy litters.
-            </h1>
-            <p className="mt-4 text-ink-soft">
-              Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
-              thoughtful matchmaking for dogs, with veterinary verification at the centre of
-              everything.
-            </p>
-            {/*
-            The primary action, above the fold on a phone. Before this, the only
-            way in from the top of the page was the header's "Join Now" chip or
-            the sign-in panel — which on mobile sits below the entire hero.
-          */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/signup" className="fp-btn">
-                Join free — list your dog
-              </Link>
-              <Link href="/app" className="fp-btn-ghost">
-                See the app first
-              </Link>
-            </div>
             <dl className="mt-6 grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="font-semibold">Health-gated</dt>
@@ -168,7 +160,7 @@ export default async function HomePage({
           sign-in form.
         */}
           <section id="signin" className="fp-card p-6 md:col-span-2">
-            <h2 className="text-xl font-bold">Member sign in</h2>
+            <h2 className="fp-h4">Member sign in</h2>
             <LoginForm
               error={params.error ?? null}
               offerResend={params.resend === '1'}
@@ -183,70 +175,92 @@ export default async function HomePage({
           </section>
         </div>
 
-        <section id="how" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">
+        <Reveal as="section" id="how" className="mt-20 scroll-mt-8">
+          <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> How Forming Paws works
           </h2>
           <p className="mt-2 text-ink-soft">
             Four steps from profile to a safe, well-documented match.
           </p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step) => (
-              <li key={step.n} className="fp-card">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-bold text-ivory">
-                  {step.n}
-                </span>
-                <h3 className="mt-3 font-semibold">{step.title}</h3>
-                <p className="mt-2 text-sm text-ink-soft">{step.body}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+          <StepStack
+            items={STEPS.map((step) => ({
+              key: step.n,
+              children: (
+                <div className="fp-card md:flex md:items-start md:gap-7">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-ivory">
+                    {step.n}
+                  </span>
+                  <div className="mt-3 md:mt-0">
+                    <h3 className="fp-h4">{step.title}</h3>
+                    <p className="mt-2 text-ink-soft">{step.body}</p>
+                  </div>
+                </div>
+              ),
+            }))}
+          />
+        </Reveal>
 
-        <section id="health" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">
+        {/* Breathing room between the two heaviest sections on the page. */}
+        <SectionDivider className="mt-16" />
+
+        <Reveal as="section" id="health" className="mt-4 scroll-mt-8">
+          <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
           </h2>
           <p className="mt-2 text-ink-soft">
             Forming Paws exists to raise the standard of dog breeding, not just to make
             introductions.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-3">
             {HEALTH.map((card) => (
               <div key={card.title} className="fp-card">
                 <span className="text-2xl" aria-hidden="true">
                   {card.icon}
                 </span>
-                <h3 className="mt-3 font-semibold">{card.title}</h3>
+                <h3 className="mt-3 fp-h5">{card.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
               </div>
             ))}
           </div>
-        </section>
+        </Reveal>
 
-        <section id="roadmap" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Where we&apos;re headed</h2>
+        <Reveal as="section" id="roadmap" className="mt-20 scroll-mt-8">
+          <h2 className="fp-h2">Where we&apos;re headed</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="fp-depth mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
               <li key={item.tag} className="fp-card">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                <span className="fp-eyebrow">
                   {item.tag}
                 </span>
-                <h3 className="mt-2 font-semibold">{item.title}</h3>
+                <h3 className="mt-2 fp-h5">{item.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
               </li>
             ))}
           </ol>
-        </section>
+        </Reveal>
 
         {/* Visitors only reach this page signed out, so no guard is needed. */}
-        <section id="waitlist" className="fp-band mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Be a Founding Member</h2>
+        <Reveal as="section" id="waitlist" className="fp-band mt-20 scroll-mt-8">
+          <h2 className="fp-h2">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
             Join the waitlist — the first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
           </p>
+          <div className="mt-7 grid gap-6 sm:max-w-md sm:grid-cols-2">
+            <p>
+              <span className="fp-h2 block text-brand">
+                <CountUp to={20} />
+              </span>
+              <span className="fp-eyebrow mt-1 block">founding spots</span>
+            </p>
+            <p>
+              <span className="fp-h2 block text-brand">
+                <CountUp to={RESPONSE_TIME.hours} suffix="h" />
+              </span>
+              <span className="fp-eyebrow mt-1 block">max reply time</span>
+            </p>
+          </div>
           <WaitlistForm />
           <p className="mt-4 text-sm text-ink-soft">
             Ready now?{' '}
@@ -259,10 +273,10 @@ export default async function HomePage({
             </Link>{' '}
             first.
           </p>
-        </section>
+        </Reveal>
 
-        <section id="faq" className="mt-20 scroll-mt-8">
-          <h2 className="text-2xl font-bold">Questions people ask first</h2>
+        <Reveal as="section" id="faq" className="mt-20 scroll-mt-8">
+          <h2 className="fp-h2">Questions people ask first</h2>
           <p className="mt-2 text-ink-soft">
             The five that come up most.{' '}
             <Link href="/faq" className="fp-link">
@@ -270,7 +284,7 @@ export default async function HomePage({
             </Link>
             .
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="fp-depth mt-6 flex flex-col gap-3">
             {FAQS.map((faq) => (
               <details key={faq.question} className="fp-card">
                 <summary className="cursor-pointer font-semibold">{faq.question}</summary>
@@ -278,10 +292,10 @@ export default async function HomePage({
               </details>
             ))}
           </div>
-        </section>
+        </Reveal>
 
-        <section className="fp-band mt-16">
-          <h2 className="text-2xl font-bold">Still deciding?</h2>
+        <Reveal as="section" className="fp-band-deep mt-16">
+          <h2 className="fp-h2">Still deciding?</h2>
           <p className="mt-2 text-ink-soft">
             {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
           </p>
@@ -299,10 +313,13 @@ export default async function HomePage({
               title="Forming Paws — health-verified breeding matches for dog owners"
             />
           </div>
-        </section>
+        </Reveal>
+        </div>
       </main>
 
-      <SiteFooter />
-    </div>
+      <div className="fp-shell">
+        <SiteFooter />
+      </div>
+    </>
   )
 }

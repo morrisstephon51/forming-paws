@@ -1,5 +1,6 @@
 'use client'
 
+import Sage from '@/components/mascot/Sage'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -56,7 +57,8 @@ export default function SignupForm() {
 
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Create your account</h1>
+      <Sage mood="waving" size={72} />
+      <h1 className="mt-3 fp-h2">Create your account</h1>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
         <label htmlFor="signup-displayName" className="sr-only">
           Your name
@@ -68,7 +70,7 @@ export default function SignupForm() {
           required
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="border p-2"
+          className="border border-hairline p-2"
         />
         <label htmlFor="signup-email" className="sr-only">
           Email
@@ -82,7 +84,7 @@ export default function SignupForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border p-2"
+          className="border border-hairline p-2"
         />
         <label htmlFor="signup-password" className="sr-only">
           Password
@@ -96,7 +98,7 @@ export default function SignupForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2"
+          className="border border-hairline p-2"
         />
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -108,7 +110,7 @@ export default function SignupForm() {
           I confirm I am 18 years of age or older
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button type="submit" className="bg-brand text-white p-2 rounded">
+        <button type="submit" className="fp-btn">
           Sign up
         </button>
       </form>

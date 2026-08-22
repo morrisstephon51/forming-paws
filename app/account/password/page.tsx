@@ -30,7 +30,7 @@ export default async function PasswordPage() {
 
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Set a new password</h1>
+      <h1 className="fp-h2">Set a new password</h1>
       <p className="mt-2 text-sm text-ink-soft">
         Signed in as {data.user.email}. Choose a new password and we&apos;ll take you back to your
         dogs.

@@ -2,6 +2,8 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { GUIDES } from '@/lib/education'
 import { pageMetadata } from '@/lib/seo'
+import BannerArt from '@/components/art/BannerArt'
+import learnHub from '@/assets/art/learn-hub.jpg'
 
 export const metadata = pageMetadata({
   title: 'Learn',
@@ -15,13 +17,15 @@ export default function EducationPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">📚</span> Learn
         </h1>
         <p className="mt-4 text-ink-soft">
           Short, practical guides for owners thinking about breeding responsibly — what paperwork is
           needed, what to ask a professional, and how to handle the first meeting.
         </p>
+
+        <BannerArt priority src={learnHub} className="mt-8" />
 
         {/*
           Prominent and near the top, not in a footer. Nothing here is written or
@@ -34,7 +38,7 @@ export default function EducationPage() {
           has been written or reviewed by a veterinarian, and none of it is a substitute for one.
         </p>
 
-        <ul className="mt-8 flex flex-col gap-4">
+        <ul className="fp-depth mt-8 flex flex-col gap-4">
           {GUIDES.map((guide) => (
             <li key={guide.slug}>
               <Link
@@ -42,7 +46,7 @@ export default function EducationPage() {
                 className="fp-card block transition-colors hover:border-brand/40"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="font-display text-xl font-bold text-ink">{guide.title}</h2>
+                  <h2 className="text-ink fp-h4">{guide.title}</h2>
                   <span className="fp-badge">{guide.readingMinutes} min read</span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">{guide.summary}</p>
@@ -52,7 +56,7 @@ export default function EducationPage() {
         </ul>
 
         <section aria-labelledby="more" className="fp-band mt-12">
-          <h2 id="more" className="text-2xl font-bold">
+          <h2 id="more" className="fp-h2">
             More is coming
           </h2>
           <p className="mt-2 text-ink-soft">

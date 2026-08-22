@@ -35,7 +35,7 @@ export default function VetsPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">🩺</span> Vet partners
         </h1>
 
@@ -57,7 +57,7 @@ export default function VetsPage() {
         </div>
 
         <section aria-labelledby="why" className="mt-12">
-          <h2 id="why" className="text-2xl font-bold">
+          <h2 id="why" className="fp-h2">
             What the network is for
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -79,13 +79,13 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="looking" className="mt-12">
-          <h2 id="looking" className="text-2xl font-bold">
+          <h2 id="looking" className="fp-h2">
             What we are looking for
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {LOOKING_FOR.map((item) => (
               <div key={item.title} className="fp-card">
-                <h3 className="font-semibold text-ink">{item.title}</h3>
+                <h3 className="text-ink fp-h5">{item.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
               </div>
             ))}
@@ -93,7 +93,7 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="vets-contact" className="fp-band mt-12">
-          <h2 id="vets-contact" className="text-2xl font-bold">
+          <h2 id="vets-contact" className="fp-h2">
             If you are a veterinarian
           </h2>
           <p className="mt-2 text-ink-soft">
@@ -112,7 +112,7 @@ export default function VetsPage() {
         </section>
 
         <section aria-labelledby="owners" className="mt-12">
-          <h2 id="owners" className="text-2xl font-bold">
+          <h2 id="owners" className="fp-h2">
             If you are an owner whose dog did not pass
           </h2>
           <p className="mt-4 text-ink-soft">

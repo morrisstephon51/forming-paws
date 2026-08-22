@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import Sage from '@/components/mascot/Sage'
+import SageNote from '@/components/mascot/SageNote'
 import SiteFooter from '@/components/SiteFooter'
 import LocationSettings from './LocationSettings'
 import { dogListLabel } from '@/lib/dogs/dogLabel'
@@ -67,13 +69,14 @@ export default async function HomePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-3xl font-bold">
-          <span aria-hidden="true">🐾</span> Welcome back
+        <h1 className="flex items-center gap-3 fp-h1">
+          <Sage mood="waving" size={56} />
+          Welcome back
           {owner?.display_name ? `, ${owner.display_name}` : ''}
         </h1>
 
         <section aria-labelledby="next-up" className="fp-band mt-6">
-          <h2 id="next-up" className="text-xs font-bold uppercase tracking-wide text-brand-dark">
+          <h2 id="next-up" className="fp-eyebrow text-brand-dark">
             Next up
           </h2>
           <p className="mt-2 font-display text-xl font-bold text-ink">{action.label}</p>
@@ -85,7 +88,7 @@ export default async function HomePage() {
 
         <section aria-labelledby="your-dogs" className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id="your-dogs" className="text-2xl font-bold">
+            <h2 id="your-dogs" className="fp-h2">
               Your dogs
             </h2>
             <Link href="/dogs/new" className="fp-btn-ghost px-4 py-2 text-sm">
@@ -93,7 +96,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <ul className="mt-4 flex flex-col gap-3">
+          <ul className="fp-depth mt-4 flex flex-col gap-3">
             {dogsWithStatus.map((dog) => (
               <li key={dog.id}>
                 <Link
@@ -107,14 +110,15 @@ export default async function HomePage() {
           </ul>
 
           {dogsWithStatus.length === 0 && (
-            <p className="mt-4 text-ink-soft">
-              No dogs yet — <span aria-hidden="true">🐾</span> add one to get started.
-            </p>
+            <SageNote mood="thinking" title="No dogs yet" size={76}>
+              Add your first dog to start matching — it takes a few minutes, and health
+              verification begins as soon as the records are in.
+            </SageNote>
           )}
         </section>
 
         <section aria-labelledby="your-location" className="mt-10">
-          <h2 id="your-location" className="text-2xl font-bold">
+          <h2 id="your-location" className="fp-h2">
             Your location
           </h2>
           <LocationSettings currentLabel={owner?.location_label ?? null} />
