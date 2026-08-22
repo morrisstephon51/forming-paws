@@ -26,11 +26,51 @@
     /* Section rhythm. References converge on 80–96px desktop; we step down to
        56px on a phone, where 96px of empty space reads as a broken page. */
     --fp-section-gap: 3.5rem;
+
+    /*
+     * What the splash has to subtract from the viewport to be exactly one
+     * screenful: the header above it, and the join bar fixed over the bottom.
+     *
+     * These are measured, not guessed. The header is not a fixed height — it
+     * wraps from one row to two as the viewport narrows, at ~674px and ~466px,
+     * and those are content wraps rather than media queries, so they move if
+     * the nav copy changes. The splash previously hardcoded 5.5rem for the
+     * header at every width; on a phone the real height is 8.9375rem, and the
+     * 3.4375rem shortfall pushed the section's last child — the scroll cue —
+     * underneath the join bar on every screen 464px and narrower.
+     *
+     * tests/splash-cue-clearance.spec.ts sweeps the widths and fails if these
+     * drift out of date, because a wrap point is not something CSS can observe.
+     */
+    --fp-header-h: 4.4375rem; /* 71px — one row */
+    --fp-joinbar-h: 0px; /* the bar is sm:hidden — it only exists below 640px */
+    --fp-splash-gap: 0.75rem; /* breathing room between the cue and the bar */
   }
 
   @media (min-width: 640px) {
     :root {
       --fp-section-gap: 6rem;
+    }
+  }
+
+  /* Header wraps to two rows. Measured 115px. */
+  @media (max-width: 675px) {
+    :root {
+      --fp-header-h: 7.1875rem;
+    }
+  }
+
+  /* StickyJoinBar renders below Tailwind's sm breakpoint. Measured 61px. */
+  @media (max-width: 639px) {
+    :root {
+      --fp-joinbar-h: 3.8125rem;
+    }
+  }
+
+  /* Header wraps again — nav and brand stack. Measured 143px. */
+  @media (max-width: 467px) {
+    :root {
+      --fp-header-h: 8.9375rem;
     }
   }
 
@@ -522,12 +562,16 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(100svh - 5.5rem);
+  min-height: calc(
+    100svh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
+  );
 }
 
 @supports not (min-height: 100svh) {
   .fp-splash {
-    min-height: calc(100vh - 5.5rem);
+    min-height: calc(
+      100vh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
+    );
   }
 }
 
@@ -592,7 +636,20 @@
   pointer-events: none;
 }
 
-@media (min-width: 768px) {
+/*
+ * Absolute only once there is a column to be absolute *in*.
+ *
+ * This was `min-width: 768px`, reusing the breakpoint the rest of the splash
+ * uses, and the stage carries z-index 2 against the card's effective 0 — so
+ * between 768px and roughly 1188px (portrait, where 27vmin keys off width) or
+ * 1002px (landscape 16:9) the `right: 9vw` box landed *inside* the 46rem card
+ * and painted over the right-hand end of the lead paragraph. At 800x1280 the
+ * overlap was total: stage x 512-728 against a card spanning 24-760.
+ *
+ * 1280px clears both thresholds with room to spare — at 1280 the card ends at
+ * 800 and the stage starts at 829 even with the mark at its 21rem cap.
+ */
+@media (min-width: 1280px) {
   .fp-sage-stage {
     position: absolute;
     right: 9vw;
@@ -616,6 +673,26 @@
   width: clamp(10rem, 27vmin, 21rem);
   height: auto;
   filter: drop-shadow(0 22px 34px rgba(38, 34, 28, 0.26));
+}
+
+/*
+ * Tablet and small laptop: in flow above the card, the way the phone does it,
+ * because there is no free column beside a 46rem card at these widths.
+ *
+ * The mark has to be smaller here than the 27vmin it takes when it is floating,
+ * because in flow it is now buying its height from the same budget the card
+ * spends. At 1279x700 — the shortest window in this band — 27vmin plus the
+ * 6.5rem gutter pushed the splash 27px past one viewport and took the scroll
+ * cue with it, which is the exact failure the mobile rules already exist to
+ * avoid. 13vmin and a 4.5rem gutter (still clear of the ~4rem cue) fit it.
+ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .fp-sage-mark {
+    width: clamp(6rem, 13vmin, 9rem);
+  }
+  .fp-splash-inner {
+    padding-bottom: 4.5rem;
+  }
 }
 
 
@@ -647,9 +724,28 @@
   background: rgba(251, 247, 240, 0.92);
 }
 
+/*
+ * A two-tone ring, because this is the one focusable control on the site that
+ * does not sit on a warm ivory ground.
+ *
+ * `outline-brand` is what every other control uses and it measures 5.82:1 there.
+ * Here the cue sits at the bottom of the splash, directly over the midground
+ * hills — whose fill is #2F6B5C, the *same hex* as brand. The ivory scrim is an
+ * earlier sibling than the ridge SVGs and nothing carries a z-index, so the
+ * ridges paint on top of it and reach the cue unattenuated: a brand ring on the
+ * hill band measured 1.00:1, i.e. no indicator at all, and 1.39:1 on the meadow.
+ * The WebGL ridges do sit under the scrim and were still only 1.06-2.40:1.
+ *
+ * So the ring cannot depend on the scene. Ink alone is not enough either — it is
+ * 2.54:1 against #2F6B5C, still under the 3:1 of WCAG 1.4.11. The ivory inner
+ * ring is what fixes it: the ink/ivory boundary is 14.8:1 and is carried by the
+ * indicator itself, so the contrast holds over any ridge colour, over the sky,
+ * and over the canvas.
+ */
 .fp-splash-cue:focus-visible {
-  outline: 2px solid #2f6b5c;
-  outline-offset: 3px;
+  outline: 2px solid #26221c;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fbf7f0;
 }
 
 .fp-splash-cue svg {
@@ -677,13 +773,11 @@
    * Tighter everywhere: the card plus a 44px three-line headline plus the
    * mascot has to clear one phone viewport, and it did not.
    *
-   * The extra 3.75rem is the mobile-only sticky join bar, which is fixed to the
-   * bottom of the window and was sitting on top of the secondary CTA and the
-   * scroll cue — the two things a first-time visitor needs most.
+   * The join bar is no longer subtracted here. It is in --fp-joinbar-h, gated
+   * on the breakpoint where the bar actually renders (639px, Tailwind's sm),
+   * rather than on this block's 767px — which reserved 60px between 640 and
+   * 767px for a bar that is not on screen.
    */
-  .fp-splash {
-    min-height: calc(100svh - 5.5rem - 3.75rem);
-  }
   /*
    * In flow on a phone, not pinned. The splash can exceed the viewport once the
    * card wraps to four lines, and an absolutely-positioned cue then lands
@@ -693,7 +787,7 @@
   .fp-splash-cue {
     position: static;
     align-self: center;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     transform: none;
   }
   .fp-splash-inner {
@@ -708,8 +802,57 @@
   .fp-sage-stage {
     margin-bottom: 0.75rem;
   }
+}
+
+/*
+ * Below 640px the splash competes with both a two-row header and the fixed join
+ * bar, which between them take 204px of an 844px phone — a quarter of the
+ * screen before any content. What is left is not enough for the mascot, the
+ * card, and the cue at the spacing used higher up, so the gaps close rather
+ * than letting the cue fall off the reserved area.
+ *
+ * The inner's 3rem bottom padding goes first because it is pure spacing and the
+ * cue already carries its own margin — the two were stacking to 4rem of gap
+ * between the card and the one control that has to stay on screen.
+ */
+@media (max-width: 639px) {
+  .fp-splash-inner {
+    padding-bottom: 0;
+  }
   .fp-splash-cue {
+    margin-top: 0.75rem;
+  }
+}
+
+/*
+ * The narrow band — 320px to 374px, which is still an iPhone SE.
+ *
+ * Here the two-row header and the join bar leave 628px, and the splash at the
+ * spacing above wants 701px. The overflow is typographic: at 44px the headline
+ * breaks to four lines and the lead to six, so the card alone is 559px.
+ *
+ * These overrides are scoped to the splash on purpose. .fp-display and .fp-lead
+ * are design-system tokens used on every page; the problem is this one section
+ * having to fit a fixed box, not the scale being wrong. Changing the tokens to
+ * fix one section is how a type scale stops meaning anything.
+ */
+@media (max-width: 374px) {
+  .fp-splash-card .fp-display {
+    font-size: 2.25rem; /* 36 — four lines at 44 is what overflows */
+    line-height: 1.05;
+  }
+  .fp-splash-card .fp-lead {
+    font-size: 1rem; /* 16 — the floor for body copy, not below it */
+    line-height: 1.5;
+  }
+  .fp-splash-card > .mt-7 {
     margin-top: 1rem;
+  }
+  .fp-splash-card {
+    padding: 1rem 1rem 1.125rem;
+  }
+  .fp-sage-mark {
+    width: clamp(3.25rem, 15vw, 4.5rem);
   }
 }
 
