@@ -104,7 +104,7 @@ export function NotificationForm({
         changed something they had not.
       */}
       <p className="fp-badge mb-4 !bg-accent-soft !text-accent-dark">
-        Email notifications aren&apos;t sending yet — we&apos;ll use these the moment they are.
+        Email notifications aren&apos;t sending yet. We&apos;ll use these the moment they are.
       </p>
       <div className="flex flex-col gap-3">
         {rows.map((row) => (

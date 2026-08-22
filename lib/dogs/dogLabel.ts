@@ -4,5 +4,5 @@
  * locationSchema lives in lib/validators/location.ts.
  */
 export function dogListLabel(name: string, sex: string, isVerified: boolean): string {
-  return `${name} — ${sex} · ${isVerified ? '✓ Health verified' : 'Verification pending'}`
+  return `${name} · ${sex} · ${isVerified ? '✓ Health verified' : 'Verification pending'}`
 }

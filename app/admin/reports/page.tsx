@@ -42,7 +42,7 @@ export default async function ReportsPage() {
       <h1 className="fp-h2">Reported conversations</h1>
       <p className="mt-2 text-sm text-ink-soft">
         You can read a reported conversation while its report is open or being reviewed. Resolving or
-        dismissing it ends that access — that limit is enforced by the database, not by this page.
+        dismissing it ends that access. That limit is enforced by the database, not by this page.
       </p>
       <ul className="mt-6 flex flex-col gap-4">
         {reports?.map((r) => (

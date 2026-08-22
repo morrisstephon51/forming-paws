@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Fraunces, Nunito } from 'next/font/google'
+import { Newsreader, Public_Sans } from 'next/font/google'
 import './globals.css'
 import HashSessionRecovery from './auth/HashSessionRecovery'
 import AppChrome from '@/components/AppChrome'
@@ -15,20 +15,27 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
  * from our own origin, and preloads them, which removes two round trips before
  * first paint.
  *
- * The weight lists are exactly what the site uses and nothing more. Fraunces
- * shed 800 and Nunito shed 800 when the display scale moved to 400; requesting
- * a weight nothing renders is bytes spent on nothing.
+ * Both are requested as variable faces rather than as weight lists. The old
+ * setup named its weights, and a note here used to record that Fraunces' optical
+ * size axis was therefore inert — next/font drops every non-wght axis the moment
+ * a `weight` is given. Newsreader's whole reason for being here is that axis, so
+ * naming weights would throw away the thing it was chosen for.
+ *
+ * opsz is not a style knob. Newsreader ships genuinely different letterforms per
+ * size: at 72 the hairlines thin and the spacing closes up for a headline, at 6
+ * the stems thicken and open so the same face survives being small. Asking for
+ * it means the display and the body get drawings actually made for their size
+ * rather than one drawing scaled.
  */
-const fraunces = Fraunces({
+const newsreader = Newsreader({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  axes: ['opsz'],
   display: 'swap',
   variable: '--font-display',
 })
 
-const nunito = Nunito({
+const publicSans = Public_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-body',
 })
@@ -37,8 +44,8 @@ export const metadata: Metadata = {
   // Makes every relative URL below resolve absolutely, which Open Graph requires.
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Healthy Matches. Happy Litters.`,
-    template: `%s — ${SITE_NAME}`,
+    default: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -46,14 +53,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Healthy Matches. Happy Litters.`,
+    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
     description: SITE_DESCRIPTION,
     url: '/',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} — Healthy Matches. Happy Litters.`,
+    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
     description: SITE_DESCRIPTION,
   },
   icons: {
@@ -105,7 +112,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${newsreader.variable} ${publicSans.variable}`}>
       {/*
         Clearance for whichever fixed bottom bar AppChrome renders, so neither
         can sit on top of the last element of a page — most often a submit

@@ -28,7 +28,7 @@ export default function ContactPage() {
 
       <p className="mt-4 text-ink-soft">
         Health verification questions, trouble with your account, a link that didn&apos;t work, or a
-        concern about another member — all of it belongs here. If you would rather use your own mail
+        concern about another member: all of it belongs here. If you would rather use your own mail
         app, write to{' '}
         <a href={`mailto:${CONTACT_EMAIL}`} className="underline">
           {CONTACT_EMAIL}
@@ -42,7 +42,7 @@ export default function ContactPage() {
           FAQ
         </Link>{' '}
         covers cost, what verification involves, and how your location stays private. To report
-        another member, use the report button inside the conversation — that reaches the same team
+        another member, use the report button inside the conversation. That reaches the same team
         with the messages attached.
       </p>
 

@@ -41,7 +41,7 @@ const STEPS = [
   {
     n: 3,
     title: 'Match nearby',
-    body: "Filter by breed, sex, age, and distance. Express interest — when it's mutual, chat unlocks so owners can talk first.",
+    body: "Filter by breed, sex, age, and distance. Express interest, and when it's mutual, chat unlocks so owners can talk first.",
   },
   {
     n: 4,
@@ -54,12 +54,12 @@ const HEALTH = [
   {
     icon: '🩺',
     title: 'Verified health vault',
-    body: 'Matching stays locked until baseline vet documentation is reviewed. A green verified badge means real, checked records — not an honour system.',
+    body: 'Matching stays locked until baseline vet documentation is reviewed. A green verified badge means real, checked records, not an honour system.',
   },
   {
     icon: '❤️‍🩹',
     title: 'A path to healthy',
-    body: "Dogs whose records don't pass aren't rejected — they're referred to partner veterinarians with a plan to bring their health up to standard.",
+    body: "Dogs whose records don't pass aren't rejected. They're referred to partner veterinarians with a plan to bring their health up to standard.",
   },
   {
     icon: '🚫',
@@ -72,7 +72,7 @@ const ROADMAP = [
   {
     tag: 'Now',
     title: 'Matching platform',
-    body: 'Profiles, health verification, local matching, and owner chat — the foundation you are looking at today.',
+    body: 'Profiles, health verification, local matching, and owner chat: the foundation you are looking at today.',
   },
   {
     tag: 'Next',
@@ -85,12 +85,12 @@ const ROADMAP = [
     // actually true, and the page says so itself.
     tag: 'Started',
     title: 'Education hub',
-    body: 'Practical guides on documentation, questions for your vet, and meeting safely — live now, and growing as the vet network does.',
+    body: 'Practical guides on documentation, questions for your vet, and meeting safely. Live now, and growing as the vet network does.',
   },
   {
     tag: 'Vision',
     title: 'Safe breeding facility',
-    body: 'A physical safe space for supervised mating, breeding, and whelping — run by the nonprofit.',
+    body: 'A physical safe space for supervised mating, breeding, and whelping, run by the nonprofit.',
   },
 ]
 
@@ -205,7 +205,7 @@ export default async function HomePage({
 
         <Reveal as="section" id="health" className="mt-4 scroll-mt-8">
           <h2 className="fp-h2">
-            <span aria-hidden="true">🐾</span> Health first — it&apos;s the whole point
+            <span aria-hidden="true">🐾</span> Health first. It&apos;s the whole point
           </h2>
           <p className="mt-2 text-ink-soft">
             Forming Paws exists to raise the standard of dog breeding, not just to make
@@ -244,7 +244,7 @@ export default async function HomePage({
         <Reveal as="section" id="waitlist" className="fp-band mt-20 scroll-mt-8">
           <h2 className="fp-h2">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
-            Join the waitlist — the first 20 owners in our launch city get health verification{' '}
+            Join the waitlist. The first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
           </p>
           <div className="mt-7 grid gap-6 sm:max-w-md sm:grid-cols-2">
@@ -297,7 +297,7 @@ export default async function HomePage({
         <Reveal as="section" className="fp-band-deep mt-16">
           <h2 className="fp-h2">Still deciding?</h2>
           <p className="mt-2 text-ink-soft">
-            {RESPONSE_TIME.sentence} Ask us anything before you sign up — a real person answers.
+            {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person answers.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/contact" className="fp-btn">
@@ -310,7 +310,7 @@ export default async function HomePage({
           <div className="mt-6">
             <ShareButtons
               url={SITE_URL}
-              title="Forming Paws — health-verified breeding matches for dog owners"
+              title="Forming Paws: health-verified breeding matches for dog owners"
             />
           </div>
         </Reveal>

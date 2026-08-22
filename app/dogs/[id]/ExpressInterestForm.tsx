@@ -30,7 +30,7 @@ export default function ExpressInterestForm({
         <a href="/home" className="font-semibold text-brand underline">
           Upload them from your dashboard
         </a>
-        {' '}— verification is free for Founding Members.
+        . Verification is free for Founding Members.
       </p>
     )
   }
