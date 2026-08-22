@@ -502,3 +502,223 @@
     box-shadow: none !important;
   }
 }
+
+/*
+ * The splash.
+ *
+ * Full-bleed, one viewport tall, and the only thing above the fold. It breaks
+ * out of .fp-shell deliberately — the scene has to reach the window edges or it
+ * reads as a large picture on a page rather than as the page itself.
+ *
+ * svh rather than vh. On mobile Safari `vh` measures the *expanded* viewport,
+ * so a 100vh section pushes its own scroll cue underneath the browser chrome —
+ * hiding the one affordance that tells a first-time visitor there is anything
+ * below the fold.
+ */
+.fp-splash {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100svh - 5.5rem);
+}
+
+@supports not (min-height: 100svh) {
+  .fp-splash {
+    min-height: calc(100vh - 5.5rem);
+  }
+}
+
+.fp-splash-inner {
+  position: relative;
+  z-index: 3;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 1.5rem 6.5rem;
+}
+
+/*
+ * The glass card.
+ *
+ * The blur is load-bearing, not decoration: the scene behind it is a moving
+ * camera over shifting greens, so a fixed scrim either greys the artwork out or
+ * fails to protect the headline somewhere in the travel. Blurring what is
+ * actually behind the text solves both, and keeps the landscape readable.
+ *
+ * Where backdrop-filter is unsupported the background steps up to near-opaque,
+ * because a 55% panel over an unblurred landscape is not legible.
+ */
+.fp-splash-card {
+  max-width: 46rem;
+  padding: 2rem;
+  border-radius: 1.75rem;
+  border: 1px solid rgba(251, 247, 240, 0.55);
+  background: rgba(251, 247, 240, 0.94);
+  box-shadow: 0 24px 60px -32px rgba(38, 34, 28, 0.45);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .fp-splash-card {
+    background: rgba(251, 247, 240, 0.62);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
+  }
+}
+
+@media (min-width: 640px) {
+  .fp-splash-card {
+    padding: 2.75rem 3rem;
+  }
+}
+
+/*
+ * Sage's stage.
+ *
+ * The perspective lives here and the mascot sits forward of it, so a rotation
+ * of the stage swings Sage further across the screen than the ridges behind
+ * him. That difference in travel is the whole pop-out — the browser derives it
+ * from the projection rather than us faking it with scale.
+ */
+.fp-sage-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  perspective: 1400px;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .fp-sage-stage {
+    position: absolute;
+    right: 9vw;
+    bottom: 30%;
+    margin-bottom: 0;
+  }
+}
+
+.fp-sage-plane {
+  position: relative;
+  transform: translate3d(0, var(--fp-sage-y, 0px), 120px)
+    rotateX(var(--fp-sage-rx, 0deg)) rotateY(var(--fp-sage-ry, 0deg));
+  opacity: var(--fp-sage-fade, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.fp-sage-mark {
+  position: relative;
+  z-index: 1;
+  width: clamp(10rem, 27vmin, 21rem);
+  height: auto;
+  filter: drop-shadow(0 22px 34px rgba(38, 34, 28, 0.26));
+}
+
+
+
+/* The way down. A real link, so it works from the keyboard. */
+.fp-splash-cue {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 1.75rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(38, 34, 28, 0.12);
+  background: rgba(251, 247, 240, 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #26221c;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 200ms ease-out;
+}
+
+.fp-splash-cue:hover {
+  background: rgba(251, 247, 240, 0.92);
+}
+
+.fp-splash-cue:focus-visible {
+  outline: 2px solid #2f6b5c;
+  outline-offset: 3px;
+}
+
+.fp-splash-cue svg {
+  animation: fp-cue-bob 2.4s ease-in-out infinite;
+}
+
+@keyframes fp-cue-bob {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/*
+ * Placed AFTER every base .fp-splash rule on purpose. A media query adds no
+ * specificity, so source order decides — while this block sat above them the
+ * cue kept its `position: absolute` and landed under the fixed join bar no
+ * matter how much content was trimmed to make room.
+ */
+@media (max-width: 767px) {
+  /*
+   * Tighter everywhere: the card plus a 44px three-line headline plus the
+   * mascot has to clear one phone viewport, and it did not.
+   *
+   * The extra 3.75rem is the mobile-only sticky join bar, which is fixed to the
+   * bottom of the window and was sitting on top of the secondary CTA and the
+   * scroll cue — the two things a first-time visitor needs most.
+   */
+  .fp-splash {
+    min-height: calc(100svh - 5.5rem - 3.75rem);
+  }
+  /*
+   * In flow on a phone, not pinned. The splash can exceed the viewport once the
+   * card wraps to four lines, and an absolutely-positioned cue then lands
+   * wherever the splash happens to end — which twice was underneath the fixed
+   * join bar. In flow it simply follows the card and cannot collide.
+   */
+  .fp-splash-cue {
+    position: static;
+    align-self: center;
+    margin-top: 1.5rem;
+    transform: none;
+  }
+  .fp-splash-inner {
+    padding-bottom: 3rem;
+  }
+  .fp-splash-card {
+    padding: 1.25rem 1.25rem 1.375rem;
+  }
+  .fp-sage-mark {
+    width: clamp(5rem, 21vw, 6.5rem);
+  }
+  .fp-sage-stage {
+    margin-bottom: 0.75rem;
+  }
+  .fp-splash-cue {
+    margin-top: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-splash-cue svg {
+    animation: none !important;
+  }
+  .fp-sage-plane {
+    transform: translate3d(0, 0, 120px) !important;
+    opacity: 1 !important;
+  }
+}
