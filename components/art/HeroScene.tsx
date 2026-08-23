@@ -1,8 +1,8 @@
-import { getImageProps } from "next/image";
-import heroSky from "@/assets/art/hero-sky.jpg";
-import heroSkyPortrait from "@/assets/art/hero-sky-portrait.jpg";
-import HeroParallax from "@/components/motion/HeroParallax";
-import MeadowCanvas from "@/components/art/webgl/MeadowCanvas";
+import { getImageProps } from 'next/image'
+import heroSky from '@/assets/art/hero-sky.jpg'
+import heroSkyPortrait from '@/assets/art/hero-sky-portrait.jpg'
+import HeroParallax from '@/components/motion/HeroParallax'
+import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
 
 /**
  * The layered backdrop behind the landing hero.
@@ -61,23 +61,17 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
    * below — the preloads carrying the same `media` as the sources, mutually
    * exclusive so exactly one of them is ever fetched.
    */
-  const sizes = bleed ? "100vw" : "(max-width: 1200px) 100vw, 1270px";
-  const common = {
-    alt: "",
-    fill: true,
-    priority: true,
-    sizes,
-    placeholder: "blur" as const,
-  };
-  const { props: wide } = getImageProps({ ...common, src: heroSky });
-  const { props: tall } = getImageProps({ ...common, src: heroSkyPortrait });
+  const sizes = bleed ? '100vw' : '(max-width: 1200px) 100vw, 1270px'
+  const common = { alt: '', fill: true, priority: true, sizes, placeholder: 'blur' as const }
+  const { props: wide } = getImageProps({ ...common, src: heroSky })
+  const { props: tall } = getImageProps({ ...common, src: heroSkyPortrait })
 
   return (
     <>
       {/*
-        Hoisted to <head> by React. `media` is what <Image priority> could not
-        express: a preload without it fetches on every device, which for two
-        art-directed sources means downloading both.
+        Hoisted by React. `media` is what <Image priority> could not express: a
+        preload without it fetches on every device, which for two art-directed
+        sources means downloading both.
       */}
       {bleed && (
         <link
@@ -92,7 +86,7 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
       <link
         rel="preload"
         as="image"
-        media={bleed ? "not all and (max-aspect-ratio: 1/1)" : undefined}
+        media={bleed ? 'not all and (max-aspect-ratio: 1/1)' : undefined}
         imageSrcSet={wide.srcSet}
         imageSizes={wide.sizes}
         fetchPriority="high"
@@ -101,58 +95,49 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
         data-fp-hero=""
         aria-hidden="true"
         className={`pointer-events-none absolute inset-0 overflow-hidden bg-ivory ${
-          bleed ? "" : "rounded-3xl"
+          bleed ? '' : 'rounded-3xl'
         }`}
       >
         {/* Plane 1 — the generated sky. The only priority image on the site: it is
-          the largest element in the viewport on load and therefore the LCP
-          candidate. Every other image on every other page lazy-loads.
+            the largest element in the viewport on load and therefore the LCP
+            candidate. Every other image on every other page lazy-loads.
 
-          Scaled slightly past the frame so its own downward travel never
-          uncovers the top edge. */}
+            Scaled slightly past the frame so its own downward travel never
+            uncovers the top edge. */}
         <div className="fp-plane fp-plane-sky absolute inset-0">
           <picture>
             {/* Only the full-bleed splash is tall enough to want the portrait
-              source; the constrained usage is a wide card and takes the
-              panorama at every width. */}
+                source; the constrained usage is a wide card and takes the
+                panorama at every width. */}
             {bleed && (
-              <source
-                media="(max-aspect-ratio: 1/1)"
-                srcSet={tall.srcSet}
-                sizes={tall.sizes}
-              />
+              <source media="(max-aspect-ratio: 1/1)" srcSet={tall.srcSet} sizes={tall.sizes} />
             )}
             <source srcSet={wide.srcSet} sizes={wide.sizes} />
             {/* alt is already in `wide`; repeated so the rule can see it through
-              the spread. Decorative — the whole scene is aria-hidden. */}
-            <img
-              {...wide}
-              alt=""
-              fetchPriority="high"
-              className="object-cover object-bottom"
-            />
+                the spread. Decorative — the whole scene is aria-hidden. */}
+            <img {...wide} alt="" fetchPriority="high" className="object-cover object-bottom" />
           </picture>
         </div>
 
         {/*
-        The 3D ridges. Layered here — over the sky, under the scrim — so it
-        occupies exactly the slot the SVG planes below occupy, and the scrim goes
-        on protecting the headline whichever one is showing.
+          The 3D ridges. Layered here — over the sky, under the scrim — so it
+          occupies exactly the slot the SVG planes below occupy, and the scrim goes
+          on protecting the headline whichever one is showing.
 
-        It renders nothing until it has a frame, and only then does CSS fade the
-        SVG ridges out. If it never starts, they simply stay.
-      */}
+          It renders nothing until it has a frame, and only then does CSS fade the
+          SVG ridges out. If it never starts, they simply stay.
+        */}
         <MeadowCanvas />
 
         {/*
-        The contrast guarantee, and it sits here — above the sky, below the
-        meadow — rather than on top of the whole stack. Scrimming the SVG planes
-        too was the first version, and it desaturated the greens into a grey fog
-        that read as a rendering fault instead of a landscape.
+          The contrast guarantee, and it sits here — above the sky, below the
+          meadow — rather than on top of the whole stack. Scrimming the SVG planes
+          too was the first version, and it desaturated the greens into a grey fog
+          that read as a rendering fault instead of a landscape.
 
-        Deliberately not parallaxed: the scrim protects text, and text does not
-        move, so neither does it.
-      */}
+          Deliberately not parallaxed: the scrim protects text, and text does not
+          move, so neither does it.
+        */}
         <div className="absolute inset-0 bg-ivory/25 md:bg-gradient-to-r md:from-ivory/65 md:via-ivory/20 md:to-transparent" />
 
         {/* Plane 2 — midground hills. */}
@@ -184,5 +169,5 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
         <HeroParallax />
       </div>
     </>
-  );
+  )
 }
