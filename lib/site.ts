@@ -10,7 +10,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://theplugai.x
 export const SITE_NAME = 'Forming Paws'
 
 export const SITE_DESCRIPTION =
-  'Forming Paws connects dog owners nearby for safe, health-documented breeding matches — with veterinary verification at the centre of everything.'
+  'Forming Paws connects dog owners nearby for safe, health-documented breeding matches, with veterinary verification at the centre of everything.'
 
 /** Where privacy and data questions go. */
 export const CONTACT_EMAIL = 'founder@theplugai.info'

@@ -140,7 +140,7 @@ export default function LoginForm({
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border p-2"
+          className="border border-hairline p-2"
         />
         <label htmlFor="login-password" className="sr-only">
           Password
@@ -154,9 +154,9 @@ export default function LoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border p-2"
+          className="border border-hairline p-2"
         />
-        <button type="submit" className="bg-brand text-white p-2 rounded">
+        <button type="submit" className="fp-btn">
           Log in
         </button>
       </form>
@@ -189,12 +189,12 @@ export default function LoginForm({
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="Your email"
-                  className="border p-2 flex-1"
+                  className="border border-hairline p-2 flex-1"
                 />
                 <button
                   onClick={handleReset}
                   disabled={!resetEmail || resetState === 'sending'}
-                  className="border px-3 rounded disabled:opacity-50"
+                  className="border border-hairline px-3 rounded disabled:opacity-50"
                 >
                   {resetState === 'sending' ? 'Sending…' : 'Send link'}
                 </button>
@@ -212,7 +212,7 @@ export default function LoginForm({
         NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true once the provider is configured.
       */}
       {process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' && (
-        <button onClick={handleGoogleLogin} className="mt-4 border p-2 rounded w-full">
+        <button onClick={handleGoogleLogin} className="mt-4 border border-hairline p-2 rounded w-full">
           Continue with Google
         </button>
       )}
@@ -235,12 +235,12 @@ export default function LoginForm({
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
                   placeholder="Your email"
-                  className="border p-2 flex-1"
+                  className="border border-hairline p-2 flex-1"
                 />
                 <button
                   onClick={handleResend}
                   disabled={!resendEmail || resendState === 'sending'}
-                  className="border px-3 rounded disabled:opacity-50"
+                  className="border border-hairline px-3 rounded disabled:opacity-50"
                 >
                   {resendState === 'sending' ? 'Sending…' : 'Send'}
                 </button>

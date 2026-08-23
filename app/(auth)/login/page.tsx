@@ -17,7 +17,7 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto max-w-sm p-8">
-      <h1 className="text-2xl font-bold">Log in</h1>
+      <h1 className="fp-h2">Log in</h1>
       <LoginForm
         error={params.error ?? null}
         offerResend={params.resend === '1'}

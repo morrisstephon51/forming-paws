@@ -103,7 +103,7 @@ export default function Thread({
             <li
               key={m.id}
               className={`max-w-[80%] rounded-lg border p-3 ${
-                mine ? 'self-end bg-brand text-white' : 'self-start bg-white'
+                mine ? 'self-end bg-brand text-ivory' : 'self-start bg-paper border border-hairline'
               }`}
             >
               <p className="text-xs opacity-70">{mine ? 'You' : theirDogName}</p>
@@ -111,11 +111,11 @@ export default function Thread({
             </li>
           )
         })}
-        {messages.length === 0 && <p className="text-ink-soft">No messages yet — say hello.</p>}
+        {messages.length === 0 && <p className="text-ink-soft">No messages yet. Say hello.</p>}
       </ul>
 
       {!canParticipate ? null : blocked ? (
-        <div className="mt-6 rounded border bg-ivory p-4 text-sm text-ink-soft">
+        <div className="mt-6 rounded border border-hairline bg-ivory p-4 text-sm text-ink-soft">
           <p>
             {blockedByMe
               ? 'You closed this conversation.'
@@ -128,7 +128,7 @@ export default function Thread({
               }}
               className="mt-3"
             >
-              <button type="submit" className="rounded border px-3 py-1.5 text-ink">
+              <button type="submit" className="rounded border border-hairline px-3 py-1.5 text-ink">
                 Reopen conversation
               </button>
             </form>
@@ -143,12 +143,12 @@ export default function Thread({
               onChange={(e) => setDraft(e.target.value)}
               maxLength={2000}
               placeholder={`Message ${theirDogName}'s owner`}
-              className="flex-1 rounded border p-2"
+              className="flex-1 rounded border border-hairline p-2"
             />
             <button
               type="submit"
               disabled={sending || draft.trim().length === 0}
-              className="rounded bg-brand px-4 py-2 text-white disabled:opacity-50"
+              className="fp-btn disabled:opacity-50"
             >
               {sending ? 'Sending…' : 'Send'}
             </button>

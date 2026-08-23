@@ -19,7 +19,7 @@ export default function LocationSettings({ currentLabel }: { currentLabel: strin
       <p className="text-sm text-ink-soft">
         {currentLabel
           ? `Currently set to ${currentLabel}.`
-          : 'Not set — browse still works without it, but we cannot show distances.'}
+          : 'Not set. Browse still works without it, but we cannot show distances.'}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <label htmlFor="city-label" className="sr-only">
@@ -30,7 +30,7 @@ export default function LocationSettings({ currentLabel }: { currentLabel: strin
           value={cityLabel}
           onChange={(e) => setCityLabel(e.target.value)}
           placeholder="Your city"
-          className="min-w-0 flex-1 rounded-lg border border-brand/25 bg-white p-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+          className="min-w-0 flex-1 rounded-lg border border-hairline border-hairline bg-wash p-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
         />
         <button onClick={share} disabled={isSaving} className="fp-btn px-4 py-2 text-sm">
           {isSaving ? 'Saving…' : 'Share location'}

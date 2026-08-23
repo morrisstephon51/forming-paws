@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
+import SectionDivider from '@/components/art/SectionDivider'
 import { absoluteUrl, pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -71,26 +72,35 @@ export default function AppTourPage() {
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">What you get after you join</h1>
+      <h1 className="mt-6 fp-h1">What you get after you join</h1>
       <p className="mt-4 text-ink-soft">
-        Forming Paws is a working web app, not a waiting list. This is what it does — and the four
+        Forming Paws is a working web app, not a waiting list. This is what it does, and the four
         rules that shape all of it.
       </p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
+        <Link href="/signup" className="fp-btn">
           Join free
         </Link>
-        <Link href="/faq" className="rounded border px-5 py-2 font-semibold">
+        <Link href="/faq" className="fp-btn-ghost">
           Read the FAQ
         </Link>
       </div>
 
-      <section className="mt-14">
+      {/*
+        The shot list originally put a full illustrated hero here. It got cut:
+        this page's whole job is to show sample dog cards, and an atmospheric
+        banner directly above them competed with the thing a visitor came to
+        look at. A divider gives the page the same visual rhythm as the rest of
+        the site without picking that fight.
+      */}
+      <SectionDivider className="mt-12" />
+
+      <section className="mt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-2xl font-bold">Browsing looks like this</h2>
-          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-800">
-            Example dogs — not real listings
+          <h2 className="fp-h2">Browsing looks like this</h2>
+          <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
+            Example dogs, not real listings
           </p>
         </div>
         <p className="mt-2 text-sm text-ink-soft">
@@ -98,11 +108,11 @@ export default function AppTourPage() {
           and only within the distance you choose.
         </p>
 
-        <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+        <ul className="fp-depth mt-6 grid gap-4 sm:grid-cols-3">
           {SAMPLE_DOGS.map((dog) => (
-            <li key={dog.name} className="rounded-lg border p-4">
+            <li key={dog.name} className="rounded-lg border border-hairline p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="font-semibold">{dog.name}</h3>
+                <h3 className="fp-h5">{dog.name}</h3>
                 {dog.verified ? (
                   <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">
                     ✓ Verified
@@ -124,28 +134,28 @@ export default function AppTourPage() {
       </section>
 
       <section className="mt-14">
-        <h2 className="text-2xl font-bold">The four rules behind it</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <h2 className="fp-h2">The four rules behind it</h2>
+        <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-2">
           {TOUR.map((item) => (
-            <div key={item.title} className="rounded-lg border p-5">
-              <h3 className="font-semibold">{item.title}</h3>
+            <div key={item.title} className="rounded-lg border border-hairline p-5">
+              <h3 className="fp-h5">{item.title}</h3>
               <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mt-14 rounded-lg border bg-ivory p-6">
-        <h2 className="text-xl font-bold">Set your dog up in a few minutes</h2>
+      <section className="mt-14 rounded-lg border border-hairline bg-ivory p-6">
+        <h2 className="fp-h4">Set your dog up in a few minutes</h2>
         <p className="mt-2 text-sm text-ink-soft">
           Joining is free. You can create the profile now and upload vet records whenever you have
           them to hand.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/signup" className="rounded bg-brand px-5 py-2 font-semibold text-white">
+          <Link href="/signup" className="fp-btn">
             Create your account
           </Link>
-          <Link href="/contact" className="rounded border px-5 py-2 font-semibold">
+          <Link href="/contact" className="fp-btn-ghost">
             Ask us something first
           </Link>
         </div>
@@ -154,7 +164,7 @@ export default function AppTourPage() {
       <div className="mt-10">
         <ShareButtons
           url={absoluteUrl('/app')}
-          title="Forming Paws — health-verified breeding matches for dog owners"
+          title="Forming Paws: health-verified breeding matches for dog owners"
         />
       </div>
 

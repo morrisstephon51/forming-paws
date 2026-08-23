@@ -41,10 +41,10 @@ export default async function ReactivatePage() {
     <div className="mx-auto max-w-xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-3xl font-bold">Your account is scheduled for deletion</h1>
+        <h1 className="fp-h1">Your account is scheduled for deletion</h1>
         <p className="mt-4 text-ink-soft">
           You asked us to delete your account, so your profile and dogs are hidden from Forming
-          Paws. Nothing is gone yet — we keep everything for {PURGE_GRACE_DAYS} days in case you
+          Paws. Nothing is gone yet. We keep everything for {PURGE_GRACE_DAYS} days in case you
           change your mind.
         </p>
 

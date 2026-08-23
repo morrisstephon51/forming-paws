@@ -2,6 +2,8 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { pageMetadata } from '@/lib/seo'
 import { SITE_NAME } from '@/lib/site'
+import BannerArt from '@/components/art/BannerArt'
+import neighbourhood from '@/assets/art/about-neighbourhood.jpg'
 
 export const metadata = pageMetadata({
   title: 'About us',
@@ -13,7 +15,7 @@ export const metadata = pageMetadata({
 const PRINCIPLES = [
   {
     title: 'Documentation before introduction',
-    body: 'Matching stays locked until a vet exam and vaccinations are verified by a person. Not an honour system, not a checkbox — a reviewer reads every document.',
+    body: 'Matching stays locked until a vet exam and vaccinations are verified by a person. Not an honour system, not a checkbox. A reviewer reads every document.',
   },
   {
     title: 'A path, not a rejection',
@@ -34,12 +36,14 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+        <p className="fp-eyebrow">
           Nonprofit · Chicago · Community-driven
         </p>
-        <h1 className="mt-3 text-4xl font-bold leading-tight">
+        <h1 className="mt-3 fp-h1">
           <span aria-hidden="true">🐾</span> Why {SITE_NAME} exists
         </h1>
+
+        <BannerArt priority src={neighbourhood} className="mt-8" />
 
         <div className="mt-6 flex flex-col gap-4 text-ink-soft">
           <p>
@@ -49,7 +53,7 @@ export default function AboutPage() {
             nothing built for them.
           </p>
           <p>
-            That gap is where preventable harm happens — not usually through cruelty, but through
+            That gap is where preventable harm happens, not usually through cruelty, but through
             two people meeting on a classifieds site with no documentation, no health screening, and
             no idea what to ask each other.
           </p>
@@ -61,13 +65,13 @@ export default function AboutPage() {
         </div>
 
         <section aria-labelledby="principles" className="mt-12">
-          <h2 id="principles" className="text-2xl font-bold">
+          <h2 id="principles" className="fp-h2">
             What we hold to
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {PRINCIPLES.map((p) => (
               <div key={p.title} className="fp-card">
-                <h3 className="font-semibold text-ink">{p.title}</h3>
+                <h3 className="text-ink fp-h5">{p.title}</h3>
                 <p className="mt-2 text-sm text-ink-soft">{p.body}</p>
               </div>
             ))}
@@ -75,7 +79,7 @@ export default function AboutPage() {
         </section>
 
         <section aria-labelledby="structure" className="mt-12">
-          <h2 id="structure" className="text-2xl font-bold">
+          <h2 id="structure" className="fp-h2">
             Where we actually are
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -104,7 +108,7 @@ export default function AboutPage() {
         </section>
 
         <section aria-labelledby="help" className="fp-band mt-12">
-          <h2 id="help" className="text-2xl font-bold">
+          <h2 id="help" className="fp-h2">
             The most useful thing you can do
           </h2>
           <p className="mt-2 text-ink-soft">

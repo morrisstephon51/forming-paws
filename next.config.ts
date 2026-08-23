@@ -1,6 +1,24 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  /*
+   * AVIF first, WebP second, original last.
+   *
+   * Next's default is WebP alone, so the AVIF half of this project's imagery
+   * budget was never actually being served — the hero was shipping WebP to
+   * browsers that would have taken a file roughly a third smaller. The list is
+   * ordered by preference and negotiated against the request's Accept header,
+   * so anything that cannot decode AVIF still gets WebP, and anything that
+   * cannot decode either still gets the JPEG.
+   *
+   * The cost is encode time on the first request for each size, which AVIF
+   * pays more of than WebP. It is paid once per image per width and then
+   * cached, and it is a build-server cost rather than a visitor's.
+   */
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
+
   async redirects() {
     // theplugai.xyz used to be GitHub Pages serving flat .html files. Those URLs
     // are printed on flyers, sit in QR codes, and are in members' inboxes, so

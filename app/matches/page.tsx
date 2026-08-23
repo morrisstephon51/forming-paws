@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { threadSummaries } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
+import SageNote from '@/components/mascot/SageNote'
 
 export const metadata = pageMetadata({
   title: 'Your matches',
@@ -54,11 +55,11 @@ export default async function MatchesPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
       <main className="mt-6">
-      <h1 className="text-2xl font-bold">Your matches</h1>
+      <h1 className="fp-h2">Your matches</h1>
       <p className="mt-2 text-sm text-ink-soft">
-        Matches are introductions only — Forming Paws is not a party to any breeding arrangement.
+        Matches are introductions only. Forming Paws is not a party to any breeding arrangement.
       </p>
-      <ul className="mt-6 flex flex-col gap-3">
+      <ul className="fp-depth mt-6 flex flex-col gap-3">
         {matches?.map((m) => {
           const mineId = myDogIds.has(m.dog_a_id) ? m.dog_a_id : m.dog_b_id
           const theirsId = myDogIds.has(m.dog_a_id) ? m.dog_b_id : m.dog_a_id
@@ -66,13 +67,13 @@ export default async function MatchesPage() {
           const preview = lastByMatch.get(m.id)
           return (
             <li key={m.id}>
-              <Link href={`/matches/${m.id}`} className="block rounded border p-4 hover:bg-brand-soft">
+              <Link href={`/matches/${m.id}`} className="block rounded-xl border border-hairline p-4 hover:bg-brand-soft">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">
                     {nameById.get(mineId) ?? 'Your dog'} ↔ {nameById.get(theirsId) ?? 'Their dog'}
                   </p>
                   {count > 0 && (
-                    <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white">
+                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent-dark">
                       {count}
                     </span>
                   )}
@@ -84,7 +85,14 @@ export default async function MatchesPage() {
             </li>
           )
         })}
-        {matches?.length === 0 && <p className="text-ink-soft">No matches yet.</p>}
+        {matches?.length === 0 && (
+          <li className="col-span-full">
+            <SageNote mood="thinking" title="No matches yet">
+              Express interest in a dog from Browse. When it&apos;s mutual, the conversation
+              unlocks and appears here.
+            </SageNote>
+          </li>
+        )}
       </ul>
       </main>
     </div>

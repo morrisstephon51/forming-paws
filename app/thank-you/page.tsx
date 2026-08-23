@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import Sage from '@/components/mascot/Sage'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
 import ResendConfirmation from './ResendConfirmation'
@@ -24,7 +25,7 @@ export const metadata = pageMetadata({
 const VARIANTS = {
   waitlist: {
     heading: "You're on the list",
-    body: "We'll email you the moment Forming Paws opens in your area. Founding members — the first 20 owners in our launch city — get health verification free for life.",
+    body: "We'll email you the moment Forming Paws opens in your area. Founding members, the first 20 owners in our launch city, get health verification free for life.",
     next: [
       { href: '/signup', label: 'Create your account now', primary: true },
       { href: '/app', label: 'See what the app looks like' },
@@ -33,12 +34,12 @@ const VARIANTS = {
   },
   signup: {
     heading: 'Check your email',
-    body: "We've sent you a confirmation link. Open it and your account is ready — it works once, and expires after an hour.",
+    body: "We've sent you a confirmation link. Open it and your account is ready. It works once, and expires after an hour.",
     next: [
       { href: '/faq', label: 'Read the FAQ while you wait' },
       { href: '/', label: 'Back to the home page' },
     ],
-    note: 'Open the link on this device if you can. If your email app opens it in its own browser, it still works — it just has one more step.',
+    note: 'Open the link on this device if you can. If your email app opens it in its own browser, it still works. It just has one more step.',
   },
   contact: {
     heading: 'Message received',
@@ -73,12 +74,13 @@ export default async function ThankYouPage({
 
       <main>
 
-      <h1 className="mt-6 text-3xl font-bold">{copy.heading}</h1>
+      <Sage mood="celebrating" size={104} className="mt-6" />
+      <h1 className="mt-5 fp-h1">{copy.heading}</h1>
       <p className="mt-4 text-ink-soft">
         {variant === 'signup' && email ? (
           <>
             We&apos;ve sent a confirmation link to <span className="font-medium">{email}</span>. Open
-            it and your account is ready — it works once, and expires after an hour.
+            it and your account is ready. It works once, and expires after an hour.
           </>
         ) : (
           copy.body
@@ -94,8 +96,8 @@ export default async function ThankYouPage({
             href={link.href}
             className={
               'primary' in link && link.primary
-                ? 'rounded bg-brand px-5 py-2 font-semibold text-white'
-                : 'rounded border px-5 py-2 font-semibold'
+                ? 'fp-btn'
+                : 'fp-btn-ghost'
             }
           >
             {link.label}
@@ -112,7 +114,7 @@ export default async function ThankYouPage({
           </p>
           <ShareButtons
             url={absoluteUrl('/')}
-            title="Forming Paws — health-verified breeding matches for dog owners"
+            title="Forming Paws: health-verified breeding matches for dog owners"
           />
         </div>
       )}

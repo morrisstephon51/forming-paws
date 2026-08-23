@@ -39,14 +39,14 @@ export default async function ReportsPage() {
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      <h1 className="text-2xl font-bold">Reported conversations</h1>
+      <h1 className="fp-h2">Reported conversations</h1>
       <p className="mt-2 text-sm text-ink-soft">
         You can read a reported conversation while its report is open or being reviewed. Resolving or
-        dismissing it ends that access — that limit is enforced by the database, not by this page.
+        dismissing it ends that access. That limit is enforced by the database, not by this page.
       </p>
       <ul className="mt-6 flex flex-col gap-4">
         {reports?.map((r) => (
-          <li key={r.id} className="rounded border p-4">
+          <li key={r.id} className="rounded border border-hairline p-4">
             <p className="font-medium">{REASON_LABELS[r.reason] ?? r.reason}</p>
             {r.detail && <p className="mt-1 text-sm text-ink-soft">{r.detail}</p>}
             <p className="mt-1 text-xs text-ink-soft">
@@ -66,7 +66,7 @@ export default async function ReportsPage() {
               }}
               className="mt-3 flex flex-wrap items-center gap-2"
             >
-              <select name="status" defaultValue="reviewing" className="rounded border p-1.5 text-sm">
+              <select name="status" defaultValue="reviewing" className="rounded border border-hairline p-1.5 text-sm">
                 <option value="reviewing">Reviewing</option>
                 <option value="resolved">Resolved</option>
                 <option value="dismissed">Dismissed</option>
@@ -74,9 +74,9 @@ export default async function ReportsPage() {
               <input
                 name="notes"
                 placeholder="Reviewer notes"
-                className="flex-1 rounded border p-1.5 text-sm"
+                className="flex-1 rounded border border-hairline p-1.5 text-sm"
               />
-              <button type="submit" className="rounded bg-brand px-3 py-1.5 text-sm text-white">
+              <button type="submit" className="fp-btn px-4 py-1.5 text-sm">
                 Save
               </button>
             </form>

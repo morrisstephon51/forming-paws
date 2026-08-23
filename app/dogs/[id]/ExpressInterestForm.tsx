@@ -30,7 +30,7 @@ export default function ExpressInterestForm({
         <a href="/home" className="font-semibold text-brand underline">
           Upload them from your dashboard
         </a>
-        {' '}— verification is free for Founding Members.
+        . Verification is free for Founding Members.
       </p>
     )
   }
@@ -62,7 +62,7 @@ export default function ExpressInterestForm({
       <select
         value={selectedDogId}
         onChange={(e) => setSelectedDogId(e.target.value)}
-        className="border p-2 text-sm"
+        className="fp-input text-sm"
       >
         {verifiedDogs.map((d) => (
           <option key={d.id} value={d.id}>
@@ -70,7 +70,7 @@ export default function ExpressInterestForm({
           </option>
         ))}
       </select>
-      <button onClick={handleSubmit} className="bg-brand text-white px-3 py-1 rounded text-sm">
+      <button onClick={handleSubmit} className="fp-btn px-4 py-1.5 text-sm">
         Express Interest
       </button>
       {error && <p className="text-sm text-red-600">{error}</p>}

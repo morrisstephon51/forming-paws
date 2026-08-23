@@ -4,6 +4,8 @@ import SiteFooter from '@/components/SiteFooter'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import { GUIDES, guideBySlug } from '@/lib/education'
 import { pageMetadata } from '@/lib/seo'
+import BannerArt from '@/components/art/BannerArt'
+import { guideArt } from '@/components/art/guideArt'
 
 /** Static params so each guide prerenders and is crawlable as its own URL. */
 export function generateStaticParams() {
@@ -27,6 +29,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const guide = guideBySlug(slug)
   if (!guide) notFound()
 
+  const art = guideArt(guide.slug)
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-4">
 
@@ -34,7 +38,9 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         {/* Breadcrumbs prepends Home itself, and leaves the last crumb unlinked. */}
         <Breadcrumbs trail={[{ label: 'Learn', href: '/education' }, { label: guide.title }]} />
 
-        <h1 className="mt-4 text-3xl font-bold leading-tight">{guide.title}</h1>
+        {art && <BannerArt priority src={art} className="mt-4" />}
+
+        <h1 className="mt-6 fp-h1">{guide.title}</h1>
         <p className="mt-2 text-sm text-ink-soft">{guide.readingMinutes} min read</p>
         <p className="mt-4 text-ink-soft">{guide.summary}</p>
 
@@ -46,7 +52,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         <article className="mt-8 flex flex-col gap-8">
           {guide.sections.map((section) => (
             <section key={section.heading}>
-              <h2 className="text-xl font-bold">{section.heading}</h2>
+              <h2 className="fp-h4">{section.heading}</h2>
               <div className="mt-3 flex flex-col gap-3 text-ink-soft">
                 {section.body.map((para, i) => (
                   <p key={i}>{para}</p>
@@ -57,7 +63,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         </article>
 
         <nav aria-label="More guides" className="fp-band mt-12">
-          <h2 className="text-xl font-bold">Keep reading</h2>
+          <h2 className="fp-h4">Keep reading</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {GUIDES.filter((g) => g.slug !== guide.slug).map((g) => (
               <li key={g.slug}>

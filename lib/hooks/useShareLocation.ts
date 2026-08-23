@@ -24,7 +24,7 @@ export function useShareLocation() {
           .catch((err) => setError(err instanceof Error ? err.message : 'Failed to save location'))
           .finally(() => setIsSaving(false))
       },
-      () => setError('Location permission denied — distance sorting will be unavailable')
+      () => setError('Location permission denied. Distance sorting will be unavailable')
     )
   }
 

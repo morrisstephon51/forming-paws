@@ -47,14 +47,14 @@ export default function DonatePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="text-4xl font-bold leading-tight">
+        <h1 className="fp-h1">
           <span aria-hidden="true">❤️</span> Support {SITE_NAME}
         </h1>
 
         {/*
           No donate button, deliberately.
           Soliciting donations while implying tax-deductible status you do not
-          hold is a real legal problem, not a technicality — and taking money
+          hold is a real legal problem, not a technicality. Taking money
           with no processor and no fiscal sponsor in place would mean holding
           funds we cannot properly account for. The page says so instead.
         */}
@@ -63,7 +63,7 @@ export default function DonatePage() {
           <p className="mt-2 text-sm text-ink-soft">
             {SITE_NAME} is being built as a nonprofit but is <strong>not an IRS-approved
             501(c)(3)</strong>. Until that comes through or a fiscal sponsor is in place, we cannot
-            offer tax-deductible receipts — and we would rather have no donate button than one that
+            offer tax-deductible receipts, and we would rather have no donate button than one that
             implies otherwise.
           </p>
           <p className="mt-2 text-sm text-ink-soft">
@@ -72,19 +72,19 @@ export default function DonatePage() {
         </div>
 
         <section aria-labelledby="instead" className="mt-12">
-          <h2 id="instead" className="text-2xl font-bold">
+          <h2 id="instead" className="fp-h2">
             What actually helps right now
           </h2>
           <p className="mt-2 text-ink-soft">
             All of these are worth more to the project today than a small donation would be.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-2">
             {WAYS_TO_HELP.map((way) => (
               <div key={way.title} className="fp-card flex flex-col">
                 <span aria-hidden="true" className="text-2xl">
                   {way.icon}
                 </span>
-                <h3 className="mt-3 font-semibold text-ink">{way.title}</h3>
+                <h3 className="mt-3 text-ink fp-h5">{way.title}</h3>
                 <p className="mt-2 flex-1 text-sm text-ink-soft">{way.body}</p>
                 <Link href={way.href} className="fp-btn-ghost mt-4 self-start px-4 py-2 text-sm">
                   {way.cta}
@@ -95,7 +95,7 @@ export default function DonatePage() {
         </section>
 
         <section aria-labelledby="funding" className="mt-12">
-          <h2 id="funding" className="text-2xl font-bold">
+          <h2 id="funding" className="fp-h2">
             How this is funded
           </h2>
           <div className="mt-4 flex flex-col gap-4 text-ink-soft">
@@ -105,18 +105,18 @@ export default function DonatePage() {
             </p>
             <p>
               The long-term plan involves grants, a verified-badge fee, and eventually vet-referral
-              partnerships — but none of that is in place today, and we are not going to describe
+              partnerships. None of that is in place today, and we are not going to describe
               plans as though they were income.
             </p>
           </div>
         </section>
 
         <section aria-labelledby="org" className="fp-band mt-12">
-          <h2 id="org" className="text-2xl font-bold">
+          <h2 id="org" className="fp-h2">
             Funder, grantmaker, or sponsor?
           </h2>
           <p className="mt-2 text-ink-soft">
-            If you work with early-stage nonprofits — particularly on fiscal sponsorship — that
+            If you work with early-stage nonprofits, particularly on fiscal sponsorship, that
             conversation would unblock the rest of this page. Email us directly.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -130,7 +130,7 @@ export default function DonatePage() {
           <div className="mt-6">
             <ShareButtons
               url={`${SITE_URL}/about`}
-              title="Forming Paws — health-verified breeding matches for dog owners"
+              title="Forming Paws: health-verified breeding matches for dog owners"
             />
           </div>
         </section>
