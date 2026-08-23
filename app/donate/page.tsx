@@ -54,7 +54,7 @@ export default function DonatePage() {
         {/*
           No donate button, deliberately.
           Soliciting donations while implying tax-deductible status you do not
-          hold is a real legal problem, not a technicality — and taking money
+          hold is a real legal problem, not a technicality. Taking money
           with no processor and no fiscal sponsor in place would mean holding
           funds we cannot properly account for. The page says so instead.
         */}
@@ -63,7 +63,7 @@ export default function DonatePage() {
           <p className="mt-2 text-sm text-ink-soft">
             {SITE_NAME} is being built as a nonprofit but is <strong>not an IRS-approved
             501(c)(3)</strong>. Until that comes through or a fiscal sponsor is in place, we cannot
-            offer tax-deductible receipts — and we would rather have no donate button than one that
+            offer tax-deductible receipts, and we would rather have no donate button than one that
             implies otherwise.
           </p>
           <p className="mt-2 text-sm text-ink-soft">
@@ -105,7 +105,7 @@ export default function DonatePage() {
             </p>
             <p>
               The long-term plan involves grants, a verified-badge fee, and eventually vet-referral
-              partnerships — but none of that is in place today, and we are not going to describe
+              partnerships. None of that is in place today, and we are not going to describe
               plans as though they were income.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function DonatePage() {
             Funder, grantmaker, or sponsor?
           </h2>
           <p className="mt-2 text-ink-soft">
-            If you work with early-stage nonprofits — particularly on fiscal sponsorship — that
+            If you work with early-stage nonprofits, particularly on fiscal sponsorship, that
             conversation would unblock the rest of this page. Email us directly.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -130,7 +130,7 @@ export default function DonatePage() {
           <div className="mt-6">
             <ShareButtons
               url={`${SITE_URL}/about`}
-              title="Forming Paws — health-verified breeding matches for dog owners"
+              title="Forming Paws: health-verified breeding matches for dog owners"
             />
           </div>
         </section>

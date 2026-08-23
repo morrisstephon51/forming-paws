@@ -74,7 +74,7 @@ export default function AppTourPage() {
 
       <h1 className="mt-6 fp-h1">What you get after you join</h1>
       <p className="mt-4 text-ink-soft">
-        Forming Paws is a working web app, not a waiting list. This is what it does — and the four
+        Forming Paws is a working web app, not a waiting list. This is what it does, and the four
         rules that shape all of it.
       </p>
 
@@ -100,7 +100,7 @@ export default function AppTourPage() {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="fp-h2">Browsing looks like this</h2>
           <p className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-amber-800 fp-eyebrow">
-            Example dogs — not real listings
+            Example dogs, not real listings
           </p>
         </div>
         <p className="mt-2 text-sm text-ink-soft">
@@ -164,7 +164,7 @@ export default function AppTourPage() {
       <div className="mt-10">
         <ShareButtons
           url={absoluteUrl('/app')}
-          title="Forming Paws — health-verified breeding matches for dog owners"
+          title="Forming Paws: health-verified breeding matches for dog owners"
         />
       </div>
 

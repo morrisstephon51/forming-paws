@@ -31,13 +31,19 @@
      * What the splash has to subtract from the viewport to be exactly one
      * screenful: the header above it, and the join bar fixed over the bottom.
      *
-     * These are measured, not guessed. The header is not a fixed height — it
-     * wraps from one row to two as the viewport narrows, at ~674px and ~466px,
-     * and those are content wraps rather than media queries, so they move if
-     * the nav copy changes. The splash previously hardcoded 5.5rem for the
-     * header at every width; on a phone the real height is 8.9375rem, and the
-     * 3.4375rem shortfall pushed the section's last child — the scroll cue —
-     * underneath the join bar on every screen 464px and narrower.
+     * These are measured, not guessed. The header is not a fixed height: it
+     * wraps from one row to two as the viewport narrows, at ~662px and ~474px,
+     * and those are content wraps rather than media queries, so they move when
+     * anything about the nav changes. They already have. Swapping Nunito for
+     * Public Sans shifted both points outward by roughly eight pixels, because
+     * the nav items set wider and run out of room sooner. The boundaries below
+     * are placed on the safe side of each measured transition, so an error
+     * reserves too much space rather than too little.
+     *
+     * The splash previously hardcoded 5.5rem for the header at every width; on
+     * a phone the real height is 8.9375rem, and the 3.4375rem shortfall pushed
+     * the section's last child, the scroll cue, underneath the join bar on
+     * every screen 464px and narrower.
      *
      * tests/splash-cue-clearance.spec.ts sweeps the widths and fails if these
      * drift out of date, because a wrap point is not something CSS can observe.
@@ -53,8 +59,8 @@
     }
   }
 
-  /* Header wraps to two rows. Measured 115px. */
-  @media (max-width: 675px) {
+  /* Header wraps to two rows. Measured 115px, transition at 660-664px. */
+  @media (max-width: 663px) {
     :root {
       --fp-header-h: 7.1875rem;
     }
@@ -67,8 +73,8 @@
     }
   }
 
-  /* Header wraps again — nav and brand stack. Measured 143px. */
-  @media (max-width: 467px) {
+  /* Header wraps again, nav and brand stack. Measured 143px, transition at 472-476px. */
+  @media (max-width: 475px) {
     :root {
       --fp-header-h: 8.9375rem;
     }
@@ -109,6 +115,14 @@
  * mix serif weights"). Below it 400 goes limp against body copy, so card and
  * list titles stay at 700 — the brand keeps its warmth where the text is small
  * and its composure where the text is large.
+ *
+ * The tracking ramp below is re-derived for Newsreader, not inherited. Fraunces
+ * is a display face with wide default sidebearings, so it wanted a lot pulled
+ * back at size — −0.028em at 76px. Newsreader is a reading face whose spacing is
+ * already close, and it carries an optical size axis that tightens the fit again
+ * on its own as the type grows. Keeping Fraunces' numbers on top of that would
+ * subtract twice and collide the letters at the top of the scale, so every value
+ * steps back roughly a quarter.
  */
 @layer components {
   .fp-display,
@@ -129,32 +143,32 @@
 
   .fp-display {
     font-size: clamp(2.75rem, 2.046rem + 3.005vw, 4.75rem); /* 44 → 76 */
-    letter-spacing: -0.028em;
-    line-height: 1.02;
+    letter-spacing: -0.021em;
+    line-height: 1.06;
   }
   .fp-h1 {
     font-size: clamp(2.375rem, 1.891rem + 2.066vw, 3.75rem); /* 38 → 60 */
-    letter-spacing: -0.022em;
-    line-height: 1.06;
+    letter-spacing: -0.017em;
+    line-height: 1.1;
   }
   .fp-h2 {
     font-size: clamp(1.875rem, 1.655rem + 0.939vw, 2.5rem); /* 30 → 40 */
-    letter-spacing: -0.016em;
-    line-height: 1.14;
+    letter-spacing: -0.012em;
+    line-height: 1.18;
   }
   .fp-h3 {
     font-size: clamp(1.375rem, 1.287rem + 0.376vw, 1.625rem); /* 22 → 26 */
-    letter-spacing: -0.008em;
-    line-height: 1.25;
+    letter-spacing: -0.006em;
+    line-height: 1.28;
   }
   .fp-h4 {
     font-size: 1.25rem; /* 20 */
-    letter-spacing: -0.004em;
+    letter-spacing: -0.003em;
     line-height: 1.35;
   }
   .fp-h5 {
     font-size: 1.0625rem; /* 17 */
-    letter-spacing: -0.002em;
+    letter-spacing: -0.001em;
     line-height: 1.4;
   }
 
@@ -174,7 +188,7 @@
     @apply font-body text-ink-soft;
     font-size: clamp(1.0625rem, 1.019rem + 0.188vw, 1.1875rem); /* 17 → 19 */
     line-height: 1.6;
-    letter-spacing: -0.005em;
+    letter-spacing: -0.002em;
   }
 }
 
@@ -825,18 +839,25 @@
 }
 
 /*
- * The narrow band — 320px to 374px, which is still an iPhone SE.
+ * The phone band, 320px to 430px.
  *
- * Here the two-row header and the join bar leave 628px, and the splash at the
- * spacing above wants 701px. The overflow is typographic: at 44px the headline
- * breaks to four lines and the lead to six, so the card alone is 559px.
+ * The two-row header and the join bar take 204px of an 844px screen between
+ * them, and what is left is not enough for the mascot, the card and the cue at
+ * the sizes used above. It was 374px until the type changed: Newsreader and
+ * Public Sans both set a little taller than the faces they replaced, which took
+ * the margin at 390px down to three pixels. Three pixels is not a margin, it is
+ * a coincidence waiting to be undone by a copy edit.
+ *
+ * Stepping the headline down here also fixes what it was doing at 390px, the
+ * most common phone width on the site: at 44px "Healthy matches. Happy litters."
+ * broke across three lines, with "Healthy" alone on the first. It sets as two.
  *
  * These overrides are scoped to the splash on purpose. .fp-display and .fp-lead
  * are design-system tokens used on every page; the problem is this one section
  * having to fit a fixed box, not the scale being wrong. Changing the tokens to
  * fix one section is how a type scale stops meaning anything.
  */
-@media (max-width: 374px) {
+@media (max-width: 430px) {
   .fp-splash-card .fp-display {
     font-size: 2.25rem; /* 36 — four lines at 44 is what overflows */
     line-height: 1.05;

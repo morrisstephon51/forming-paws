@@ -111,7 +111,7 @@ export default async function HomePage() {
 
           {dogsWithStatus.length === 0 && (
             <SageNote mood="thinking" title="No dogs yet" size={76}>
-              Add your first dog to start matching — it takes a few minutes, and health
+              Add your first dog to start matching. It takes a few minutes, and health
               verification begins as soon as the records are in.
             </SageNote>
           )}
