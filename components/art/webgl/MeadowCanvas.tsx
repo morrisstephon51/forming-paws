@@ -137,8 +137,9 @@ export default function MeadowCanvas() {
       // Reduced motion was read once at mount and then never again, so turning
       // it on with the page open left the rAF loop running — updateCamera() is
       // unconditional in frame(), so pointer lean and scroll parallax carried
-      // on regardless of the motes. The CSS backstop only hides the canvas when
-      // the preference is already set at load, which is the case this misses.
+      // on regardless of the motes. Nothing outside this file stops it either:
+      // the reduced-motion block in globals.css drops the fade *transitions* on
+      // the canvas and the ridges, and leaves the canvas itself running.
       const onPreference = () => {
         settle()
         // Holding still means showing the scene held still, not a stale buffer.

@@ -1,8 +1,8 @@
-import { getImageProps } from 'next/image'
-import heroSky from '@/assets/art/hero-sky.jpg'
-import heroSkyPortrait from '@/assets/art/hero-sky-portrait.jpg'
-import HeroParallax from '@/components/motion/HeroParallax'
-import MeadowCanvas from '@/components/art/webgl/MeadowCanvas'
+import { getImageProps } from "next/image";
+import heroSky from "@/assets/art/hero-sky.jpg";
+import heroSkyPortrait from "@/assets/art/hero-sky-portrait.jpg";
+import HeroParallax from "@/components/motion/HeroParallax";
+import MeadowCanvas from "@/components/art/webgl/MeadowCanvas";
 
 /**
  * The layered backdrop behind the landing hero.
@@ -53,42 +53,88 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
    * getImageProps + <picture> rather than two <Image>s because `priority` on
    * both would emit two preloads with no `media` between them, and every device
    * would fetch both. A <picture> the preload scanner can read picks one.
+   *
+   * The catch, and it cost this file an LCP regression before it was measured:
+   * getImageProps does NOT carry `priority` through. It returns neither
+   * fetchPriority nor the <head> preload that <Image priority> injects, so the
+   * hint that got LCP to 60ms quietly disappeared. Both are restored by hand
+   * below — the preloads carrying the same `media` as the sources, mutually
+   * exclusive so exactly one of them is ever fetched.
    */
-  const sizes = bleed ? '100vw' : '(max-width: 1200px) 100vw, 1270px'
-  const common = { alt: '', fill: true, priority: true, sizes, placeholder: 'blur' as const }
-  const { props: wide } = getImageProps({ ...common, src: heroSky })
-  const { props: tall } = getImageProps({ ...common, src: heroSkyPortrait })
+  const sizes = bleed ? "100vw" : "(max-width: 1200px) 100vw, 1270px";
+  const common = {
+    alt: "",
+    fill: true,
+    priority: true,
+    sizes,
+    placeholder: "blur" as const,
+  };
+  const { props: wide } = getImageProps({ ...common, src: heroSky });
+  const { props: tall } = getImageProps({ ...common, src: heroSkyPortrait });
 
   return (
-    <div
-      data-fp-hero=""
-      aria-hidden="true"
-      className={`pointer-events-none absolute inset-0 overflow-hidden bg-ivory ${
-        bleed ? '' : 'rounded-3xl'
-      }`}
-    >
-      {/* Plane 1 — the generated sky. The only priority image on the site: it is
+    <>
+      {/*
+        Hoisted to <head> by React. `media` is what <Image priority> could not
+        express: a preload without it fetches on every device, which for two
+        art-directed sources means downloading both.
+      */}
+      {bleed && (
+        <link
+          rel="preload"
+          as="image"
+          media="(max-aspect-ratio: 1/1)"
+          imageSrcSet={tall.srcSet}
+          imageSizes={tall.sizes}
+          fetchPriority="high"
+        />
+      )}
+      <link
+        rel="preload"
+        as="image"
+        media={bleed ? "not all and (max-aspect-ratio: 1/1)" : undefined}
+        imageSrcSet={wide.srcSet}
+        imageSizes={wide.sizes}
+        fetchPriority="high"
+      />
+      <div
+        data-fp-hero=""
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 overflow-hidden bg-ivory ${
+          bleed ? "" : "rounded-3xl"
+        }`}
+      >
+        {/* Plane 1 — the generated sky. The only priority image on the site: it is
           the largest element in the viewport on load and therefore the LCP
           candidate. Every other image on every other page lazy-loads.
 
           Scaled slightly past the frame so its own downward travel never
           uncovers the top edge. */}
-      <div className="fp-plane fp-plane-sky absolute inset-0">
-        <picture>
-          {/* Only the full-bleed splash is tall enough to want the portrait
+        <div className="fp-plane fp-plane-sky absolute inset-0">
+          <picture>
+            {/* Only the full-bleed splash is tall enough to want the portrait
               source; the constrained usage is a wide card and takes the
               panorama at every width. */}
-          {bleed && (
-            <source media="(max-aspect-ratio: 1/1)" srcSet={tall.srcSet} sizes={tall.sizes} />
-          )}
-          <source srcSet={wide.srcSet} sizes={wide.sizes} />
-          {/* alt is already in `wide`; repeated so the rule can see it through
+            {bleed && (
+              <source
+                media="(max-aspect-ratio: 1/1)"
+                srcSet={tall.srcSet}
+                sizes={tall.sizes}
+              />
+            )}
+            <source srcSet={wide.srcSet} sizes={wide.sizes} />
+            {/* alt is already in `wide`; repeated so the rule can see it through
               the spread. Decorative — the whole scene is aria-hidden. */}
-          <img {...wide} alt="" className="object-cover object-bottom" />
-        </picture>
-      </div>
+            <img
+              {...wide}
+              alt=""
+              fetchPriority="high"
+              className="object-cover object-bottom"
+            />
+          </picture>
+        </div>
 
-      {/*
+        {/*
         The 3D ridges. Layered here — over the sky, under the scrim — so it
         occupies exactly the slot the SVG planes below occupy, and the scrim goes
         on protecting the headline whichever one is showing.
@@ -96,9 +142,9 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
         It renders nothing until it has a frame, and only then does CSS fade the
         SVG ridges out. If it never starts, they simply stay.
       */}
-      <MeadowCanvas />
+        <MeadowCanvas />
 
-      {/*
+        {/*
         The contrast guarantee, and it sits here — above the sky, below the
         meadow — rather than on top of the whole stack. Scrimming the SVG planes
         too was the first version, and it desaturated the greens into a grey fog
@@ -107,35 +153,36 @@ export default function HeroScene({ bleed = false }: { bleed?: boolean }) {
         Deliberately not parallaxed: the scrim protects text, and text does not
         move, so neither does it.
       */}
-      <div className="absolute inset-0 bg-ivory/25 md:bg-gradient-to-r md:from-ivory/65 md:via-ivory/20 md:to-transparent" />
+        <div className="absolute inset-0 bg-ivory/25 md:bg-gradient-to-r md:from-ivory/65 md:via-ivory/20 md:to-transparent" />
 
-      {/* Plane 2 — midground hills. */}
-      <svg
-        className="fp-plane fp-plane-hills absolute inset-x-0 -bottom-10 h-[calc(30%+2.5rem)] w-full"
-        viewBox="0 0 1440 220"
-        preserveAspectRatio="none"
-        fill="none"
-      >
-        <path
-          d="M0 132 C 180 96, 320 150, 520 128 C 720 106, 860 158, 1060 134 C 1220 115, 1340 146, 1440 128 L1440 220 L0 220 Z"
-          fill="#2F6B5C"
-        />
-      </svg>
+        {/* Plane 2 — midground hills. */}
+        <svg
+          className="fp-plane fp-plane-hills absolute inset-x-0 -bottom-10 h-[calc(30%+2.5rem)] w-full"
+          viewBox="0 0 1440 220"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <path
+            d="M0 132 C 180 96, 320 150, 520 128 C 720 106, 860 158, 1060 134 C 1220 115, 1340 146, 1440 128 L1440 220 L0 220 Z"
+            fill="#2F6B5C"
+          />
+        </svg>
 
-      {/* Plane 3 — foreground meadow. */}
-      <svg
-        className="fp-plane fp-plane-meadow absolute inset-x-0 -bottom-14 h-[calc(16%+3.5rem)] w-full"
-        viewBox="0 0 1440 140"
-        preserveAspectRatio="none"
-        fill="none"
-      >
-        <path
-          d="M0 74 C 160 48, 300 92, 470 70 C 640 48, 780 96, 950 74 C 1120 52, 1300 88, 1440 66 L1440 140 L0 140 Z"
-          fill="#245448"
-        />
-      </svg>
+        {/* Plane 3 — foreground meadow. */}
+        <svg
+          className="fp-plane fp-plane-meadow absolute inset-x-0 -bottom-14 h-[calc(16%+3.5rem)] w-full"
+          viewBox="0 0 1440 140"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <path
+            d="M0 74 C 160 48, 300 92, 470 70 C 640 48, 780 96, 950 74 C 1120 52, 1300 88, 1440 66 L1440 140 L0 140 Z"
+            fill="#245448"
+          />
+        </svg>
 
-      <HeroParallax />
-    </div>
-  )
+        <HeroParallax />
+      </div>
+    </>
+  );
 }
