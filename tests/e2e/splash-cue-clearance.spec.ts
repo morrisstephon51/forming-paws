@@ -20,9 +20,9 @@ import { test, expect } from '@playwright/test'
  * where the wraps happen so a drift of a few pixels is caught at the boundary.
  */
 
-// Both header wrap points (~466, ~674) and the join bar breakpoint (639/640)
+// Both header wrap points (~474, ~662) and the join bar breakpoint (639/640)
 // are covered from both sides, plus the common phone widths in between.
-const WIDTHS = [320, 360, 375, 390, 414, 430, 464, 468, 480, 600, 639, 640, 675, 676, 768, 1280]
+const WIDTHS = [320, 360, 375, 390, 414, 430, 470, 476, 480, 600, 639, 640, 660, 664, 768, 1280]
 
 test.describe('splash scroll cue clears the sticky join bar', () => {
   for (const width of WIDTHS) {

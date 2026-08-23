@@ -39,7 +39,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         </div>
         {error.digest ? (
           <p className="mt-8 text-xs text-ink-soft">
-            Reference <code>{error.digest}</code> — quote this if you contact us.
+            Reference <code>{error.digest}</code>. Quote this if you contact us.
           </p>
         ) : null}
       </main>

@@ -111,7 +111,7 @@ export default function Thread({
             </li>
           )
         })}
-        {messages.length === 0 && <p className="text-ink-soft">No messages yet — say hello.</p>}
+        {messages.length === 0 && <p className="text-ink-soft">No messages yet. Say hello.</p>}
       </ul>
 
       {!canParticipate ? null : blocked ? (

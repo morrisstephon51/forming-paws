@@ -40,7 +40,7 @@ export default function WaitlistForm() {
         setState('already')
         return
       }
-      setError('Something went wrong — please try again in a minute.')
+      setError('Something went wrong. Please try again in a minute.')
       setState('idle')
       return
     }
@@ -51,7 +51,7 @@ export default function WaitlistForm() {
   if (state === 'already') {
     return (
       <p className="mt-6 font-medium text-green-700">
-        You&apos;re already on the waitlist — see you at launch! 🐾
+        You&apos;re already on the waitlist. See you at launch! 🐾
       </p>
     )
   }

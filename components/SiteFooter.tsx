@@ -16,7 +16,7 @@ export default function SiteFooter() {
       <p className="flex flex-wrap items-center gap-x-2">
         <Logo size="sm" />
         <span>
-          <strong className="text-ink">{SITE_NAME}</strong> — a nonprofit initiative for healthy,
+          <strong className="text-ink">{SITE_NAME}</strong> is a nonprofit initiative for healthy,
           responsible dog breeding.
         </span>
       </p>

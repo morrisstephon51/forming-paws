@@ -17,7 +17,7 @@ export const FAQS = [
   {
     question: 'What does "health verified" actually mean?',
     answer:
-      'You upload your vet records — wellness exam, vaccinations, and any breed-specific screening — to a private health vault. Our team reads them and verifies them by hand. Until that baseline is verified, matching stays locked. A green badge on a dog means real records that a person checked, not an honour system.',
+      'You upload your vet records to a private health vault: wellness exam, vaccinations, and any breed-specific screening. Our team reads them and verifies them by hand. Until that baseline is verified, matching stays locked. A green badge on a dog means real records that a person checked, not an honour system.',
   },
   {
     question: 'Will other owners see where I live?',

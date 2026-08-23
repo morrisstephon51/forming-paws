@@ -19,7 +19,7 @@ export default function ReportForm({ matchId }: { matchId: string }) {
   if (done) {
     return (
       <p className="mt-4 border-t pt-4 text-sm text-green-700">
-        Thank you — a reviewer will read this conversation and follow up.
+        Thank you. A reviewer will read this conversation and follow up.
       </p>
     )
   }

@@ -85,7 +85,7 @@ export async function requestEmailChange(
 
   return {
     ok: true,
-    message: `Check both inboxes. We sent a confirmation link to ${parsed.data} and to your current address — the change takes effect once both are confirmed.`,
+    message: `Check both inboxes. We sent a confirmation link to ${parsed.data} and to your current address. The change takes effect once both are confirmed.`,
   }
 }
 

@@ -39,7 +39,7 @@ export default function PrivacyPage() {
               <strong>Your location, if you share it:</strong> if you use the &ldquo;share my
               location&rdquo; feature, we store the coordinates your browser reports. We use them
               only to calculate distance. Other members are shown{' '}
-              <strong>an approximate distance in miles</strong> — never your coordinates, address, or
+              <strong>an approximate distance in miles</strong>, never your coordinates, address, or
               map position.
             </li>
             <li>
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
               whether it is health-verified, and roughly how far away it is.
             </li>
             <li>
-              <strong>Your veterinary documents are private.</strong> Other members never see them —
+              <strong>Your veterinary documents are private.</strong> Other members never see them,
               only whether verification passed.
             </li>
             <li>
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
           </p>
           <p className="mt-3">
             There is one exception. If either owner reports a conversation, a reviewer can read that
-            conversation while they look into the report — so that we can act on harassment, welfare
+            conversation while they look into the report, so that we can act on harassment, welfare
             concerns, or falsified documents. <strong>That access ends</strong> when the report is
             resolved or dismissed. This limit is enforced by our database, not by staff discipline.
           </p>

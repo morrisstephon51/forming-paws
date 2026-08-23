@@ -59,7 +59,7 @@ export default async function ReviewQueuePage({
         {docs.map((doc) => (
           <li key={doc.id} className="border border-hairline p-4 rounded">
             <p className="font-medium">
-              {doc.dogName ?? 'Unknown dog'} — {doc.doc_type} ({formatCalendarDate(doc.document_date)})
+              {doc.dogName ?? 'Unknown dog'} · {doc.doc_type} ({formatCalendarDate(doc.document_date)})
             </p>
             {doc.url ? (
               <a

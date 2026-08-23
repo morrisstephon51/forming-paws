@@ -41,7 +41,7 @@ export default function ContactForm() {
       // The message is still in the box, so nothing they wrote is lost — and the
       // fallback address is spelled out rather than hinted at.
       setError(
-        `We could not save that — please email ${CONTACT_EMAIL} instead, and your message stays in the box below so you can copy it.`
+        `We could not save that. Please email ${CONTACT_EMAIL} instead; your message stays in the box below so you can copy it.`
       )
       setSending(false)
       return

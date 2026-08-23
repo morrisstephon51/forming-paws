@@ -15,7 +15,7 @@ export const metadata = pageMetadata({
 const PRINCIPLES = [
   {
     title: 'Documentation before introduction',
-    body: 'Matching stays locked until a vet exam and vaccinations are verified by a person. Not an honour system, not a checkbox — a reviewer reads every document.',
+    body: 'Matching stays locked until a vet exam and vaccinations are verified by a person. Not an honour system, not a checkbox. A reviewer reads every document.',
   },
   {
     title: 'A path, not a rejection',
@@ -53,7 +53,7 @@ export default function AboutPage() {
             nothing built for them.
           </p>
           <p>
-            That gap is where preventable harm happens — not usually through cruelty, but through
+            That gap is where preventable harm happens, not usually through cruelty, but through
             two people meeting on a classifieds site with no documentation, no health screening, and
             no idea what to ask each other.
           </p>

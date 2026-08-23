@@ -21,7 +21,7 @@ export default function EducationPage() {
           <span aria-hidden="true">📚</span> Learn
         </h1>
         <p className="mt-4 text-ink-soft">
-          Short, practical guides for owners thinking about breeding responsibly — what paperwork is
+          Short, practical guides for owners thinking about breeding responsibly: what paperwork is
           needed, what to ask a professional, and how to handle the first meeting.
         </p>
 
@@ -34,7 +34,7 @@ export default function EducationPage() {
         */}
         <p className="fp-card mt-6 border-l-4 border-l-accent text-sm text-ink-soft">
           <strong className="text-ink">These are not veterinary advice.</strong> They cover process
-          and safety — paperwork, questions worth asking, meeting a stranger sensibly. Nothing here
+          and safety: paperwork, questions worth asking, meeting a stranger sensibly. Nothing here
           has been written or reviewed by a veterinarian, and none of it is a substitute for one.
         </p>
 
@@ -60,7 +60,7 @@ export default function EducationPage() {
             More is coming
           </h2>
           <p className="mt-2 text-ink-soft">
-            This hub grows as the vet partner network does — guides we can put a veterinarian&apos;s
+            This hub grows as the vet partner network does. Guides we can put a veterinarian&apos;s
             name to will say so. Until then we would rather publish three honest pages than thirty
             padded ones.
           </p>

@@ -1,4 +1,4 @@
-# Forming Paws — Design System
+# Forming Paws Design System
 
 Adapted 2026-08-21 from three systems on [styles.refero.design](https://styles.refero.design),
 chosen for already sharing this brand's warmth rather than for looking current:
@@ -9,9 +9,20 @@ chosen for already sharing this brand's warmth rather than for looking current:
 | [Function](https://styles.refero.design/style/21b71be3-78a0-4681-a5b9-64cc4b40eb67) | Warm apothecary journal | Never-pure-white rule, accent-as-seal discipline, pill buttons |
 | [Steep](https://styles.refero.design/style/75fdb89f-ca64-41b3-af36-7a78bd09448e) | Serif analytics on warm paper | Display scale, size-scaled negative tracking, flat cards |
 
-**The palette and both typefaces are unchanged.** Fraunces and Nunito, the green,
-the terracotta and the ivory are all exactly what they were. What changed is how
-they are used.
+**The palette is unchanged.** The green, the terracotta and the ivory are exactly
+what they were.
+
+**The typefaces changed on 2026-08-22**, from Fraunces and Nunito to **Newsreader**
+and **Public Sans**. The reasoning is in the brief the change was made against:
+this site's job is to be believed about veterinary documentation, and it was set
+in a warm display serif on cream with a terracotta accent, which is the same
+costume most new consumer products are wearing. Newsreader is a reading face with
+a real optical size axis, and Public Sans is the typeface of the US federal
+design system. Together they read as a record rather than a listing.
+
+Both are requested as variable faces so `opsz` actually reaches the browser.
+Naming weights, as the old setup did, makes next/font drop every axis except
+`wght`, which had quietly made Fraunces' own optical sizing inert.
 
 The three sources independently agree on four rules this site was breaking. Where
 three unrelated teams converge, it is a rule rather than one team's taste:
@@ -62,16 +73,28 @@ a `vw`-only clamp ignores browser text-resize and fails WCAG 1.4.4.
 
 | Class | Size (375 → 1440) | Weight | Tracking |
 |---|---|---|---|
-| `.fp-display` | 44 → 76px | 400 | −0.028em |
-| `.fp-h1` | 38 → 60px | 400 | −0.022em |
-| `.fp-h2` | 30 → 40px | 400 | −0.016em |
-| `.fp-h3` | 22 → 26px | 400 | −0.008em |
-| `.fp-h4` | 20px | **700** | −0.004em |
-| `.fp-h5` | 17px | **700** | −0.002em |
+| `.fp-display` | 44 → 76px | 400 | −0.021em |
+| `.fp-h1` | 38 → 60px | 400 | −0.017em |
+| `.fp-h2` | 30 → 40px | 400 | −0.012em |
+| `.fp-h3` | 22 → 26px | 400 | −0.006em |
+| `.fp-h4` | 20px | **700** | −0.003em |
+| `.fp-h5` | 17px | **700** | −0.001em |
 | `.fp-eyebrow` | 11px | 700 | +0.10em, uppercase |
-| `.fp-lead` | 17 → 19px | 400 | −0.005em |
+| `.fp-lead` | 17 → 19px | 400 | −0.002em |
 
-**Weight splits at 24px.** Above it the serif runs at 400 — the rule the sources
+**The tracking ramp was re-derived for Newsreader, not carried over.** Fraunces is
+a display face with wide sidebearings, so it wanted a lot pulled back at size.
+Newsreader is a reading face whose spacing is already close, and its optical size
+axis tightens the fit again on its own as the type grows. Keeping Fraunces'
+numbers on top of that subtracts twice. Every value stepped back about a quarter,
+and the line-heights opened a little to match.
+
+**The splash overrides this scale below 430px**, and only the splash. That section
+has to fit one screenful minus a two-row header and the join bar, and the tokens
+are not wrong just because one section is constrained. See the phone band in
+`globals.css`.
+
+**Weight splits at 24px.** Above it the serif runs at 400, the rule the sources
 state most forcefully. Below it 400 goes limp against body copy, so card and list
 titles stay 700. The brand keeps its warmth where text is small and its composure
 where text is large.

@@ -67,8 +67,8 @@ const config: Config = {
       },
 
       fontFamily: {
-        display: ['var(--font-display)', 'Fraunces', 'Georgia', 'serif'],
-        body: ['var(--font-body)', 'Nunito', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'Newsreader', 'Georgia', 'serif'],
+        body: ['var(--font-body)', 'Public Sans', 'system-ui', 'sans-serif'],
       },
 
       /*

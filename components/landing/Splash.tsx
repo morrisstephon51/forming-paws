@@ -27,19 +27,29 @@ export default function Splash() {
       <div className="fp-splash-inner">
         <SageHero />
         <div className="fp-splash-card">
-          <p className="fp-eyebrow">Nonprofit · Community-driven · Health-verified</p>
+          {/*
+            Each term is kept whole. The line breaks at the separators or not at
+            all: left to wrap freely the browser treats the hyphen in
+            "Health-verified" as a break opportunity and splits it across two
+            lines, which reads as two claims rather than one.
+          */}
+          <p className="fp-eyebrow">
+            <span className="whitespace-nowrap">Nonprofit</span> ·{' '}
+            <span className="whitespace-nowrap">Community-driven</span> ·{' '}
+            <span className="whitespace-nowrap">Health-verified</span>
+          </p>
           <h1 id="splash-title" className="mt-3 fp-display">
             Healthy matches.
             <br />
             Happy litters.
           </h1>
           <p className="fp-lead mt-4 max-w-prose">
-            Forming Paws connects dog owners nearby for safe, health-documented breeding matches —
+            Forming Paws connects dog owners nearby for safe, health-documented breeding matches,
             with veterinary verification at the centre of everything.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/signup" className="fp-btn">
-              Join free — list your dog
+              Join free and list your dog
             </Link>
             <Link href="/app" className="fp-btn-ghost">
               See the app first

@@ -38,7 +38,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Where these come from',
         body: [
-          'Both come from your veterinarian. A wellness exam is an ordinary appointment — you do not need to ask for anything special or mention breeding to get one.',
+          'Both come from your veterinarian. A wellness exam is an ordinary appointment. You do not need to ask for anything special or mention breeding to get one.',
           'If you have moved practices, your previous clinic can usually send records directly to your new one. Ask for the exam summary and the vaccination history as separate documents; it makes review faster.',
         ],
       },
@@ -53,7 +53,7 @@ export const GUIDES: Guide[] = [
         heading: 'If your dog does not pass',
         body: [
           'Not passing is not a rejection of your dog. The most common reasons are an exam that has aged past twelve months or a document that is missing a date.',
-          'We are building a network of partner veterinarians so owners who need care to reach the baseline can get it affordably. That network does not exist yet, and we will not pretend otherwise — but it is the next thing we are building.',
+          'We are building a network of partner veterinarians so owners who need care to reach the baseline can get it affordably. That network does not exist yet, and we will not pretend otherwise, but it is the next thing we are building.',
         ],
       },
     ],
@@ -75,7 +75,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'About your individual dog',
         body: [
-          'Is my dog physically and behaviourally suited to breeding at all — and if not, would you tell me plainly?',
+          'Is my dog physically and behaviourally suited to breeding at all, and if not, would you tell me plainly?',
           'Is my dog at a healthy weight and condition right now?',
           'Are there findings in the recent exam I should understand better?',
         ],
@@ -91,7 +91,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'About timing and frequency',
         body: [
-          'Is my dog the right age — not too young, not too old?',
+          'Is my dog the right age, neither too young nor too old?',
           'How much recovery time between litters would you want to see?',
           'What would make you advise against it entirely?',
         ],
@@ -108,7 +108,7 @@ export const GUIDES: Guide[] = [
     slug: 'meeting-safely',
     title: 'Meeting another owner safely',
     summary:
-      'Chat unlocks on a mutual match. Here is how to handle the step after that — for you and for your dog.',
+      'Chat unlocks on a mutual match. Here is how to handle the step after that, for you and for your dog.',
     readingMinutes: 3,
     sections: [
       {
@@ -121,7 +121,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Meet somewhere neutral first',
         body: [
-          "A first meeting does not need to be at anyone's home. A neutral, public, daylight location — a park you both know, or a vet practice car park — lets either person leave easily.",
+          "A first meeting does not need to be at anyone's home. A neutral, public, daylight location, such as a park you both know or a vet practice car park, lets either person leave easily.",
           'Tell someone where you are going and when you expect to be back. This is ordinary advice for meeting any stranger from the internet, and it applies here.',
         ],
       },
@@ -135,14 +135,14 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Watch the dogs, not the plan',
         body: [
-          'Dogs communicate discomfort well before they escalate. If either dog is stressed, the meeting is over — that is not a setback, it is the system working.',
+          'Dogs communicate discomfort well before they escalate. If either dog is stressed, the meeting is over. That is not a setback, it is the system working.',
           'You are never obliged to continue because you agreed to in a chat.',
         ],
       },
       {
         heading: 'Reporting',
         body: [
-          'Every conversation has a report option. Reports go to a real person, and the conversation is preserved for review — including if the other owner deletes their account.',
+          'Every conversation has a report option. Reports go to a real person, and the conversation is preserved for review, including if the other owner deletes their account.',
         ],
       },
     ],
