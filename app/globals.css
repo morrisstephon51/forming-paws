@@ -212,11 +212,18 @@
            hover:bg-brand-dark focus-visible:outline focus-visible:outline-2
            focus-visible:outline-offset-2 focus-visible:outline-brand;
   }
+  /*
+   * The ring is accent.dark, not accent. `accent` is 2.82:1 on ivory — a fill,
+   * never a ring, which is the rule its own token comment states. accent.dark
+   * is 5.30:1 there. The fill is still the 2.82:1 value and still carries
+   * text-ivory, so this class stays unused until that is resolved; the ring is
+   * fixed here because it was the half of the defect nothing had written down.
+   */
   .fp-btn-accent {
     @apply inline-flex items-center justify-center rounded-full bg-accent px-6 py-3
            font-body font-bold leading-none text-ivory transition-colors
            hover:bg-accent-dark focus-visible:outline focus-visible:outline-2
-           focus-visible:outline-offset-2 focus-visible:outline-accent;
+           focus-visible:outline-offset-2 focus-visible:outline-accent-dark;
   }
   .fp-btn-ghost {
     @apply inline-flex items-center justify-center rounded-full border-[1.5px]

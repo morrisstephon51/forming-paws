@@ -38,7 +38,7 @@ export default function MeadowCanvas() {
     let cancelled = false
     let cleanup: (() => void) | null = null
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
 
     function supported() {
       // Cheap probes first, then an actual context — some devices advertise
@@ -76,7 +76,10 @@ export default function MeadowCanvas() {
 
       let handle: MeadowHandle
       try {
-        handle = createMeadow(canvasRef.current, reduced)
+        // Always the full scene. Reduced motion is honoured by declining to run
+        // the loop — something that can be undone when the preference flips —
+        // rather than by constructing a lesser scene, which could not be.
+        handle = createMeadow(canvasRef.current, false)
       } catch {
         return // context creation can still throw; the fallback is already visible
       }
@@ -96,49 +99,58 @@ export default function MeadowCanvas() {
       setLive(true)
       if (hero) hero.dataset.fpWebgl = 'on'
 
-      if (reduced) {
-        // One frame, then nothing. The scene is still 3D; it just holds still.
-        const onResizeStatic = () => {
-          handle.resize()
-          handle.setScroll(progress())
-          handle.render()
-        }
-        window.addEventListener('resize', onResizeStatic, { passive: true })
-        cleanup = () => {
-          window.removeEventListener('resize', onResizeStatic)
-          handle.dispose()
-        }
-        return
-      }
-
       let frame = 0
       const onScroll = () => {
-        if (frame) return
+        // Under reduced motion the scene holds the pose it booted with, so
+        // there is nothing for a scroll to update.
+        if (frame || media.matches) return
         frame = requestAnimationFrame(() => {
           frame = 0
           handle.setScroll(progress())
         })
       }
       const onPointer = (e: PointerEvent) => {
+        if (media.matches) return
         handle.setPointer(
           (e.clientX / window.innerWidth) * 2 - 1,
           (e.clientY / window.innerHeight) * 2 - 1,
         )
       }
-      const onResize = () => handle.resize()
+      const onResize = () => {
+        handle.resize()
+        // A stopped loop will not repaint the resized buffer for us.
+        if (media.matches) {
+          handle.setScroll(progress())
+          handle.render()
+        }
+      }
 
       // Both conditions live in one place now. Previously visibilitychange
       // consulted only document.hidden, so returning to the tab after
       // scrolling past the hero restarted a 60fps loop for an off-screen
       // canvas, and nothing stopped it until the hero crossed the edge again.
       let onScreen = true
-      const settle = () => (onScreen && !document.hidden ? handle.start() : handle.stop())
+      const settle = () =>
+        onScreen && !document.hidden && !media.matches ? handle.start() : handle.stop()
       const onVisibility = settle
+
+      // Reduced motion was read once at mount and then never again, so turning
+      // it on with the page open left the rAF loop running — updateCamera() is
+      // unconditional in frame(), so pointer lean and scroll parallax carried
+      // on regardless of the motes. Nothing outside this file stops it either:
+      // the reduced-motion block in globals.css drops the fade *transitions* on
+      // the canvas and the ridges, and leaves the canvas itself running.
+      const onPreference = () => {
+        settle()
+        // Holding still means showing the scene held still, not a stale buffer.
+        if (media.matches) handle.render()
+      }
 
       window.addEventListener('scroll', onScroll, { passive: true })
       window.addEventListener('pointermove', onPointer, { passive: true })
       window.addEventListener('resize', onResize, { passive: true })
       document.addEventListener('visibilitychange', onVisibility)
+      media.addEventListener('change', onPreference)
 
       // Only render while the hero is actually on screen.
       const io = new IntersectionObserver(
@@ -177,6 +189,7 @@ export default function MeadowCanvas() {
         window.removeEventListener('pointermove', onPointer)
         window.removeEventListener('resize', onResize)
         document.removeEventListener('visibilitychange', onVisibility)
+        media.removeEventListener('change', onPreference)
         canvasRef.current?.removeEventListener('webglcontextlost', onLost)
         canvasRef.current?.removeEventListener('webglcontextrestored', onRestored)
         if (frame) cancelAnimationFrame(frame)

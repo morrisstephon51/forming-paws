@@ -20,6 +20,20 @@ import Sage from '@/components/mascot/Sage'
  *
  * Everything is transform and opacity, driven through custom properties by one
  * rAF-gated handler, and it degrades to a static mascot under reduced motion.
+ *
+ * The two rules HeroParallax states in its own header apply here for the same
+ * reasons, and this file did not follow either of them at first:
+ *
+ * 1. **Geometry is measured on resize, never per event.** The scroll handler
+ *    used to call getBoundingClientRect() in the listener body — outside the rAF
+ *    gate, which only ever protected the writes. Since paint() dirties this
+ *    subtree with four custom-property writes a frame, the next event's read
+ *    flushed style and layout: one forced synchronous layout per scroll frame,
+ *    on the one screen where the WebGL loop and HeroParallax are also running.
+ * 2. **The listeners only exist while the stage is on screen.** They used to be
+ *    bound to the window for the life of the page, so every scroll and every
+ *    pointer move anywhere on the document still ran this handler long after
+ *    Sage had left.
  */
 export default function SageHero() {
   const ref = useRef<HTMLDivElement>(null)
@@ -29,15 +43,29 @@ export default function SageHero() {
     if (!stage) return
 
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+
     let frame = 0
+    let bound = false
     let tx = 0
     let ty = 0
     let px = 0
     let py = 0
-    let scroll = 0
+    // Page-space geometry, refreshed on resize rather than read per frame.
+    let top = 0
+    let height = 1
+
+    const measure = () => {
+      const rect = stage.getBoundingClientRect()
+      top = rect.top + window.scrollY
+      height = Math.max(1, rect.height)
+    }
 
     const paint = () => {
       frame = 0
+      // 0 as the stage's top meets the viewport top, 1 as its bottom does.
+      // scrollY is free to read; the rect that would give the same answer is
+      // not, which is the whole reason `top` and `height` are cached.
+      const scroll = Math.min(1, Math.max(0, (window.scrollY - top) / height))
       px += (tx - px) * 0.06
       py += (ty - py) * 0.06
       stage.style.setProperty('--fp-sage-rx', `${(-py * 5).toFixed(2)}deg`)
@@ -60,9 +88,11 @@ export default function SageHero() {
       schedule()
     }
 
-    const onScroll = () => {
-      const r = stage.getBoundingClientRect()
-      scroll = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)))
+    const onScroll = schedule
+
+    const onResize = () => {
+      if (!bound) return
+      measure()
       schedule()
     }
 
@@ -73,25 +103,51 @@ export default function SageHero() {
     }
 
     const bind = () => {
-      if (media.matches) {
-        window.removeEventListener('pointermove', onPointer)
-        window.removeEventListener('scroll', onScroll)
-        clear()
-        return
-      }
+      if (bound || media.matches) return
+      bound = true
       window.addEventListener('pointermove', onPointer, { passive: true })
       window.addEventListener('scroll', onScroll, { passive: true })
-      onScroll()
+      measure()
+      paint()
     }
 
-    bind()
-    media.addEventListener('change', bind)
-
-    return () => {
-      media.removeEventListener('change', bind)
+    const unbind = () => {
+      if (!bound) return
+      bound = false
       window.removeEventListener('pointermove', onPointer)
       window.removeEventListener('scroll', onScroll)
-      if (frame) cancelAnimationFrame(frame)
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+    }
+
+    // Bind only while the stage is actually in view.
+    const observer = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? bind() : unbind()),
+      { threshold: 0 },
+    )
+
+    const onPreference = () => {
+      if (media.matches) {
+        observer.disconnect()
+        unbind()
+        clear()
+      } else {
+        observer.disconnect()
+        observer.observe(stage)
+      }
+    }
+
+    window.addEventListener('resize', onResize, { passive: true })
+    media.addEventListener('change', onPreference)
+    if (!media.matches) observer.observe(stage)
+
+    return () => {
+      observer.disconnect()
+      media.removeEventListener('change', onPreference)
+      window.removeEventListener('resize', onResize)
+      unbind()
       clear()
     }
   }, [])
