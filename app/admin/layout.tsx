@@ -5,7 +5,7 @@ import { requireRole } from '@/lib/auth/roles'
  * Section nav for the console. The gate here is the outer one; each page keeps
  * its own requireRole call so a route reached outside this layout is still
  * protected. Width and padding stay with the pages, which already set their
- * own <main> — the nav just matches the widest of them.
+ * own <main> at max-w-2xl — the nav matches that.
  */
 const NAV = [
   { href: '/admin/users', label: 'Users' },
@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <>
-      <div className="mx-auto max-w-4xl px-8 pt-8">
+      <div className="mx-auto max-w-2xl px-8 pt-8">
         <p className="fp-eyebrow">Administration</p>
         <nav aria-label="Admin sections" className="mt-2 flex flex-wrap gap-4 border-b border-hairline pb-3">
           {NAV.map((item) => (
