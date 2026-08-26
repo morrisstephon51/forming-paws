@@ -8,6 +8,27 @@
 
 **Tech Stack:** Next.js 15 (App Router), React 19, Supabase (`@supabase/ssr`), PostgreSQL RLS, vitest (unit), Playwright (e2e), psql assertion scripts (`supabase/tests/`).
 
+
+## Status — 2026-08-26
+
+| Task | State |
+|---|---|
+| 1 · Migration 0026 (role system + RLS bridge) | **written, NOT applied** — awaiting production approval |
+| 2 · `requireRole` util | done — 7 unit tests green |
+| 3 · Migrate 6 admin files off `is_admin` | done — `grep -rn is_admin app lib` returns nothing |
+| 4 · Admin console shell | done |
+| 5 · Migration 0027 (audit log) + helper | helper done; **migration written, NOT applied** |
+| 6 · Member & role management | done |
+| 7 · Audit log viewer | done |
+
+Verification at time of writing: `tsc --noEmit` clean · `eslint` clean · **200/200 unit tests** ·
+`next build` succeeds with all five `/admin/*` routes compiling as dynamic.
+
+**Nothing is runnable end to end until 0026 and 0027 are applied** — the app calls `has_role`
+and reads `user_roles`/`audit_log`, none of which exist in the database yet. This is the agreed
+sequence: app code first, reviewed diff, then the migration.
+
+---
 ## Global Constraints
 
 - **Next migration number is 0026.** 25 migrations exist; `0022` is used twice already — do not add a third collision.
