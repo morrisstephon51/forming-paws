@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { reviewDocument } from './actions'
 import { pageMetadata } from '@/lib/seo'
 import { formatCalendarDate } from '@/lib/dates'
+import { requireRole } from '@/lib/auth/roles'
 
 export const metadata = pageMetadata({
   title: 'Health document review',
@@ -17,16 +18,9 @@ export default async function ReviewQueuePage({
   searchParams: Promise<{ error?: string }>
 }) {
   const { error: reviewError } = await searchParams
+  await requireRole('admin')
   const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
 
-  const { data: owner } = await supabase
-    .from('owners')
-    .select('is_admin')
-    .eq('id', userData.user.id)
-    .single()
-  if (!owner?.is_admin) redirect('/home')
 
   const { data: pendingDocs } = await supabase
     .from('health_documents')
