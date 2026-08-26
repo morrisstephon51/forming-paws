@@ -100,6 +100,19 @@ begin
   end;
 end $$;
 
+-- An admin must be able to read every grant, not just their own, or the member
+-- list shows everyone as roleless.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname='public' and tablename='user_roles'
+      and policyname='user_roles_select_admin' and cmd='SELECT'
+  ) then
+    raise exception 'FAIL: no admin read policy on user_roles; /admin/users will show every member as having no roles';
+  end if;
+end $$;
+
 -- user_roles has no write policies: role writes must go through grant_role.
 do $$
 begin

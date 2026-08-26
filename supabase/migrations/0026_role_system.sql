@@ -34,9 +34,10 @@ alter table public.user_roles enable row level security;
 create policy "roles_select_all" on public.roles
   for select to authenticated using (true);
 
--- An owner reads only their own grants. Admin-wide reads go through the
--- security-definer helpers below, never through a policy that would have to
--- call has_role() against the very table the policy guards.
+-- An owner reads their own grants. The admin-wide read policy is defined
+-- further down, after is_admin() has been redefined to resolve through
+-- has_role() -- it cannot be declared here because the function it calls does
+-- not yet have its new meaning.
 create policy "user_roles_select_own" on public.user_roles
   for select to authenticated using (owner_id = auth.uid());
 
@@ -110,6 +111,19 @@ create policy "health_documents_admin_select_all" on public.health_documents
 drop policy if exists "health_documents_admin_update" on public.health_documents;
 create policy "health_documents_admin_update" on public.health_documents
   for update to authenticated using (public.is_admin());
+
+-- Admins must read EVERYONE's grants, or /admin/users renders every member as
+-- "no roles" -- it reads owners with a nested user_roles embed, and
+-- user_roles_select_own would filter that to the admin's own row.
+--
+-- Placed here, after is_admin() is redefined, so this migration also applies
+-- cleanly to a database where is_admin() does not already exist.
+--
+-- This does not recurse: is_admin() -> has_role() is SECURITY DEFINER owned by
+-- postgres, which owns user_roles and therefore bypasses RLS inside the
+-- function body (RLS is not FORCEd on this table).
+create policy "user_roles_select_admin" on public.user_roles
+  for select to authenticated using (public.is_admin());
 
 create or replace function public.grant_role(target_owner uuid, role_name text)
 returns void
