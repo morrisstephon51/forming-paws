@@ -257,7 +257,8 @@ grant execute on function public.has_any_role(text[])    to authenticated;
 
 ```sql
 -- supabase/tests/0026_role_system_assertions.sql
---   psql "$DATABASE_URL" -f supabase/tests/0026_role_system_assertions.sql
+-- Run via the Supabase MCP: execute_sql(<this file>). Kept as a file so it is
+-- reviewable in git and re-runnable, matching 0022_deactivation_assertions.sql.
 begin;
 
 create temporary table t_ids (k text primary key, v uuid);
