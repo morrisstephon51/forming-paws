@@ -14,7 +14,9 @@
 - **`owners.id` IS `auth.users.id`.** There is no separate users table. `auth.uid() = owners.id` everywhere.
 - **`owners.is_admin` becomes legacy after this plan. It is NOT dropped and NOT written to.** See Task 1 Step 3 for why writing it is impossible from an authenticated session.
 - **`has_role()` must be `security definer set search_path = public`.** A plain function reading `user_roles` from inside a policy on `user_roles` recurses infinitely.
-- **SQL tests follow `supabase/tests/0022_deactivation_assertions.sql`:** wrapped in `begin; … rollback;`, each assertion a `do $$ … raise exception … $$` so it fails loudly. Run with `psql "$DATABASE_URL" -f <file>`.
+- **There is no local database and no `DATABASE_URL`.** No `supabase/config.toml`, no local stack. The only Forming Paws project is `wyzcnkdonbdykidmcxvx` (ACTIVE_HEALTHY) — **it is production**, holding 36 owners, 14 dogs, and live messages. Migrations are applied with the Supabase MCP `apply_migration`; assertions run via `execute_sql`.
+- **The migration ledger is NOT a source of truth.** `contact_messages` exists in production but has no row in `supabase_migrations.schema_migrations` — some migrations were applied via `execute_sql`, which records nothing. Verify applied state by querying the schema, never by `list_migrations`.
+- **SQL tests follow `supabase/tests/0022_deactivation_assertions.sql`:** wrapped in `begin; … rollback;`, each assertion a `do $$ … raise exception … $$` so it fails loudly.
 - **Admin pages use `pageMetadata({ …, index: false })`** from `@/lib/seo`.
 - **Existing gate pattern to replace** (present in all 6 admin files): `supabase.auth.getUser()` → `redirect('/login')`, then `owners.select('is_admin')` → `redirect('/home')` (pages) or `throw new Error('Forbidden')` (actions).
 
@@ -207,6 +209,42 @@ begin
 end;
 $$;
 
+
+-- ---------------------------------------------------------------------------
+-- RLS BRIDGE — the whole reason this migration is safe.
+--
+-- 11 policies across 8 tables gate on admin status. 9 of them call
+-- public.is_admin(), which reads owners.is_admin — the column this migration
+-- freezes. Without the redefinition below, an owner granted 'admin' through
+-- the new console would pass the app-layer requireRole() gate and then match
+-- ZERO rows in every admin policy: an empty console that looks like "no data"
+-- rather than "denied". Redefining the function fixes all 9 call sites at once
+-- with no policy edits.
+--
+-- Ordering matters: the backfill above must already have run, or every existing
+-- admin loses access the moment this function is replaced.
+-- ---------------------------------------------------------------------------
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.has_role('admin');
+$$;
+
+-- The remaining 2 policies inline the owners.is_admin lookup instead of calling
+-- is_admin(), so the redefinition above does not reach them. Point them at the
+-- function so there is exactly one definition of "is an admin" in the database.
+drop policy if exists "health_documents_admin_select_all" on public.health_documents;
+create policy "health_documents_admin_select_all" on public.health_documents
+  for select to authenticated using (public.is_admin());
+
+drop policy if exists "health_documents_admin_update" on public.health_documents;
+create policy "health_documents_admin_update" on public.health_documents
+  for update to authenticated using (public.is_admin());
+
 revoke all on function public.grant_role(uuid, text)  from public;
 revoke all on function public.revoke_role(uuid, text) from public;
 grant execute on function public.grant_role(uuid, text)  to authenticated;
@@ -289,6 +327,32 @@ begin
   end;
 end $$;
 
+-- The RLS bridge: is_admin() must now resolve through the role system, so that
+-- an owner granted 'admin' via grant_role satisfies all 9 policies that call it.
+do $$
+declare src text;
+begin
+  select pg_get_functiondef(p.oid) into src
+  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and p.proname = 'is_admin';
+  if src not like '%has_role%' then
+    raise exception 'FAIL: is_admin() still reads owners.is_admin; console-granted admins will see an empty console';
+  end if;
+end $$;
+
+-- No policy may still inline the owners.is_admin column lookup.
+do $$
+declare leftover int;
+begin
+  select count(*) into leftover
+  from pg_policies
+  where schemaname = 'public'
+    and (coalesce(qual,'') || coalesce(with_check,'')) like '%o.is_admin%';
+  if leftover > 0 then
+    raise exception 'FAIL: % policy/policies still read owners.is_admin directly', leftover;
+  end if;
+end $$;
+
 -- user_roles has no write policies: a direct authenticated INSERT must fail.
 do $$
 begin
@@ -305,18 +369,17 @@ rollback;
 
 - [ ] **Step 3: Apply the migration and run the assertions**
 
-Run:
-```bash
-psql "$DATABASE_URL" -f supabase/migrations/0026_role_system.sql
-psql "$DATABASE_URL" -f supabase/tests/0026_role_system_assertions.sql
-```
-Expected: migration applies clean; assertion script prints `ROLLBACK` with **no** `FAIL:` exception.
+Apply with the Supabase MCP against project `wyzcnkdonbdykidmcxvx`:
+- `apply_migration(name: "role_system", query: <contents of 0026_role_system.sql>)`
+- then `execute_sql(<contents of supabase/tests/0026_role_system_assertions.sql>)`
+
+Expected: migration applies clean; the assertion script completes with **no** `FAIL:` exception raised.
 
 - [ ] **Step 4: Prove the `is_admin` freeze is real, not assumed**
 
-Confirm the 0014 trigger genuinely blocks the sync path this plan chose to avoid. Run:
-```bash
-psql "$DATABASE_URL" -c "select tgname from pg_trigger where tgname = 'owners_prevent_self_admin_escalation';"
+Confirm the 0014 trigger genuinely blocks the sync path this plan chose to avoid. Run via `execute_sql`:
+```sql
+select tgname from pg_trigger where tgname = 'owners_prevent_self_admin_escalation';
 ```
 Expected: one row. If the trigger is absent, stop — the freeze rationale in Global Constraints no longer holds and Task 6's design must be revisited.
 
@@ -643,10 +706,9 @@ export async function recordAuditEvent(input: {
 
 - [ ] **Step 3: Apply and verify the append-only posture**
 
-Run:
-```bash
-psql "$DATABASE_URL" -f supabase/migrations/0027_audit_log.sql
-psql "$DATABASE_URL" -c "select cmd, count(*) from pg_policies where tablename='audit_log' group by cmd;"
+Apply via `apply_migration(name: "audit_log", query: <contents of 0027_audit_log.sql>)`, then `execute_sql`:
+```sql
+select cmd, count(*) from pg_policies where tablename='audit_log' group by cmd;
 ```
 Expected: only `SELECT` and `INSERT` rows. If `UPDATE` or `DELETE` appears, the log is mutable — fix before continuing.
 
@@ -891,6 +953,7 @@ git commit -m "feat(admin): audit log viewer"
 
 1. Every owner who had `is_admin = true` before 0026 can still reach all three original admin routes and perform every original admin action, unchanged.
 2. `grep -rn "is_admin" app lib` returns nothing — the boolean is legacy in the database only.
+2a. `public.is_admin()` resolves through `has_role('admin')`, so all 9 policies that call it, plus the 2 rewritten `health_documents` policies, honour console-granted admins. An owner granted admin in the console sees a populated console, not an empty one.
 3. An admin attempting to grant themselves `admin` is refused by the database, not by the UI.
 4. Revoking the last remaining admin is refused.
 5. Every `grant_role`/`revoke_role` through the console produces an `audit_log` row visible at `/admin/audit-log`.
