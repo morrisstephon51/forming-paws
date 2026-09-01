@@ -16,6 +16,17 @@ import Sage, { type SageMood } from '@/components/mascot/Sage'
  * Sage itself is never regenerated. Two real mood SVGs cross-fade based on
  * scroll progress through the flight -- the mascot doing its own
  * scroll-driven transform on top of the engine's world segments.
+ *
+ * 2026-09-01: the small corner mark now hands off to a full-body illustrated
+ * Sage standing in the meadow at the peak. Same risograph line-and-wash
+ * register as the two world-leg stills (matching style preamble, same brand
+ * ink/wash colors, the accent color used only on a neckerchief prop and
+ * never the coat itself), generated once and reused as a static image --
+ * not re-generated per mood, since the corner mark still owns mood-swapping.
+ * The two illustrated registers coexist deliberately: the flat SVG is the
+ * small-size UI mark (footer, forms, this corner), the full-body art is the
+ * brand/marketing register for moments large enough to carry it. See
+ * docs/visual/SAGE-BRAND.md.
  */
 
 declare global {
@@ -49,9 +60,24 @@ function moodsAt(p: number): { from: SageMood; to: SageMood; mix: number } {
   return { from: lo.mood, to: hi.mood, mix }
 }
 
+/** Leg 2 (Substance/meadow) starts where raw `seg + p` reaches 1.0 (0-indexed
+ *  segment plus intra-segment progress, UNCLAMPED -- unlike `overall` below,
+ *  which divides by leg count and caps at 1 for the mood track, and would
+ *  never let this fire if reused here). Fully resolved by 1.3 (30% into leg
+ *  2), well before the "waving"/"happy" moods land on the corner mark, so the
+ *  full-body figure is already standing in the meadow by the time the corner
+ *  mark finishes its own turn. */
+const FIGURE_START = 1.0
+const FIGURE_END = 1.3
+
+function figureProgressAt(rawSegProgress: number): number {
+  return Math.min(1, Math.max(0, (rawSegProgress - FIGURE_START) / (FIGURE_END - FIGURE_START)))
+}
+
 export default function WorldflightHero() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [sageState, setSageState] = useState(() => moodsAt(0))
+  const [figureProgress, setFigureProgress] = useState(0)
 
   useEffect(() => {
     let raf = 0
@@ -77,6 +103,10 @@ export default function WorldflightHero() {
             return prev
           }
           return next
+        })
+        setFigureProgress((prev) => {
+          const next = figureProgressAt(seg + p)
+          return Math.abs(next - prev) < 0.003 ? prev : next
         })
 
         // Worldflight's fixed stage has no engine-side mechanism to release
@@ -173,6 +203,21 @@ export default function WorldflightHero() {
           filter: drop-shadow(0 6px 14px rgba(47,107,92,0.18));
         }
         #fp-flight .fp-sage-layer { position: absolute; inset: 0; transition: opacity 60ms linear; }
+        #fp-flight .fp-sage-figure {
+          position: absolute; left: 55%; bottom: 5%;
+          width: clamp(150px, 24vw, 340px);
+          transform: translateX(-50%);
+          filter: drop-shadow(0 12px 22px rgba(38,34,28,0.2));
+        }
+        #fp-flight .fp-sage-figure img { display: block; width: 100%; height: auto; }
+        @media (max-width: 640px) {
+          /* The finale/turn copy plates and the sticky join bar both claim
+             the bottom third on a phone-height crop, so the figure moves up
+             into the open band between the tree canopy and the copy instead
+             of trying to share the same footer strip the desktop layout has
+             room for. */
+          #fp-flight .fp-sage-figure { left: 68%; bottom: 30%; width: clamp(90px, 26vw, 160px); }
+        }
         @media (max-width: 640px) {
           #fp-flight .fp-flight-copy h1, #fp-flight .fp-flight-copy p { text-shadow: 0 1px 12px rgba(251,247,240,0.9); }
         }
@@ -200,6 +245,10 @@ export default function WorldflightHero() {
           <div data-sc-segment data-sc-w="2.6" data-sc-linger="0.45" data-sc-waypoint="Substance">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="sc-world__poster" src="/world/leg2-meadow.jpg" alt="" decoding="async" />
+            <div className="fp-sage-figure" style={{ opacity: figureProgress }} aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/mascot/sage-full-greet.webp" alt="" decoding="async" />
+            </div>
           </div>
         </div>
 
@@ -238,7 +287,7 @@ export default function WorldflightHero() {
             </h2>
           </div>
 
-          <div className="fp-sage-wrap" aria-hidden="true">
+          <div className="fp-sage-wrap" aria-hidden="true" style={{ opacity: 1 - figureProgress }}>
             <div className="fp-sage-layer" style={{ opacity: 1 - sageState.mix }}>
               <Sage mood={sageState.from} size={128} />
             </div>
