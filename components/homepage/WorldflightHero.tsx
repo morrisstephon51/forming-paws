@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Sage, { type SageMood } from '@/components/mascot/Sage'
+import Logo from '@/components/Logo'
 
 /**
  * The opening worldflight: problem -> turn -> Sage meets you -> meadow.
@@ -188,6 +189,16 @@ export default function WorldflightHero() {
         #fp-flight .sc-world__poster { object-fit: cover; width: 100%; height: 100%; }
         #fp-flight .fp-flight-copy { max-width: 40rem; }
         #fp-flight .fp-flight-copy p { margin: 0; }
+        /* The company name was an 11px tracked label here before -- easy to
+           miss on the one screen every visitor actually lands on. This is a
+           real lockup (mark + name), sized as its own moment rather than a
+           kicker over the headline. */
+        #fp-flight .fp-wordmark { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.9rem; }
+        #fp-flight .fp-wordmark span {
+          font-family: var(--sc-font-display); font-weight: 700;
+          font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem);
+          letter-spacing: -0.012em; color: #2F6B5C;
+        }
         /* A scrim only where this one block sits, not a full-frame overlay:
            this is the block that crosses the seam onto the busiest part of
            the leg-1 artwork (the terracotta risograph wash), and measured
@@ -256,34 +267,36 @@ export default function WorldflightHero() {
           <div className="sc-world__scrim sc-scrim sc-scrim--band" />
 
           <div className="sc-copy sc-copy--lead fp-flight-copy" data-sc-copy data-sc-window="hero">
-            <p className="fp-eyebrow" style={{ color: 'var(--sc-accent)' }}>
-              Forming Paws
-            </p>
+            <div className="fp-wordmark">
+              <Logo size="md" />
+              <span>Forming Paws</span>
+            </div>
             <h1 className="fp-display" style={{ color: 'var(--sc-ink)' }}>
-              Right now, most breeding happens in the dark.
+              Finding the right match for your dog shouldn&rsquo;t be guesswork.
             </h1>
           </div>
 
           <div className="sc-copy sc-copy--lead fp-flight-copy" data-sc-copy data-sc-window="0.14 0.42">
             <p className="fp-lead" style={{ color: 'var(--sc-ink)' }}>
-              No verification. No health records. No way for an owner to know
-              what they are actually bringing home, or for a good breeder to
-              prove they are one.
+              No way to see who is actually nearby. No clear picture of
+              whether a dog is healthy enough to match. No path forward yet
+              if it isn&rsquo;t.
             </p>
           </div>
 
           <div className="sc-copy sc-copy--trail fp-flight-copy" data-sc-copy data-sc-window="0.46 0.72">
             <p className="fp-h2 fp-flight-copy--plate" style={{ color: 'var(--sc-ink)' }}>
-              Forming Paws exists to change what &ldquo;the dark&rdquo; means.
+              Forming Paws exists to turn &ldquo;nearby and healthy&rdquo;
+              into an actual conversation between owners.
             </p>
           </div>
 
           <div className="sc-copy sc-copy--lead fp-flight-copy" data-sc-copy data-sc-window="finale">
             <p className="fp-eyebrow" style={{ color: 'var(--sc-accent)' }}>
-              Health-verified. Local. Owner-safe.
+              Health-verified. Local. Owner to owner.
             </p>
             <h2 className="fp-display" style={{ color: 'var(--sc-ink)' }}>
-              A match only happens after the records do.
+              You match. You talk. You decide together what&rsquo;s next.
             </h2>
           </div>
 

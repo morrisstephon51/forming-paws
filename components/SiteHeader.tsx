@@ -26,7 +26,7 @@ export default function SiteHeader({
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <Link href={variant === 'member' ? '/home' : '/'} className="shrink-0">
-        <Logo size="md" withWordmark />
+        <Logo size="lg" withWordmark />
       </Link>
 
       <nav aria-label="Main" className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm sm:gap-x-4">

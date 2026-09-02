@@ -50,7 +50,11 @@ export default function Logo({
           fill="#E8734A"
         />
       </svg>
-      {withWordmark && <span className="font-display text-lg font-bold text-ink">{SITE_NAME}</span>}
+      {withWordmark && (
+        <span className="font-display text-2xl font-bold tracking-tight text-brand-dark">
+          {SITE_NAME}
+        </span>
+      )}
     </span>
   )
 }
