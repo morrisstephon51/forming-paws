@@ -116,10 +116,22 @@ export default function VetsPage() {
             If you are an owner whose dog did not pass
           </h2>
           <p className="mt-4 text-ink-soft">
-            Until the network exists, the honest advice is the ordinary kind: book a wellness exam
-            with any local practice, ask for the exam summary and vaccination history as separate
-            documents, and upload them. Most documents that fail review fail on a date, not on a
-            diagnosis.
+            Until the network exists, our current referral is{' '}
+            <a
+              href="https://www.pawschicago.org/our-work/medical-center"
+              className="fp-link"
+              target="_blank"
+              rel="noreferrer"
+            >
+              PAWS Chicago&apos;s Medical Center
+            </a>
+            . It is not an exclusive partnership, and we are not the only ones who know about it:
+            it is a real, existing Chicago resource we point owners to because it is affordable and
+            it exists today, not because of an agreement between us.
+          </p>
+          <p className="mt-4 text-ink-soft">
+            Wherever you go, ask for the exam summary and vaccination history as separate documents,
+            and upload them. Most documents that fail review fail on a date, not on a diagnosis.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/education/health-documents" className="fp-btn-ghost">

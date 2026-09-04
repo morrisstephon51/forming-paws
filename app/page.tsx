@@ -68,7 +68,7 @@ const HEALTH = [
   {
     icon: '❤️‍🩹',
     title: 'A path to healthy',
-    body: "Dogs whose records don't pass aren't rejected. They're referred to partner veterinarians with a plan to bring their health up to standard.",
+    body: "Dogs whose records don't pass aren't rejected. Right now that means a referral to PAWS Chicago's low-cost veterinary clinic; a dedicated partner network is next.",
   },
   {
     icon: '🚫',
@@ -84,9 +84,13 @@ const ROADMAP = [
     body: 'Profiles, health verification, local matching, and owner chat: the foundation you are looking at today.',
   },
   {
-    tag: 'Next',
-    title: 'Vet partner network',
-    body: 'Referral pathways so under-documented dogs get affordable care and re-enter matching healthy.',
+    // "Vet partner network" implied an existing directory of clinics before
+    // one existed. The honest version of Now is a real, nameable referral
+    // (PAWS Chicago's low-cost clinic) standing in for the network until
+    // we've actually recruited and vetted one.
+    tag: 'Now',
+    title: 'PAWS Chicago referral',
+    body: "Dogs that don't pass health review are pointed to PAWS Chicago's low-cost veterinary clinic today, while we build a dedicated partner network.",
   },
   {
     // "Expert-reviewed" was aspirational and is now checkable: /education is
@@ -95,6 +99,16 @@ const ROADMAP = [
     tag: 'Started',
     title: 'Education hub',
     body: 'Practical guides on documentation, questions for your vet, and meeting safely. Live now, and growing as the vet network does.',
+  },
+  {
+    // Scoped deliberately, not a full storefront: see the 2026-08-26 finding
+    // this repeats -- live-animal sales are a restricted category for most
+    // payment processors, and Illinois PA 102-0227 constrains retail pet
+    // sales. v1 is listings with inquiries, no in-app checkout. Full plan:
+    // docs/superpowers/specs/2026-09-03-puppy-marketplace-design.md.
+    tag: 'Next',
+    title: 'Puppy marketplace',
+    body: 'Verified litters, listed and browsable the same way adult dogs are. Inquiries happen in-app; no payment moves through Forming Paws at launch.',
   },
   {
     tag: 'Vision',
@@ -245,7 +259,9 @@ export default async function HomePage({
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
           <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
-              <li key={item.tag} className="fp-card" data-sc-tilt="6">
+              // key is title, not tag: two items now legitimately share the
+              // "Now" tag (Matching platform, PAWS Chicago referral).
+              <li key={item.title} className="fp-card" data-sc-tilt="6">
                 <span className="fp-eyebrow">
                   {item.tag}
                 </span>
