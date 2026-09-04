@@ -144,9 +144,10 @@ export default async function HomePage({
           data-sc-stagger="70"
         >
           <section className="md:col-span-3">
-            <h2 className="fp-h2">Start here</h2>
+            <h2 className="fp-h2">Three rules behind every dog breeding match</h2>
             <p className="fp-lead mt-3">
-              Three things that shape every match on Forming Paws.
+              Health-gated, local-first, owner-safe. Every match on Forming Paws
+              runs on all three, or it does not happen.
             </p>
             <dl className="mt-6 grid gap-4 sm:grid-cols-3">
               <div>
@@ -193,10 +194,10 @@ export default async function HomePage({
 
         <section id="how" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">
-            <span aria-hidden="true">🐾</span> How Forming Paws works
+            <span aria-hidden="true">🐾</span> How dog breeding matches work on Forming Paws
           </h2>
           <p className="mt-2 text-ink-soft">
-            Four steps from profile to a safe, well-documented match.
+            Four steps from your dog&rsquo;s profile to a documented match nearby.
           </p>
           <StepStack
             items={STEPS.map((step) => ({
@@ -221,7 +222,7 @@ export default async function HomePage({
 
         <section id="health" data-sc-act="flow" className="mt-4 scroll-mt-8" data-sc-in data-sc-stagger="70">
           <h2 className="fp-h2">
-            <span aria-hidden="true">🐾</span> Health first. It&apos;s the whole point
+            <span aria-hidden="true">🐾</span> Vet-verified health records, read before matching
           </h2>
           <p className="mt-2 text-ink-soft">
             Forming Paws exists to raise the standard of dog breeding, not just to make
@@ -241,7 +242,7 @@ export default async function HomePage({
         </section>
 
         <section id="roadmap" data-sc-act="flow" className="mt-20 scroll-mt-8" data-sc-in data-sc-stagger="70">
-          <h2 className="fp-h2">Where we&apos;re headed</h2>
+          <h2 className="fp-h2">Where responsible dog breeding goes next</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
           <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
@@ -260,7 +261,7 @@ export default async function HomePage({
             data-sc-act="flow" (not just data-sc-in) because data-sc-count
             only registers for counters inside a [data-sc-act] element. */}
         <section id="waitlist" data-sc-act="flow" data-sc-in data-sc-stagger="70" className="fp-band mt-20 scroll-mt-8">
-          <h2 className="fp-h2">Be a Founding Member</h2>
+          <h2 className="fp-h2">Be a founding member. Join free.</h2>
           <p className="mt-2 text-ink-soft">
             Join the waitlist. The first 20 owners in our launch city get health verification{' '}
             <strong>free for life</strong>.
@@ -294,7 +295,7 @@ export default async function HomePage({
         </section>
 
         <section id="faq" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
-          <h2 className="fp-h2">Questions people ask first</h2>
+          <h2 className="fp-h2">Dog breeding questions owners ask first</h2>
           <p className="mt-2 text-ink-soft">
             The five that come up most.{' '}
             <Link href="/faq" className="fp-link">
@@ -315,7 +316,7 @@ export default async function HomePage({
         <section data-sc-act="flow" className="fp-band-deep mt-16" data-sc-in data-sc-stagger="70">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="fp-h2">Still deciding?</h2>
+              <h2 className="fp-h2">Still deciding? Ask before you join.</h2>
               <p className="mt-2 text-ink-soft">
                 {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person answers.
               </p>

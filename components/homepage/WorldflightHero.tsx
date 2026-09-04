@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import Sage, { type SageMood } from '@/components/mascot/Sage'
 import Logo from '@/components/Logo'
 
@@ -79,6 +80,12 @@ export default function WorldflightHero() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [sageState, setSageState] = useState(() => moodsAt(0))
   const [figureProgress, setFigureProgress] = useState(0)
+  /**
+   * The scroll cue's opacity. Full at rest, gone within the first 6% of leg 1,
+   * because a cue that is still on screen after the reader has obeyed it has
+   * stopped being a hint and started being furniture.
+   */
+  const [cueOpacity, setCueOpacity] = useState(1)
 
   useEffect(() => {
     let raf = 0
@@ -108,6 +115,10 @@ export default function WorldflightHero() {
         setFigureProgress((prev) => {
           const next = figureProgressAt(seg + p)
           return Math.abs(next - prev) < 0.003 ? prev : next
+        })
+        setCueOpacity((prev) => {
+          const next = Math.min(1, Math.max(0, 1 - (seg + p) / 0.06))
+          return Math.abs(next - prev) < 0.01 ? prev : next
         })
 
         // Worldflight's fixed stage has no engine-side mechanism to release
@@ -186,7 +197,23 @@ export default function WorldflightHero() {
           --sc-font-display: var(--font-display), Newsreader, Georgia, serif;
           --sc-font-text: var(--font-text), 'Public Sans', system-ui, sans-serif;
         }
+        /* StickyJoinBar is fixed to the bottom of the viewport on phones only
+           (sm:hidden). Everything the flight anchors to the bottom edge was
+           laid out as if it were not there, so on a 390x844 phone the corner
+           Sage cleared the bar by 7px -- close enough to read as clipped, and
+           the reason the mascot looked "almost covered by the bottom of the
+           page". --fp-floor is that bar's real height, added to every
+           bottom-anchored offset in the flight, and 0 from sm: up where the
+           bar does not exist. */
+        #fp-flight { --fp-floor: 0px; }
+        @media (max-width: 639px) {
+          #fp-flight { --fp-floor: calc(3.8rem + env(safe-area-inset-bottom)); }
+        }
         #fp-flight .sc-world__poster { object-fit: cover; width: 100%; height: 100%; }
+        /* Scoped override of the vendored engine's own bottom anchors rather
+           than an edit to scrollcraft.css, which is a vendored asset. */
+        #fp-flight .sc-copy--lead,
+        #fp-flight .sc-copy--trail { bottom: calc(clamp(3rem, 12vh, 9rem) + var(--fp-floor)); }
         #fp-flight .fp-flight-copy { max-width: 40rem; }
         #fp-flight .fp-flight-copy p { margin: 0; }
         /* The company name was an 11px tracked label here before -- easy to
@@ -209,13 +236,17 @@ export default function WorldflightHero() {
           border-radius: 14px;
         }
         #fp-flight .fp-sage-wrap {
-          position: absolute; right: clamp(1.25rem, 5vw, 4rem); bottom: clamp(1.5rem, 8vh, 5rem);
+          position: absolute; right: clamp(1.25rem, 5vw, 4rem);
+          /* Raised from clamp(1.5rem, 8vh, 5rem): even on desktop, where there
+             is no join bar, the mark sat 72px off a 900px floor and read as
+             falling out of the frame. */
+          bottom: calc(clamp(2.5rem, 11vh, 7rem) + var(--fp-floor));
           width: clamp(72px, 10vw, 128px); height: clamp(72px, 10vw, 128px);
           filter: drop-shadow(0 6px 14px rgba(47,107,92,0.18));
         }
         #fp-flight .fp-sage-layer { position: absolute; inset: 0; transition: opacity 60ms linear; }
         #fp-flight .fp-sage-figure {
-          position: absolute; left: 55%; bottom: 5%;
+          position: absolute; left: 55%; bottom: calc(7% + var(--fp-floor));
           width: clamp(150px, 24vw, 340px);
           transform: translateX(-50%);
           filter: drop-shadow(0 12px 22px rgba(38,34,28,0.2));
@@ -227,10 +258,44 @@ export default function WorldflightHero() {
              into the open band between the tree canopy and the copy instead
              of trying to share the same footer strip the desktop layout has
              room for. */
-          #fp-flight .fp-sage-figure { left: 68%; bottom: 30%; width: clamp(90px, 26vw, 160px); }
+          #fp-flight .fp-sage-figure { left: 68%; bottom: calc(28% + var(--fp-floor)); width: clamp(90px, 26vw, 160px); }
         }
         @media (max-width: 640px) {
           #fp-flight .fp-flight-copy h1, #fp-flight .fp-flight-copy p { text-shadow: 0 1px 12px rgba(251,247,240,0.9); }
+        }
+        /* The scroll cue.
+           Placed inside the hero copy block rather than pinned to the bottom
+           centre of the stage: the block is bottom-anchored, so the cue takes
+           the floor position and the headline rises to make room, which keeps
+           it clear of both the corner mascot (bottom right) and the join bar
+           without a single absolute coordinate to keep in sync. */
+        /* Over the leg-2 meadow this eyebrow measured close to invisible:
+           accent terracotta at 11px on a pale wash, crossing the tree. Same
+           treatment the copy plate already uses, sized to the label. */
+        #fp-flight .fp-flight-eyebrow {
+          display: inline-block;
+          background: color-mix(in oklab, var(--sc-canvas) 82%, transparent);
+          padding: 0.28rem 0.6rem; border-radius: 999px; margin-bottom: 0.5rem;
+        }
+        #fp-flight .fp-flight-cta { margin-top: 1.25rem; display: inline-flex; }
+        #fp-flight .fp-scroll-cue {
+          display: inline-flex; align-items: center; gap: 0.5rem;
+          margin-top: 1.15rem; padding: 0.4rem 0.85rem 0.4rem 0.5rem;
+          border-radius: 999px;
+          background: color-mix(in oklab, var(--sc-canvas) 78%, transparent);
+          color: var(--sc-ink-soft);
+          font-family: var(--sc-font-text);
+          font-size: 0.72rem; font-weight: 700;
+          letter-spacing: 0.10em; text-transform: uppercase;
+          transition: opacity 240ms ease;
+        }
+        #fp-flight .fp-scroll-cue svg.fp-cue-chevron { animation: fp-cue-bob 1.9s ease-in-out infinite; }
+        @keyframes fp-cue-bob {
+          0%, 100% { transform: translateY(-1px); }
+          50%      { transform: translateY(3px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          #fp-flight .fp-scroll-cue svg.fp-cue-chevron { animation: none; }
         }
       `}</style>
 
@@ -272,32 +337,58 @@ export default function WorldflightHero() {
               <span>Forming Paws</span>
             </div>
             <h1 className="fp-display" style={{ color: 'var(--sc-ink)' }}>
-              Finding the right match for your dog shouldn&rsquo;t be guesswork.
+              Find a health-verified match for your dog nearby.
             </h1>
+            <div className="fp-scroll-cue" style={{ opacity: cueOpacity }} aria-hidden="true">
+              <Sage mood="thinking" size={26} />
+              <span>Scroll</span>
+              <svg
+                className="fp-cue-chevron"
+                width="11"
+                height="7"
+                viewBox="0 0 11 7"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M1 1l4.5 4.5L10 1" />
+              </svg>
+            </div>
           </div>
 
           <div className="sc-copy sc-copy--lead fp-flight-copy" data-sc-copy data-sc-window="0.14 0.42">
             <p className="fp-lead" style={{ color: 'var(--sc-ink)' }}>
-              No way to see who is actually nearby. No clear picture of
-              whether a dog is healthy enough to match. No path forward yet
-              if it isn&rsquo;t.
+              No way to see which dogs are actually nearby. No proof that a
+              dog is healthy enough to breed. No path forward if the records
+              fall short.
             </p>
           </div>
 
           <div className="sc-copy sc-copy--trail fp-flight-copy" data-sc-copy data-sc-window="0.46 0.72">
             <p className="fp-h2 fp-flight-copy--plate" style={{ color: 'var(--sc-ink)' }}>
-              Forming Paws exists to turn &ldquo;nearby and healthy&rdquo;
-              into an actual conversation between owners.
+              Forming Paws is the dog breeding community where a person reads
+              the vet records before matching unlocks.
             </p>
           </div>
 
           <div className="sc-copy sc-copy--lead fp-flight-copy" data-sc-copy data-sc-window="finale">
-            <p className="fp-eyebrow" style={{ color: 'var(--sc-accent)' }}>
+            <p className="fp-eyebrow fp-flight-eyebrow" style={{ color: 'var(--sc-accent)' }}>
               Health-verified. Local. Owner to owner.
             </p>
             <h2 className="fp-display" style={{ color: 'var(--sc-ink)' }}>
-              You match. You talk. You decide together what&rsquo;s next.
+              Add your dog, upload the records, and match nearby.
             </h2>
+            {/*
+              The flight had no call to action at the one moment it has earned
+              one: the reader has just been shown the whole proposition and the
+              next thing on screen was an unrelated section heading. This is the
+              conversion beat, so it now carries the ask.
+            */}
+            <Link href="/signup" className="fp-btn fp-flight-cta" data-sc-magnet="0.22">
+              Join free
+            </Link>
           </div>
 
           <div className="fp-sage-wrap" aria-hidden="true" style={{ opacity: 1 - figureProgress }}>
