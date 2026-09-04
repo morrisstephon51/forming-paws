@@ -71,9 +71,13 @@ const HEALTH = [
     body: "Dogs whose records don't pass aren't rejected. Right now that means a referral to PAWS Chicago's low-cost veterinary clinic; a dedicated partner network is next.",
   },
   {
+    // "Litter caps per profile" was aspirational until migration 0026 --
+    // grep found zero implementing code before it. Now real: one litter per
+    // parent dog per rolling 12 months, enforced at insert time, not just
+    // stated here.
     icon: '🚫',
     title: 'Built against puppy mills',
-    body: 'Litter caps per profile, mandatory documentation, and community reporting keep high-volume breeders off the platform.',
+    body: 'A hard cap of one litter per dog per year, mandatory documentation, and community reporting keep high-volume breeders off the platform.',
   },
 ]
 
@@ -104,11 +108,11 @@ const ROADMAP = [
     // Scoped deliberately, not a full storefront: see the 2026-08-26 finding
     // this repeats -- live-animal sales are a restricted category for most
     // payment processors, and Illinois PA 102-0227 constrains retail pet
-    // sales. v1 is listings with inquiries, no in-app checkout. Full plan:
-    // docs/superpowers/specs/2026-09-03-puppy-marketplace-design.md.
-    tag: 'Next',
+    // sales. Live as listings with in-app inquiries only, no checkout. Full
+    // plan: docs/superpowers/specs/2026-09-03-puppy-marketplace-design.md.
+    tag: 'Started',
     title: 'Puppy marketplace',
-    body: 'Verified litters, listed and browsable the same way adult dogs are. Inquiries happen in-app; no payment moves through Forming Paws at launch.',
+    body: 'Verified litters, listed and browsable at /marketplace. Inquiries happen in-app; no payment moves through Forming Paws.',
   },
   {
     tag: 'Vision',

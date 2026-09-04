@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import ExpressInterestForm from './ExpressInterestForm'
+import PuppyInquiryForm from './PuppyInquiryForm'
 import { pageMetadata } from '@/lib/seo'
 import { formatCalendarDate } from '@/lib/dates'
 
@@ -19,7 +20,9 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
 
   const { data: ownDog } = await supabase
     .from('dogs')
-    .select('id, owner_id, name, sex, birth_date, weight_lbs, temperament_notes, breeds(name)')
+    .select(
+      'id, owner_id, name, sex, birth_date, weight_lbs, temperament_notes, litter_id, listed_price_cents, breeds(name)'
+    )
     .eq('id', id)
     .maybeSingle()
 
@@ -33,6 +36,8 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     birth_date: string
     temperament_notes?: string | null
     breedName: string
+    litter_id: string | null
+    listed_price_cents: number | null
   }
 
   if (ownDog) {
@@ -40,7 +45,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   } else {
     const { data: browsableDog, error } = await supabase
       .from('dogs_browsable')
-      .select('id, owner_id, name, breed_name, sex, birth_date')
+      .select('id, owner_id, name, breed_name, sex, birth_date, litter_id, listed_price_cents')
       .eq('id', id)
       .maybeSingle()
 
@@ -118,7 +123,27 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
       </p>
       {isOwnDog && dog.temperament_notes && <p className="mt-4">{dog.temperament_notes}</p>}
 
-      {!isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />}
+      {dog.litter_id ? (
+        <>
+          <p className="mt-2 fp-h5">
+            {dog.listed_price_cents != null
+              ? `$${(dog.listed_price_cents / 100).toLocaleString()}`
+              : 'Price on inquiry'}
+          </p>
+          <p className="mt-1 text-xs text-ink-soft">
+            No payment moves through Forming Paws for this listing.
+          </p>
+          {isOwnDog ? (
+            <a href={`/litters/${dog.litter_id}`} className="fp-link mt-2 inline-block text-sm">
+              Manage this litter
+            </a>
+          ) : (
+            <PuppyInquiryForm puppyId={dog.id} />
+          )}
+        </>
+      ) : (
+        !isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />
+      )}
 
       <h2 className="mt-8 fp-h5">Photos</h2>
       <div className="mt-2 grid grid-cols-3 gap-2">
