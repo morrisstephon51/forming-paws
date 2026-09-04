@@ -58,6 +58,11 @@ export default async function HomePage() {
 
   const unreadTotal = totalUnread(await threadSummaries(supabase))
 
+  const { data: litters } = await supabase
+    .from('litters')
+    .select('id, sire:dogs!litters_sire_id_fkey(name), dam:dogs!litters_dam_id_fkey(name)')
+    .eq('breeder_id', userData.user.id)
+
   const action = nextAction({
     dogCount: dogsWithStatus.length,
     unverifiedDogs: dogsWithStatus.filter((d) => !d.isVerified).map((d) => ({ id: d.id, name: d.name })),
@@ -113,6 +118,41 @@ export default async function HomePage() {
             <SageNote mood="thinking" title="No dogs yet" size={76}>
               Add your first dog to start matching. It takes a few minutes, and health
               verification begins as soon as the records are in.
+            </SageNote>
+          )}
+        </section>
+
+        <section aria-labelledby="your-litters" className="mt-10">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="your-litters" className="fp-h2">
+              Your litters
+            </h2>
+            <Link href="/litters/new" className="fp-btn-ghost px-4 py-2 text-sm">
+              List a litter
+            </Link>
+          </div>
+
+          <ul className="fp-depth mt-4 flex flex-col gap-3">
+            {(litters ?? []).map((litter) => {
+              const sire = litter.sire as unknown as { name: string } | null
+              const dam = litter.dam as unknown as { name: string } | null
+              return (
+                <li key={litter.id}>
+                  <Link
+                    href={`/litters/${litter.id}`}
+                    className="fp-card block transition-colors hover:border-brand/40"
+                  >
+                    {sire?.name} × {dam?.name}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+
+          {(litters ?? []).length === 0 && (
+            <SageNote mood="thinking" title="No litters listed" size={76}>
+              Once two of your dogs are health-verified, you can list a litter on the puppy
+              marketplace. No payment moves through Forming Paws.
             </SageNote>
           )}
         </section>
