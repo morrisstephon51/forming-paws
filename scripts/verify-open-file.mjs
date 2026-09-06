@@ -116,18 +116,41 @@ for (const path of PAGES) {
     const res = await page.goto(BASE + path, { waitUntil: 'networkidle' })
     const r = await page.evaluate(CHECKS)
 
+    /*
+     * The no-JS pass, run separately and only for hidden content.
+     *
+     * With the scrollcraft worldflight restored, content below the fold is
+     * legitimately at opacity 0 until the engine reveals it — so counting
+     * hidden nodes with JS running would flag the animation as a bug. What
+     * actually matters is what a crawler or a visitor without JavaScript is
+     * served, and that is a different page load, not a different selector.
+     */
+    const noJs = await browser.newContext({ viewport: { width, height: 900 }, javaScriptEnabled: false })
+    const njPage = await noJs.newPage()
+    await njPage.goto(BASE + path, { waitUntil: 'load' })
+    const njHidden = await njPage.evaluate(() => {
+      let hidden = 0
+      document.querySelectorAll('main *').forEach((el) => {
+        if (!el.textContent.trim() || el.children.length) return
+        const cs = getComputedStyle(el)
+        if (parseFloat(cs.opacity) === 0 || cs.visibility === 'hidden') hidden++
+      })
+      return hidden
+    })
+    await noJs.close()
+
     const problems = []
     if (res.status() !== 200) problems.push(`HTTP ${res.status()}`)
     if (r.overflowPx > 1) problems.push(`overflow ${r.overflowPx}px [${r.overflowing.join(', ')}]`)
     if (r.textFails.length) problems.push(`text contrast x${r.textFails.length} worst ${Math.min(...r.textFails.map(f => f.r))}`)
     if (r.markFails.length) problems.push(`mark contrast x${r.markFails.length}`)
     if (r.focusFails.length) problems.push(`no focus ring: ${r.focusFails.join(', ')}`)
-    if (r.hiddenText) problems.push(`${r.hiddenText} hidden text nodes`)
     if (consoleErrors.length) problems.push(`console: ${consoleErrors.join(' | ')}`)
     if (badRequests.length) problems.push(`requests: ${badRequests.join(' | ')}`)
+    if (njHidden) problems.push(`${njHidden} text nodes invisible without JavaScript`)
 
     if (problems.length) failures++
-    rows.push({ path, width, ok: problems.length === 0, marks: r.marksChecked, focusables: r.focusablesChecked, problems })
+    rows.push({ path, width, ok: problems.length === 0, marks: r.marksChecked, focusables: r.focusablesChecked, njHidden, problems })
     await ctx.close()
   }
 }
@@ -135,7 +158,7 @@ await browser.close()
 
 for (const row of rows) {
   const tag = row.ok ? 'PASS' : 'FAIL'
-  console.log(`${tag}  ${row.path.padEnd(12)} ${String(row.width).padStart(5)}px  marks:${String(row.marks).padStart(2)} focusable:${String(row.focusables).padStart(2)}` + (row.ok ? '' : '\n        ' + row.problems.join('\n        ')))
+  console.log(`${tag}  ${row.path.padEnd(12)} ${String(row.width).padStart(5)}px  marks:${String(row.marks).padStart(2)} focusable:${String(row.focusables).padStart(2)} noJsHidden:${String(row.njHidden).padStart(2)}` + (row.ok ? '' : '\n        ' + row.problems.join('\n        ')))
 }
 console.log(`\n${rows.length - failures}/${rows.length} page+width combinations passed.`)
 process.exit(failures ? 1 : 0)
