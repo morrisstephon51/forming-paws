@@ -69,6 +69,26 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-display)', 'Newsreader', 'Georgia', 'serif'],
         body: ['var(--font-body)', 'Public Sans', 'system-ui', 'sans-serif'],
+
+        /*
+         * Metadata only — field labels, record values, status marks.
+         *
+         * Deliberately a system stack and not a webfont. A third family loaded
+         * for 11px labels would undo the LCP work the display and body faces
+         * were subset for, and what signals "this is a classified field" is the
+         * monospace shape, not any particular licence. Never set body copy or a
+         * headline in it: the moment it appears somewhere that is not a field
+         * with a value, the status marks stop meaning anything.
+         */
+        meta: [
+          'ui-monospace',
+          'SFMono-Regular',
+          'SF Mono',
+          'Menlo',
+          'Consolas',
+          'Liberation Mono',
+          'monospace',
+        ],
       },
 
       /*

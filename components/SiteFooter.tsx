@@ -3,6 +3,7 @@ import Logo from './Logo'
 import Sage from './mascot/Sage'
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/site'
 import { RESPONSE_TIME } from '@/lib/promise'
+import RecordLine from '@/components/record/RecordLine'
 
 /**
  * The same footer on every public page, so each one links onward to the others.
@@ -23,6 +24,20 @@ export default function SiteFooter() {
       <p className="mt-2">
         {SITE_NAME} is not a party to any breeding arrangement. Always consult your veterinarian.
       </p>
+
+      {/*
+        The site's own status, in the same notation it applies to every dog.
+
+        These three are what a visitor is most likely to assume in our favour if
+        we say nothing, so they are stated on every page rather than buried on
+        /about — and stated as records, which is harder to skim past than a
+        sentence and much harder to quietly drop later.
+      */}
+      <div className="mt-5 grid gap-x-8 gap-y-3 border-y border-hairline py-4 sm:grid-cols-3">
+        <RecordLine status="none" label="501(c)(3) status" value="Not yet" />
+        <RecordLine status="none" label="Partner vets" value="None enrolled" />
+        <RecordLine status="none" label="Vet-reviewed guides" value="Not yet" />
+      </div>
 
       <nav aria-label="Footer" className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
         <Link href="/" className="fp-link">

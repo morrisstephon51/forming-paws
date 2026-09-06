@@ -2,6 +2,7 @@ import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { pageMetadata } from '@/lib/seo'
 import { SITE_NAME } from '@/lib/site'
+import RecordLine from '@/components/record/RecordLine'
 import BannerArt from '@/components/art/BannerArt'
 import neighbourhood from '@/assets/art/about-neighbourhood.jpg'
 
@@ -36,12 +37,8 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <p className="fp-eyebrow">
-          Nonprofit · Chicago · Community-driven
-        </p>
-        <h1 className="mt-3 fp-h1">
-          <span aria-hidden="true">🐾</span> Why {SITE_NAME} exists
-        </h1>
+        <RecordLine label="Nonprofit" value="Chicago" className="mb-4" />
+        <h1 className="fp-h1">Why {SITE_NAME} exists</h1>
 
         <BannerArt priority src={neighbourhood} className="mt-8" />
 
@@ -89,6 +86,16 @@ export default function AboutPage() {
               is discovered at exactly the wrong moment — by a donor, or a
               grantmaker, or a journalist.
             */}
+            {/*
+              The same three marks used everywhere else on the site, applied to
+              the site itself. A visitor is most likely to assume tax-deductible
+              status in our favour if we say nothing, so we say something, in the
+              notation they have already learned on the homepage.
+            */}
+            <div className="grid gap-x-8 gap-y-3 border-y border-hairline py-5 sm:grid-cols-2">
+              <RecordLine status="none" label="501(c)(3) status" value="Not yet" />
+              <RecordLine status="none" label="Paid staff" value="None" />
+            </div>
             <p>
               {SITE_NAME} is being built as a nonprofit and is <strong>not yet an
               IRS-approved 501(c)(3)</strong>. We are pursuing that status and exploring fiscal

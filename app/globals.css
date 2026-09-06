@@ -264,7 +264,9 @@
 
   .fp-link {
     @apply text-brand underline decoration-brand/30 underline-offset-4
-           transition-colors hover:text-brand-dark hover:decoration-brand;
+           transition-colors hover:text-brand-dark hover:decoration-brand
+           focus-visible:outline focus-visible:outline-2
+           focus-visible:outline-offset-2 focus-visible:outline-brand;
   }
 
   .fp-badge {
@@ -332,19 +334,6 @@
  * JavaScript, a crawler, or a hydration failure sees every section in full
  * rather than a page of invisible boxes.
  */
-@layer components {
-  .fp-reveal {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-  }
-  .fp-reveal-in {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-    transition:
-      opacity 520ms cubic-bezier(0.22, 0.61, 0.36, 1),
-      transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-}
 
 /*
  * The reduced-motion contract, enforced in CSS rather than only in JS.
@@ -357,15 +346,6 @@
  * !important is load-bearing. These rules have to beat the utility classes and
  * the transitions declared above, whatever order the cascade puts them in.
  */
-@media (prefers-reduced-motion: reduce) {
-  .fp-reveal,
-  .fp-reveal-in {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-
-}
 
 /*
  * Scoped to the widths where the sticky treatment actually exists. Unscoped,
@@ -374,17 +354,6 @@
  * collapsing into it, so a reduced-motion visitor on a phone got 32px between
  * cards where everyone else got 16px.
  */
-@media (prefers-reduced-motion: reduce) and (min-width: 768px) {
-  .fp-sticky-card {
-    position: static !important;
-    transform: none !important;
-    margin-bottom: 1rem !important;
-  }
-
-  .fp-sticky-card:last-child {
-    margin-bottom: 0 !important;
-  }
-}
 
 /*
  * The sticky step stack. Desktop only: on a phone, four cards pinned in
@@ -403,13 +372,6 @@
    * arriving. It lives here, next to the position it exists to serve, because
    * reduced motion has to collapse both together.
    */
-  .fp-sticky-card {
-    position: sticky;
-    margin-bottom: 16vh;
-  }
-  .fp-sticky-card:last-child {
-    margin-bottom: 0;
-  }
 }
 
 /*
@@ -569,25 +531,6 @@
  * hiding the one affordance that tells a first-time visitor there is anything
  * below the fold.
  */
-.fp-splash {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: calc(
-    100svh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
-  );
-}
-
-@supports not (min-height: 100svh) {
-  .fp-splash {
-    min-height: calc(
-      100vh - var(--fp-header-h) - var(--fp-joinbar-h) - var(--fp-splash-gap)
-    );
-  }
-}
 
 .fp-splash-inner {
   position: relative;
@@ -609,28 +552,6 @@
  * Where backdrop-filter is unsupported the background steps up to near-opaque,
  * because a 55% panel over an unblurred landscape is not legible.
  */
-.fp-splash-card {
-  max-width: 46rem;
-  padding: 2rem;
-  border-radius: 1.75rem;
-  border: 1px solid rgba(251, 247, 240, 0.55);
-  background: rgba(251, 247, 240, 0.94);
-  box-shadow: 0 24px 60px -32px rgba(38, 34, 28, 0.45);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .fp-splash-card {
-    background: rgba(251, 247, 240, 0.62);
-    -webkit-backdrop-filter: blur(18px) saturate(1.25);
-    backdrop-filter: blur(18px) saturate(1.25);
-  }
-}
-
-@media (min-width: 640px) {
-  .fp-splash-card {
-    padding: 2.75rem 3rem;
-  }
-}
 
 /*
  * Sage's stage.
@@ -672,23 +593,6 @@
   }
 }
 
-.fp-sage-plane {
-  position: relative;
-  transform: translate3d(0, var(--fp-sage-y, 0px), 120px)
-    rotateX(var(--fp-sage-rx, 0deg)) rotateY(var(--fp-sage-ry, 0deg));
-  opacity: var(--fp-sage-fade, 1);
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.fp-sage-mark {
-  position: relative;
-  z-index: 1;
-  width: clamp(10rem, 27vmin, 21rem);
-  height: auto;
-  filter: drop-shadow(0 22px 34px rgba(38, 34, 28, 0.26));
-}
-
 /*
  * Tablet and small laptop: in flow above the card, the way the phone does it,
  * because there is no free column beside a 46rem card at these widths.
@@ -701,9 +605,6 @@
  * avoid. 13vmin and a 4.5rem gutter (still clear of the ~4rem cue) fit it.
  */
 @media (min-width: 768px) and (max-width: 1279px) {
-  .fp-sage-mark {
-    width: clamp(6rem, 13vmin, 9rem);
-  }
   .fp-splash-inner {
     padding-bottom: 4.5rem;
   }
@@ -712,31 +613,6 @@
 
 
 /* The way down. A real link, so it works from the keyboard. */
-.fp-splash-cue {
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  bottom: 1.75rem;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(38, 34, 28, 0.12);
-  background: rgba(251, 247, 240, 0.72);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  color: #26221c;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 200ms ease-out;
-}
-
-.fp-splash-cue:hover {
-  background: rgba(251, 247, 240, 0.92);
-}
 
 /*
  * A two-tone ring, because this is the one focusable control on the site that
@@ -756,15 +632,6 @@
  * indicator itself, so the contrast holds over any ridge colour, over the sky,
  * and over the canvas.
  */
-.fp-splash-cue:focus-visible {
-  outline: 2px solid #26221c;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px #fbf7f0;
-}
-
-.fp-splash-cue svg {
-  animation: fp-cue-bob 2.4s ease-in-out infinite;
-}
 
 @keyframes fp-cue-bob {
   0%,
@@ -798,20 +665,8 @@
    * wherever the splash happens to end — which twice was underneath the fixed
    * join bar. In flow it simply follows the card and cannot collide.
    */
-  .fp-splash-cue {
-    position: static;
-    align-self: center;
-    margin-top: 1rem;
-    transform: none;
-  }
   .fp-splash-inner {
     padding-bottom: 3rem;
-  }
-  .fp-splash-card {
-    padding: 1.25rem 1.25rem 1.375rem;
-  }
-  .fp-sage-mark {
-    width: clamp(5rem, 21vw, 6.5rem);
   }
   .fp-sage-stage {
     margin-bottom: 0.75rem;
@@ -832,9 +687,6 @@
 @media (max-width: 639px) {
   .fp-splash-inner {
     padding-bottom: 0;
-  }
-  .fp-splash-cue {
-    margin-top: 0.75rem;
   }
 }
 
@@ -869,20 +721,162 @@
   .fp-splash-card > .mt-7 {
     margin-top: 1rem;
   }
-  .fp-splash-card {
-    padding: 1rem 1rem 1.125rem;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * The Open File — record vocabulary
+ * ---------------------------------------------------------------------------
+ *
+ * Three marks, one meaning each, used site-wide and never decoratively:
+ *
+ *   fp-mark--verified   a person reviewed a document
+ *   fp-mark--pending    submitted, queued, not yet reviewed
+ *   fp-mark--none       the thing does not exist, and we say so
+ *
+ * The third is the one that earns the system. This project already publishes
+ * its own gaps — no 501(c)(3), no partner vets, no vet-reviewed guides — and
+ * today a visitor reads those as an unfinished site. Given a fixed notation
+ * they read as the most credible statements on the domain.
+ *
+ * Marks are drawn in CSS rather than set as glyphs (■ □ ⊘). At 9px a glyph is
+ * at the mercy of whatever fallback font resolves, and the struck square in
+ * particular has no reliable coverage. Drawn, all three are identical on every
+ * platform and scale with the surrounding type.
+ */
+@layer components {
+  .fp-meta {
+    @apply font-meta uppercase text-ink-soft;
+    font-size: 0.6875rem; /* 11 — matches .fp-eyebrow so the two can sit in one row */
+    letter-spacing: 0.1em;
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
   }
-  .fp-sage-mark {
-    width: clamp(3.25rem, 15vw, 4.5rem);
+
+  .fp-mark {
+    display: inline-block;
+    width: 0.5625rem; /* 9 */
+    height: 0.5625rem;
+    flex: 0 0 0.5625rem;
+    position: relative;
+    /* Optically centred against 11px uppercase metadata, not baseline-aligned. */
+    vertical-align: 0.03em;
+  }
+  .fp-mark--verified {
+    @apply bg-brand;
+  }
+  /*
+   * Hollow, and outlined in brand rather than hairline.
+   *
+   * hairline (#E7DFD1) against brand.moss (#D2E4DA) is about 1.1:1 — on the
+   * roadmap band the pending mark simply vanished, which is the worst possible
+   * failure for a status system: a state that renders as nothing is
+   * indistinguishable from a row that forgot its mark. brand carries well over
+   * the 3:1 non-text floor on every rung of the surface ramp, and hollow-green
+   * to filled-green is the right reading for "on its way to verified".
+   */
+  .fp-mark--pending {
+    @apply border-[1.5px] border-brand bg-transparent;
+  }
+  .fp-mark--none {
+    border: 1.5px solid theme('colors.ink.soft');
+    background-color: transparent;
+  }
+  /*
+   * The strike. A gradient rather than a rotated pseudo-element because a
+   * rotation needs a transform origin that survives the parent's own layout,
+   * and this box is 9px — there is no room for it to be wrong.
+   */
+  .fp-mark--none::after {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    background: linear-gradient(
+      to bottom right,
+      transparent 44%,
+      theme('colors.ink.soft') 44%,
+      theme('colors.ink.soft') 56%,
+      transparent 56%
+    );
+  }
+
+  /*
+   * A record line: mark, field label, value. The unit the whole direction is
+   * built from. Wraps rather than truncates — a clipped record is a lie by
+   * omission on a site whose argument is that it shows you everything.
+   */
+  .fp-record {
+    @apply fp-meta inline-flex flex-wrap items-baseline gap-x-2 gap-y-1;
+  }
+  .fp-record__mark {
+    /* Baseline alignment inside an items-baseline flex row needs a nudge: the
+       mark has no baseline of its own, so the browser uses its bottom edge. */
+    position: relative;
+    top: -0.0625rem;
+  }
+  .fp-record__value {
+    @apply text-ink;
+  }
+  .fp-record__value::before {
+    content: '·';
+    @apply text-hairline;
+    margin-right: 0.45rem;
+  }
+
+  /*
+   * The ruled row. Replaces the card as the unit of grouping in most places:
+   * a hairline costs nothing, stacks without gutters, and reads as a ledger
+   * rather than as a deck of tiles.
+   */
+  .fp-row {
+    @apply border-t border-hairline py-5;
+  }
+  .fp-row:first-child {
+    @apply border-t-0 pt-0;
+  }
+
+  /*
+   * The metadata rail. A narrow left column carrying the file number and the
+   * field name, with the reading column beside it. Collapses to a stacked
+   * label above the content below md, where a 120px column would leave the
+   * prose at about 28 characters.
+   */
+  .fp-rail {
+    @apply grid gap-x-8 gap-y-2 md:grid-cols-[7.5rem_1fr];
+  }
+
+  /*
+   * The ledger: a ruled list whose rail column is the same width on every row.
+   *
+   * Getting here took three wrong turns worth recording. A fixed 7.5rem rail
+   * wrapped "VACCINATION RECORD · REVIEWED" onto three lines; 13.5rem still
+   * wrapped it; and sizing each row's own grid to `max-content` stopped the
+   * wrapping but sized the rail *per row*, so the notes started at five
+   * different x positions. Columns that do not line up are not a ledger — they
+   * are five unrelated two-column layouts stacked on top of each other.
+   *
+   * So the grid lives on the list, and each row opts into `subgrid`: the rail
+   * is measured once against the longest record in the whole list, every row
+   * aligns to it, and each row still carries its own rule and padding. Adding
+   * a longer field later widens the column for everything rather than silently
+   * reintroducing the wrap.
+   *
+   * Where subgrid is unsupported the declaration is dropped and rows fall back
+   * to stacking, which is what they already do below md.
+   */
+  .fp-ledger {
+    @apply grid;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .fp-splash-cue svg {
-    animation: none !important;
+@media (min-width: 768px) {
+  .fp-ledger {
+    grid-template-columns: max-content 1fr;
   }
-  .fp-sage-plane {
-    transform: translate3d(0, 0, 120px) !important;
-    opacity: 1 !important;
+  .fp-ledger > * {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    column-gap: 2rem;
   }
 }

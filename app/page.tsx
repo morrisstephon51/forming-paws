@@ -10,28 +10,27 @@ import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import WorldflightHero from '@/components/homepage/WorldflightHero'
-import SectionDivider from '@/components/art/SectionDivider'
-import StepStack from '@/components/motion/StepStack'
+import FileHero from '@/components/homepage/FileHero'
+import RecordLine from '@/components/record/RecordLine'
+import Mark, { type MarkStatus } from '@/components/record/Mark'
 import Sage from '@/components/mascot/Sage'
-
-/**
- * The scrollcraft rebuild (2026-09-01) replaced Splash, Reveal and CountUp:
- * the opening is now WorldflightHero (a two-leg illustrated worldflight, see
- * its own file docs), and everything below uses the scrollcraft engine's own
- * `flow` + `in` + `count` devices instead of the old bespoke components —
- * one engine mounted once, covering the worldflight hero and this ordinary
- * document-flow body in the same pass. StepStack is untouched; it is a
- * layout primitive, not a competing motion system.
- */
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
  *
- * This replaces the GitHub Pages index.html. Everything that page carried is
- * here (hero, how it works, health-first, roadmap, waitlist) so moving the
- * domain to Vercel loses nothing, plus the sign-in panel so a returning member
- * never has to hunt for a second page.
+ * "The Open File" (2026-09-05). Direction and rationale:
+ * docs/superpowers/specs/2026-09-05-the-open-file-design.md
+ *
+ * The thesis is that every competitor asks to be trusted and this one shows
+ * you the file, including what is missing from it — so the page is structured
+ * as a record rather than as a pitch, and its status vocabulary is honest in
+ * both directions. `NOT YET` is published on purpose.
+ *
+ * This replaced the scrollcraft worldflight, which occupied the first 4,200px
+ * of a 9,834px page, set body copy over illustration, and hid every element
+ * behind `[data-sc-in]` until JavaScript ran. There is deliberately no
+ * scroll-triggered animation anywhere on this page: everything meant to be
+ * read is present and visible in the server HTML at first paint.
  *
  * Credentials are handled by LoginForm and nowhere else.
  */
@@ -59,63 +58,113 @@ const STEPS = [
   },
 ]
 
-const HEALTH = [
+/**
+ * What a file contains, told through the marks themselves.
+ *
+ * Deliberately not a specimen dog. Inventing "Juno, 4yr, Logan Square" with a
+ * green verified badge to demonstrate the component would be a fabricated
+ * record on the one site that cannot afford one — the same failure category as
+ * the "expert-reviewed guides" claim already stripped from this page. Naming
+ * the fields and showing the three states teaches the vocabulary without
+ * asserting anything false about an animal that does not exist.
+ */
+const FILE_FIELDS: { status: MarkStatus; label: string; value: string; note: string }[] = [
   {
-    icon: '🩺',
-    title: 'Verified health vault',
-    body: 'Matching stays locked until baseline vet documentation is reviewed. A green verified badge means real, checked records, not an honour system.',
+    status: 'verified',
+    label: 'Vaccination record',
+    value: 'Reviewed',
+    note: 'Core vaccinations, read by a person against the dates on the document itself.',
   },
   {
-    icon: '❤️‍🩹',
+    status: 'verified',
+    label: 'Wellness exam',
+    value: 'Reviewed',
+    note: 'A general veterinary exam. We check that it is recent, not just that a file was uploaded.',
+  },
+  {
+    status: 'verified',
+    label: 'Breed screening',
+    value: 'Reviewed',
+    note: 'Hips, eyes or heart, depending on the dog. What is appropriate for a mixed breed is not what is appropriate for a retriever.',
+  },
+  {
+    status: 'pending',
+    label: 'In review',
+    value: '',
+    note: 'What you see while we read it. Uploaded and queued, and matching stays locked until a person has actually looked.',
+  },
+  {
+    status: 'none',
+    label: 'Not yet',
+    value: '',
+    note: 'What you see when a document is missing. The gap is shown rather than hidden, because a blank space you cannot see is indistinguishable from a document nobody ever uploaded.',
+  },
+]
+
+const MEETING = [
+  'Meet in a neutral, public place. Neither home, the first time.',
+  'Bring the paperwork you uploaded, on paper. Both owners exchange the same set.',
+  'Chat is locked until interest is mutual, so nobody is messaged out of the blue.',
+  'Either owner can report a conversation, and a real person reads the report.',
+]
+
+const HEALTH = [
+  {
+    title: 'Verified health vault',
+    body: 'Matching stays locked until baseline vet documentation is reviewed. A verified mark means real, checked records, not an honour system.',
+  },
+  {
     title: 'A path to healthy',
     body: "Dogs whose records don't pass aren't rejected. Right now that means a referral to PAWS Chicago's low-cost veterinary clinic; a dedicated partner network is next.",
   },
   {
-    // "Litter caps per profile" was aspirational until migration 0026 --
-    // grep found zero implementing code before it. Now real: one litter per
-    // parent dog per rolling 12 months, enforced at insert time, not just
-    // stated here.
-    icon: '🚫',
     title: 'Built against puppy mills',
     body: 'A hard cap of one litter per dog per year, mandatory documentation, and community reporting keep high-volume breeders off the platform.',
   },
 ]
 
-const ROADMAP = [
+/**
+ * The roadmap, carrying real marks.
+ *
+ * `mark` maps each item onto the same three-state axis the rest of the site
+ * uses — confirmed, underway, absent — and `markLabel` gives the screen-reader
+ * name appropriate to a roadmap rather than to a health document. "Vision" is
+ * an absence and is marked as one; softening it to `pending` would be exactly
+ * the aspirational claim this page has had stripped out of it twice.
+ */
+const ROADMAP: { tag: string; mark: MarkStatus; markLabel: string; title: string; body: string }[] = [
   {
     tag: 'Now',
+    mark: 'verified',
+    markLabel: 'Live',
     title: 'Matching platform',
     body: 'Profiles, health verification, local matching, and owner chat: the foundation you are looking at today.',
   },
   {
-    // "Vet partner network" implied an existing directory of clinics before
-    // one existed. The honest version of Now is a real, nameable referral
-    // (PAWS Chicago's low-cost clinic) standing in for the network until
-    // we've actually recruited and vetted one.
     tag: 'Now',
+    mark: 'verified',
+    markLabel: 'Live',
     title: 'PAWS Chicago referral',
     body: "Dogs that don't pass health review are pointed to PAWS Chicago's low-cost veterinary clinic today, while we build a dedicated partner network.",
   },
   {
-    // "Expert-reviewed" was aspirational and is now checkable: /education is
-    // live and no veterinarian has reviewed it. The claim moves to what is
-    // actually true, and the page says so itself.
     tag: 'Started',
+    mark: 'pending',
+    markLabel: 'In progress',
     title: 'Education hub',
     body: 'Practical guides on documentation, questions for your vet, and meeting safely. Live now, and growing as the vet network does.',
   },
   {
-    // Scoped deliberately, not a full storefront: see the 2026-08-26 finding
-    // this repeats -- live-animal sales are a restricted category for most
-    // payment processors, and Illinois PA 102-0227 constrains retail pet
-    // sales. Live as listings with in-app inquiries only, no checkout. Full
-    // plan: docs/superpowers/specs/2026-09-03-puppy-marketplace-design.md.
     tag: 'Started',
+    mark: 'pending',
+    markLabel: 'In progress',
     title: 'Puppy marketplace',
     body: 'Verified litters, listed and browsable at /marketplace. Inquiries happen in-app; no payment moves through Forming Paws.',
   },
   {
     tag: 'Vision',
+    mark: 'none',
+    markLabel: 'Not built',
     title: 'Safe breeding facility',
     body: 'A physical safe space for supervised mating, breeding, and whelping, run by the nonprofit.',
   },
@@ -144,219 +193,295 @@ export default async function HomePage({
   return (
     <>
       <main>
-        <WorldflightHero />
+        <FileHero />
 
-        <div className="fp-shell py-8">
         {/*
-          The first thing below the splash, and the reason the splash can afford
-          to carry nothing but a statement: everything functional that used to
-          compete with the headline is here instead — the three trust points and
-          the sign-in panel, one scroll down and nothing hidden.
+          The ledger strip.
+
+          Four facts, server-rendered as literal text. This replaced two
+          scroll-driven counters that shipped `0` in the HTML and only reached
+          their real values once the engine animated them — so every crawler and
+          every visitor without JavaScript was told there were "0 founding
+          spots". Every value here is a constant the site can actually stand
+          behind, and the fourth is an absence, stated in the same notation as
+          the other three.
         */}
-        <div
-          id="start"
-          data-sc-act="flow"
-          data-sc-drift="#FBF7F0"
-          className="grid scroll-mt-6 gap-10 pt-10 md:grid-cols-5 md:items-start"
-          data-sc-in
-          data-sc-stagger="70"
-        >
-          <section className="md:col-span-3">
-            <h2 className="fp-h2">Start here</h2>
-            <p className="fp-lead mt-3">
-              Three things that shape every match on Forming Paws.
+        <section aria-label="At a glance" className="fp-shell mt-12 sm:mt-16">
+          <div className="grid gap-x-8 gap-y-4 border-y border-hairline py-5 sm:grid-cols-2 lg:grid-cols-4">
+            <RecordLine label="Founding spots" value="20" />
+            <RecordLine label="Max reply time" value={`${RESPONSE_TIME.hours}h`} />
+            <RecordLine label="Launch city" value="Chicago" />
+            <RecordLine status="none" label="Vet-reviewed guides" value="Not yet" />
+          </div>
+        </section>
+
+        <div className="fp-shell">
+          {/* ---------- 04 · What a file contains ---------- */}
+          <section id="file" className="mt-16 scroll-mt-24 sm:mt-20">
+            <RecordLine label="Section 01" value="The record" className="mb-4" />
+            <h2 className="fp-h2">What a file contains</h2>
+            <p className="fp-lead mt-3 max-w-[46rem]">
+              Three documents, one status each. The same three marks appear on every dog,
+              every page and every claim on this site, and they mean the same thing each
+              time.
             </p>
-            <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-              <div>
-                <dt className="font-semibold">Health-gated</dt>
-                <dd className="text-sm text-ink-soft">
-                  matching unlocks only after vet docs are verified
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold">Local-first</dt>
-                <dd className="text-sm text-ink-soft">
-                  find partners by distance, never exact addresses
-                </dd>
-              </div>
-              <div>
-                <dt className="font-semibold">Owner-safe</dt>
-                <dd className="text-sm text-ink-soft">
-                  in-app chat, neutral meetup guidance, report tools
-                </dd>
-              </div>
-            </dl>
+
+            <ul className="fp-ledger mt-8">
+              {FILE_FIELDS.map((field) => (
+                <li key={field.label} className="fp-row">
+                  <RecordLine
+                    status={field.status}
+                    label={field.label}
+                    value={field.value}
+                    className="md:flex-nowrap md:whitespace-nowrap md:pt-1"
+                  />
+                  <p className="text-ink-soft">{field.note}</p>
+                </li>
+              ))}
+            </ul>
           </section>
 
-          {/*
-          No signed-in branch here any more: a signed-in visitor was redirected
-          to /home before this rendered, so anyone reading this panel needs the
-          sign-in form.
-        */}
-          <section id="signin" className="fp-card p-6 md:col-span-2">
-            <h2 className="fp-h4">Member sign in</h2>
-            <LoginForm
-              error={params.error ?? null}
-              offerResend={params.resend === '1'}
-              initialEmail={safeEmailParam(params.email)}
-            />
-            <p className="mt-6 border-t border-brand/15 pt-6 text-sm text-ink-soft">
-              New here?{' '}
-              <Link href="/signup" className="fp-link">
-                Create your account and dog profile
-              </Link>
+          {/* ---------- 05 · How review works ---------- */}
+          <section id="how" className="mt-16 scroll-mt-24 sm:mt-20">
+            <RecordLine label="Section 02" value="The process" className="mb-4" />
+            <h2 className="fp-h2">How Forming Paws works</h2>
+            <p className="fp-lead mt-3 max-w-[46rem]">
+              Four steps from profile to a documented match. Numbered because the order
+              matters: nothing unlocks out of sequence.
             </p>
-          </section>
-        </div>
 
-        <section id="how" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
-          <h2 className="fp-h2">
-            <span aria-hidden="true">🐾</span> How Forming Paws works
-          </h2>
-          <p className="mt-2 text-ink-soft">
-            Four steps from profile to a safe, well-documented match.
-          </p>
-          <StepStack
-            items={STEPS.map((step) => ({
-              key: step.n,
-              children: (
-                <div className="fp-card md:flex md:items-start md:gap-7">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-ivory">
-                    {step.n}
-                  </span>
-                  <div className="mt-3 md:mt-0">
+            {/*
+              Numbered ruled rows, not a card deck. These genuinely are a
+              sequence, which is the only thing that justifies numbering them —
+              the roadmap below is not one, and is not numbered.
+            */}
+            <ol className="mt-8">
+              {STEPS.map((step) => (
+                <li key={step.n} className="fp-row fp-rail">
+                  <span className="fp-meta text-ink">Step {step.n}</span>
+                  <div>
                     <h3 className="fp-h4">{step.title}</h3>
                     <p className="mt-2 text-ink-soft">{step.body}</p>
                   </div>
-                </div>
-              ),
-            }))}
-          />
-        </section>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-        {/* Breathing room between the two heaviest sections on the page. */}
-        <SectionDivider className="mt-16" />
-
-        <section id="health" data-sc-act="flow" className="mt-4 scroll-mt-8" data-sc-in data-sc-stagger="70">
-          <h2 className="fp-h2">
-            <span aria-hidden="true">🐾</span> Health first. It&apos;s the whole point
-          </h2>
-          <p className="mt-2 text-ink-soft">
-            Forming Paws exists to raise the standard of dog breeding, not just to make
-            introductions.
-          </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {HEALTH.map((card) => (
-              <div key={card.title} className="fp-card" data-sc-tilt="6">
-                <span className="text-2xl" aria-hidden="true">
-                  {card.icon}
-                </span>
-                <h3 className="mt-3 fp-h5">{card.title}</h3>
-                <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
+          {/* ---------- 06 · Meeting safely ---------- */}
+          <section id="safety" className="mt-16 scroll-mt-24 sm:mt-20">
+            <div className="grid gap-10 md:grid-cols-2">
+              <div>
+                <RecordLine label="Section 03" value="Safety" className="mb-4" />
+                <h2 className="fp-h2">Meeting safely</h2>
+                <p className="fp-lead mt-3">
+                  Health documentation is only half of it. The other half is that two
+                  strangers have to meet, and the platform should have an opinion about how.
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
+              <ul className="rounded-xl bg-wash p-7">
+                {MEETING.map((line) => (
+                  <li
+                    key={line}
+                    className="flex gap-3 border-t border-hairline py-3 first:border-t-0 first:pt-0 last:pb-0"
+                  >
+                    <Mark status="verified" label="" className="mt-[0.45rem]" />
+                    <span className="text-ink-soft">{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
 
-        <section id="roadmap" data-sc-act="flow" className="mt-20 scroll-mt-8" data-sc-in data-sc-stagger="70">
-          <h2 className="fp-h2">Where we&apos;re headed</h2>
-          <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {ROADMAP.map((item) => (
-              // key is title, not tag: two items now legitimately share the
-              // "Now" tag (Matching platform, PAWS Chicago referral).
-              <li key={item.title} className="fp-card" data-sc-tilt="6">
-                <span className="fp-eyebrow">
-                  {item.tag}
-                </span>
-                <h3 className="mt-2 fp-h5">{item.title}</h3>
-                <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* Visitors only reach this page signed out, so no guard is needed.
-            data-sc-act="flow" (not just data-sc-in) because data-sc-count
-            only registers for counters inside a [data-sc-act] element. */}
-        <section id="waitlist" data-sc-act="flow" data-sc-in data-sc-stagger="70" className="fp-band mt-20 scroll-mt-8">
-          <h2 className="fp-h2">Be a Founding Member</h2>
-          <p className="mt-2 text-ink-soft">
-            Join the waitlist. The first 20 owners in our launch city get health verification{' '}
-            <strong>free for life</strong>.
-          </p>
-          <div className="mt-7 grid gap-6 sm:max-w-md sm:grid-cols-2">
-            <p>
-              <span className="fp-h2 block text-brand">
-                <span data-sc-count="0 20" data-sc-count-at="0.1 0.5">0</span>
-              </span>
-              <span className="fp-eyebrow mt-1 block">founding spots</span>
+          {/* ---------- Health principles ---------- */}
+          <section id="health" className="mt-16 scroll-mt-24 sm:mt-20">
+            <RecordLine label="Section 04" value="Principles" className="mb-4" />
+            <h2 className="fp-h2">Health first. It&apos;s the whole point</h2>
+            <p className="fp-lead mt-3 max-w-[46rem]">
+              Forming Paws exists to raise the standard of dog breeding, not just to make
+              introductions.
             </p>
-            <p>
-              <span className="fp-h2 block text-brand">
-                <span data-sc-count={`0 ${RESPONSE_TIME.hours}`} data-sc-count-at="0.15 0.55">0</span>h
-              </span>
-              <span className="fp-eyebrow mt-1 block">max reply time</span>
-            </p>
-          </div>
-          <WaitlistForm />
-          <p className="mt-4 text-sm text-ink-soft">
-            Ready now?{' '}
-            <Link href="/signup" className="fp-link font-semibold">
-              Create your account &amp; dog profile
-            </Link>{' '}
-            · or{' '}
-            <Link href="/app" className="fp-link">
-              see what the app looks like
-            </Link>{' '}
-            first.
-          </p>
-        </section>
+            <div className="mt-8 grid gap-0 sm:grid-cols-3 sm:gap-8">
+              {HEALTH.map((card) => (
+                <div key={card.title} className="fp-row sm:border-t sm:pt-5">
+                  <h3 className="fp-h5">{card.title}</h3>
+                  <p className="mt-2 text-sm text-ink-soft">{card.body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        <section id="faq" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
-          <h2 className="fp-h2">Questions people ask first</h2>
-          <p className="mt-2 text-ink-soft">
-            The five that come up most.{' '}
-            <Link href="/faq" className="fp-link">
-              All of them, on one page
-            </Link>
-            .
-          </p>
-          <div className="mt-6 flex flex-col gap-3">
-            {FAQS.map((faq) => (
-              <details key={faq.question} className="fp-card">
-                <summary className="cursor-pointer font-semibold">{faq.question}</summary>
-                <p className="mt-3 text-sm text-ink-soft">{faq.answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
+          {/* ---------- 07 · Where we are ---------- */}
+          <section id="roadmap" className="mt-16 scroll-mt-24 sm:mt-20">
+            {/*
+              The one contained inversion on the page: a moss band with ivory
+              visible on all four sides, so the band reads as a surface element
+              rather than as a background takeover.
 
-        <section data-sc-act="flow" className="fp-band-deep mt-16" data-sc-in data-sc-stagger="70">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="fp-h2">Still deciding?</h2>
-              <p className="mt-2 text-ink-soft">
-                {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person answers.
+              This sits *above* the join form on purpose. Showing a stranger
+              what is not built before asking for their email costs some
+              conversions and buys the ones it keeps.
+            */}
+            <div className="fp-band-deep">
+              <RecordLine label="Section 05" value="Status" className="mb-4" />
+              <h2 className="fp-h2">Where we&apos;re headed</h2>
+              <p className="fp-lead mt-3 max-w-[46rem]">
+                A nonprofit that grows with its community. What is live, what is underway,
+                and what does not exist yet.
+              </p>
+              <ul className="mt-8">
+                {ROADMAP.map((item) => (
+                  // key is title, not tag: two items legitimately share "Now".
+                  <li key={item.title} className="fp-row fp-rail border-brand/15">
+                    <RecordLine
+                      status={item.mark}
+                      markLabel={item.markLabel}
+                      label={item.tag}
+                      className="md:pt-1"
+                    />
+                    <div>
+                      <h3 className="fp-h5">{item.title}</h3>
+                      <p className="mt-2 text-sm text-ink-soft">{item.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* ---------- 08 · Sign in ---------- */}
+          {/*
+            No signed-in branch: a signed-in visitor was redirected to /home
+            before this rendered, so anyone reading this panel needs the form.
+          */}
+          <section id="signin" className="mt-16 scroll-mt-24 sm:mt-20">
+            <div className="grid gap-10 md:grid-cols-5 md:items-start">
+              <div className="md:col-span-2">
+                <RecordLine label="Members" value="Sign in" className="mb-4" />
+                <h2 className="fp-h3">Already have an account?</h2>
+                <p className="mt-3 text-ink-soft">
+                  Straight back to your dogs, your records and your conversations.
+                </p>
+              </div>
+              <div className="rounded-xl bg-wash p-7 md:col-span-3">
+                <LoginForm
+                  error={params.error ?? null}
+                  offerResend={params.resend === '1'}
+                  initialEmail={safeEmailParam(params.email)}
+                />
+                <p className="mt-6 border-t border-hairline pt-6 text-sm text-ink-soft">
+                  New here?{' '}
+                  <Link href="/signup" className="fp-link">
+                    Create your account and dog profile
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ---------- 09 · Join ---------- */}
+          {/*
+            The one centred block on the page. The symmetry is the signal that
+            this is the end of the file and the point at which it asks you for
+            something.
+          */}
+          <section id="waitlist" className="fp-band mt-16 scroll-mt-24 text-center sm:mt-20">
+            <div className="mx-auto max-w-xl">
+              <h2 className="fp-h2">Be a Founding Member</h2>
+              <p className="fp-lead mt-3">
+                Join the waitlist. The first 20 owners in our launch city get health
+                verification <strong className="text-ink">free for life</strong>.
+              </p>
+              <div className="mt-7 text-left">
+                <WaitlistForm />
+              </div>
+              <p className="mt-5 text-sm text-ink-soft">
+                Ready now?{' '}
+                <Link href="/signup" className="fp-link font-semibold">
+                  Create your account &amp; dog profile
+                </Link>{' '}
+                · or{' '}
+                <Link href="/app" className="fp-link">
+                  see what the app looks like
+                </Link>{' '}
+                first.
               </p>
             </div>
-            <Sage mood="celebrating" size={72} />
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/contact" className="fp-btn" data-sc-magnet="0.24">
-              Ask a question
-            </Link>
-            <Link href="/app" className="fp-btn-ghost">
-              See the app
-            </Link>
-          </div>
-          <div className="mt-6">
-            <ShareButtons
-              url={SITE_URL}
-              title="Forming Paws: health-verified breeding matches for dog owners"
-            />
-          </div>
-        </section>
+          </section>
+
+          {/* ---------- 10 · Questions ---------- */}
+          <section id="faq" className="mt-16 scroll-mt-24 sm:mt-20">
+            <RecordLine label="Section 06" value="Questions" className="mb-4" />
+            <h2 className="fp-h2">Questions people ask first</h2>
+            <p className="fp-lead mt-3">
+              The five that come up most.{' '}
+              <Link href="/faq" className="fp-link">
+                All of them, on one page
+              </Link>
+              .
+            </p>
+            <div className="mt-8">
+              {FAQS.map((faq, i) => (
+                <details
+                  key={faq.question}
+                  /* The first two are open so the section is not a wall of
+                     closed doors, and so a reader who never clicks still
+                     leaves with two answers. */
+                  open={i < 2}
+                  className="fp-row group"
+                >
+                  <summary className="cursor-pointer font-semibold marker:text-hairline">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 max-w-[52rem] text-sm text-ink-soft">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          {/* ---------- Closing ---------- */}
+          <section className="fp-band-deep mt-16 sm:mt-20">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="fp-h3">Still deciding?</h2>
+                <p className="mt-2 text-ink-soft">
+                  {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person
+                  answers.
+                </p>
+              </div>
+              <Sage mood="celebrating" size={72} />
+            </div>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/contact" className="fp-btn">
+                Ask a question
+              </Link>
+              <Link href="/app" className="fp-btn-ghost">
+                See the app
+              </Link>
+            </div>
+            <div className="mt-6">
+              <ShareButtons
+                url={SITE_URL}
+                title="Forming Paws: health-verified breeding matches for dog owners"
+              />
+            </div>
+          </section>
+
+          {/* ---------- 11 · The site's own status block ---------- */}
+          {/*
+            The colophon. Forming Paws applies its own notation to itself, in
+            public, above the footer. These are the three things a visitor is
+            most likely to assume in our favour if we say nothing — so we say
+            something, in the same three marks used everywhere else.
+          */}
+          <section aria-label="Forming Paws status" className="mt-16 sm:mt-20">
+            <RecordLine label="This site" value="Status" className="mb-4" />
+            <div className="grid gap-x-8 gap-y-4 border-y border-hairline py-5 sm:grid-cols-3">
+              <RecordLine status="none" label="501(c)(3) status" value="Not yet" />
+              <RecordLine status="none" label="Partner vets" value="None enrolled" />
+              <RecordLine status="none" label="Vet-reviewed guides" value="Not yet" />
+            </div>
+          </section>
         </div>
       </main>
 

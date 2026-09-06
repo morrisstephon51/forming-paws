@@ -3,6 +3,7 @@ import SiteFooter from '@/components/SiteFooter'
 import { pageMetadata } from '@/lib/seo'
 import { CONTACT_EMAIL, SITE_NAME } from '@/lib/site'
 import { RESPONSE_TIME } from '@/lib/promise'
+import RecordLine from '@/components/record/RecordLine'
 
 export const metadata = pageMetadata({
   title: 'Vet partners',
@@ -35,26 +36,59 @@ export default function VetsPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="fp-h1">
-          <span aria-hidden="true">🩺</span> Vet partners
-        </h1>
+        <RecordLine label="Directory" value="Vet partners" className="mb-4" />
+        <h1 className="fp-h1">Vet partners</h1>
 
         {/*
-          The honest state, first and unmissable. A directory page that implies
-          partners exist would send owners looking for a clinic that isn't there,
-          and the first thing a real vet would notice is that we listed nobody
-          they recognise.
+          The honest state, first and unmissable, and now in the same notation
+          the rest of the site uses. A directory page that implies partners
+          exist would send owners looking for a clinic that isn't there, and the
+          first thing a real vet would notice is that we listed nobody they
+          recognise.
+
+          The empty table below is the point. Describing an absence in a
+          paragraph reads as a site that is broken; rendering the directory with
+          its real column headers and no rows reads as a directory that is
+          honestly empty, which is what this is.
         */}
-        <div className="fp-card mt-6 border-l-4 border-l-accent">
-          <p className="font-semibold text-ink">
-            We do not have partner veterinarians yet.
-          </p>
-          <p className="mt-2 text-sm text-ink-soft">
+        <div className="mt-6 border-y border-hairline py-5">
+          <RecordLine status="none" label="Partner vets" value="None enrolled" />
+          <p className="mt-3 max-w-[46rem] text-ink-soft">
             This page describes what we are building, not something you can use today. There is no
             directory below because there is nobody in it. When there is, this page becomes the
             list.
           </p>
         </div>
+
+        <section aria-labelledby="directory" className="mt-10">
+          <h2 id="directory" className="fp-h3">
+            The directory
+          </h2>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[34rem] border-collapse text-left">
+              <thead>
+                <tr>
+                  {['Clinic', 'Neighbourhood', 'Services', 'Enrolled'].map((h) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className="fp-meta border-b border-hairline pb-2 pr-4 font-normal"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-ink-soft">
+                    No clinics enrolled yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <section aria-labelledby="why" className="mt-12">
           <h2 id="why" className="fp-h2">
