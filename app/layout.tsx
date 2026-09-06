@@ -112,7 +112,50 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" className={`${newsreader.variable} ${publicSans.variable}`}>
+    // suppressHydrationWarning because the gate script below deliberately adds
+    // `sc-js` to this element before React hydrates, so the server and client
+    // className necessarily differ. Scoped to <html> only: it suppresses the
+    // warning for this element's own attributes, not for the tree beneath it.
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${publicSans.variable}`}
+      suppressHydrationWarning
+    >
+      {/*
+        The scroll-reveal safety gate.
+
+        public/scrollcraft/scrollcraft.css sets `[data-sc-in] { opacity: 0 }`
+        unconditionally and only restores it once the engine adds `.sc-in`.
+        That put the whole front door one script failure away from a blank
+        page, and it served 26 invisible text nodes to anything that does not
+        run JavaScript — crawlers included.
+
+        Two guards, because one is not enough:
+
+        1. The class is added by script, so a visitor with no JavaScript never
+           gets the hiding rule at all. It runs before first paint, so a normal
+           visitor sees no flash of unrevealed content.
+        2. If the engine has not mounted within 2.5s — bad network, a 404 on
+           the asset, a throw inside the engine — the class is removed again
+           and everything simply appears. Reveal animation is a nicety; the
+           words are the product.
+
+        A blocking inline script in <head>, not an effect and not next/script.
+        An effect runs after paint, which is exactly when the flash would
+        happen. next/script with `beforeInteractive` renders as a direct child
+        of <html>, which is invalid nesting: React 19 refuses to hydrate it and
+        the page threw four hydration errors on every frame ("<html> cannot
+        contain a nested <script>"). An inline script in <head> runs at the same
+        point and nests legally.
+      */}
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "document.documentElement.classList.add('sc-js');setTimeout(function(){var s=window.ScrollCraft;if(!s||!s.instances||!s.instances.length){document.documentElement.classList.remove('sc-js')}},2500)",
+          }}
+        />
+      </head>
       {/*
         Clearance for whichever fixed bottom bar AppChrome renders, so neither
         can sit on top of the last element of a page — most often a submit

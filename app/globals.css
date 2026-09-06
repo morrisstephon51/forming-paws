@@ -880,3 +880,23 @@
     column-gap: 2rem;
   }
 }
+
+/*
+ * The reveal gate, second half. See the inline script in app/layout.tsx.
+ *
+ * scrollcraft.css hides [data-sc-in], [data-sc-stagger] > * and [data-sc-cue]
+ * at opacity 0 until its engine adds .sc-in. Those rules are correct only when
+ * the engine is actually going to run. Without `.sc-js` on <html> — no
+ * JavaScript, a failed asset, a throw inside the engine, or a crawler — they
+ * are the difference between a page and a blank sheet, so they are switched
+ * back off here.
+ *
+ * Overridden rather than edited into public/scrollcraft/scrollcraft.css, which
+ * is a vendored asset and would lose this on the next engine update.
+ */
+html:not(.sc-js) [data-sc-in],
+html:not(.sc-js) [data-sc-stagger] > *,
+html:not(.sc-js) [data-sc-cue] {
+  opacity: 1 !important;
+  transform: none !important;
+}
