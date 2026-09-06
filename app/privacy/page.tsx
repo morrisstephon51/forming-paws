@@ -1,4 +1,5 @@
 import { pageMetadata } from '@/lib/seo'
+import SiteFooter from '@/components/SiteFooter'
 import Link from 'next/link'
 import { CONTACT_EMAIL, LEGAL_LAST_UPDATED, SITE_NAME } from '@/lib/site'
 
@@ -10,7 +11,8 @@ export const metadata = pageMetadata({
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <>
+      <main className="mx-auto max-w-3xl px-6 py-12">
       <Link href="/" className="text-sm text-ink-soft underline">
         ← Back to {SITE_NAME}
       </Link>
@@ -198,5 +200,7 @@ export default function PrivacyPage() {
         </p>
       </div>
     </main>
+      <SiteFooter />
+    </>
   )
 }
