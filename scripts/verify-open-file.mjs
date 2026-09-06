@@ -12,7 +12,15 @@
 import { chromium } from '@playwright/test'
 
 const BASE = process.argv[2] ?? 'http://localhost:3100'
-const PAGES = ['/', '/about', '/vets', '/donate', '/education', '/faq', '/contact', '/privacy', '/terms']
+/*
+ * /login and /signup are here because every gated route redirects to /login,
+ * which makes it one of the most visited pages on the site, and because the two
+ * of them were the last pages still off the design system. They were also the
+ * only pages this instrument could not have caught a regression on.
+ *
+ * Still uncovered: /app and /thank-you.
+ */
+const PAGES = ['/', '/about', '/vets', '/donate', '/education', '/faq', '/contact', '/privacy', '/terms', '/login', '/signup']
 const WIDTHS = [375, 390, 768, 1024, 1440]
 
 const CHECKS = () => {
