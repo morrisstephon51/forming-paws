@@ -209,7 +209,15 @@ export default function WorldflightHero() {
            still cannot be read is exactly the case a ratio cannot see, so the
            plate is applied by rule rather than where a number dipped. */
         #fp-flight .fp-flight-copy--plate {
-          background: color-mix(in oklab, var(--sc-canvas) 88%, transparent);
+          /* 94%, not 88%. DESIGN.md validates accent.dark (#AD4727) as the
+             text-safe accent on ivory (5.30:1), paper, accent.soft and wash —
+             but a translucent plate over artwork is none of those, and at 88%
+             the 11px finale eyebrow measured 4.46:1 against the darkest pixel
+             behind it, four hundredths under the 4.5:1 floor for small text.
+             Measured on composited pixels, not computed from the token.
+             94% brings the plate close enough to true ivory to put every
+             validated ground back in range without going fully opaque. */
+          background: color-mix(in oklab, var(--sc-canvas) 94%, transparent);
           padding: 1rem 1.3rem;
           border-radius: 16px;
           /* Softens the plate edge into the artwork so it reads as light
