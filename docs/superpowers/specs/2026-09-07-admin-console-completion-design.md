@@ -113,6 +113,41 @@ is a counting decision rather than a claim about a dog's health.
 
 `match_thread_summaries` is `security invoker` and needs no edit.
 
+### The restatement hazard
+
+`browse_dogs`, `browse_puppies` and `community_stats` are all defined with
+`CREATE OR REPLACE`. Migration 0028 must restate each one **in full**, preserving
+every existing filter. `browse_dogs` carries a comment in its own body warning
+about precisely this:
+
+> Carried forward from 0022. This function is defined by CREATE OR REPLACE, so
+> any migration that restates it and omits this line silently un-hides every
+> deactivated owner's dogs from browse — a member who asked us to delete their
+> account would reappear in the feed.
+
+That comment exists because the filter has been lost this way before. The live
+production definitions — not the migration files, which the 2026-08-26 plan
+already establishes are not a source of truth — are the text to start from.
+
+### Folded-in fix: `browse_puppies` deactivation leak
+
+`browse_puppies` **lacks** the `and o.deactivated_at is null` filter that
+`browse_dogs` has. Its entire owner-side predicate is `d.owner_id <> auth.uid()`.
+`deactivate_own_account` only sets `owners.deactivated_at` and touches neither
+`dogs` nor `litters`, so that filter is the sole mechanism hiding a deactivated
+member from discovery — and the marketplace path skips it. A member who
+deactivates their account keeps their puppies listed at `/marketplace`.
+
+Verified latent, not active: production currently has 0 deactivated owners and
+0 dogs with a `litter_id`. It becomes live the moment Plan 2 (Puppy Listings)
+ships.
+
+Because 0028 already restates this function verbatim to add the `removed_at`
+filter, the fix is one additional line in the same statement. It gets its own
+step and its own commit in the plan rather than riding along inside a soft-delete
+change.
+
+
 `dogs_select_admin` stays deliberately **unfiltered**. Admins must be able to
 see and restore removed dogs; a filtered admin policy would make removal
 irreversible in practice.
@@ -182,6 +217,8 @@ Every write in this section emits an `audit_log` row.
    `community_stats`, and its owner's own dog list, and present for an admin.
    `dog_is_baseline_verified` still reports its true health status.
 5. No admin action destroys a health document or a message.
+5a. A deactivated owner's puppies are absent from `browse_puppies`, closing the
+   pre-existing leak.
 6. Every console write appears at `/admin/audit-log`.
 7. `npm test`, `npx tsc --noEmit`, and `npm run lint` are clean.
 
