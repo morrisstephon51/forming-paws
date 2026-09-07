@@ -93,7 +93,7 @@ No single layer covers every read path, so all three are required.
 
 | Layer | Change | Covers |
 |---|---|---|
-| RLS | `dogs_select_own` gains `and removed_at is null` | Every direct app-code read of `dogs` — enforced by the database, so a missed call site is impossible |
+| RLS | `dogs_select_own` gains `and removed_at is null` | Direct `from('dogs')` reads only — see the view caveat below |
 | RLS | new `dogs_update_admin` gated on `is_admin()` | The actually-missing capability |
 | SQL functions | explicit `removed_at is null` filter in `browse_dogs`, `browse_puppies`, and **both** subqueries of `community_stats` | These are `security definer` and **bypass RLS entirely** — verified via `pg_proc.prosecdef` |
 
@@ -112,6 +112,58 @@ dogs, so the removed-dog exclusion belongs in `community_stats` itself, where it
 is a counting decision rather than a claim about a dog's health.
 
 `match_thread_summaries` is `security invoker` and needs no edit.
+
+### The `dogs_browsable` view — a fourth RLS bypass, deliberately left unfiltered
+
+`public.dogs_browsable` (`dogs JOIN breeds`, no filter) is owned by `postgres`
+with **no `security_invoker` reloption**, so it bypasses RLS on `dogs` entirely.
+It is read by `app/matches/page.tsx`, `app/matches/[id]/page.tsx`,
+`app/admin/review-queue/page.tsx` and `app/dogs/[id]/page.tsx`. RLS on
+`dogs_select_own` therefore does **not** cover those four call sites, and the
+earlier claim in this spec that it covered "every direct app-code read" was wrong.
+
+**The view is nonetheless not filtered.** Migration 0022 already faced this exact
+decision for `deactivated_at` and recorded the reasoning:
+
+> browse_dogs() is the discovery feed, so it filters. dogs_browsable does NOT,
+> and that is not an oversight: [matches, matches/[id] and review-queue] all read
+> dogs_browsable to resolve dog NAMES. Filtering the view would blank the dog's
+> name in every existing conversation and in the admin queue — the same "query
+> silently filtered by another table's access" failure this repo has now hit four
+> times. An empty thread also reads as data loss to the owner still in it.
+
+Filtering it would directly contradict this spec's own decision that existing
+match threads survive a removal. Soft delete follows the deactivation precedent
+exactly:
+
+| Surface | Behaviour for a removed dog |
+|---|---|
+| `browse_dogs`, `browse_puppies`, `community_stats` | filtered — discovery and counting |
+| `dogs_browsable` | **unfiltered** — names still resolve in existing threads and the review queue |
+| `dogs_select_own` (RLS) | filtered — a removed dog leaves its owner's own list |
+| `dogs_select_admin` (RLS) | unfiltered — admins must see and restore |
+| `/dogs/[id]` | explicit page-level check: 404 for everyone but the owner and admins, mirroring what 0022 did for deactivated owners |
+
+### Photos must stop being served, even though the view stays open
+
+Migration 0019 deliberately coupled photo visibility to that view, so that a
+filter added to `dogs_browsable` would propagate to photos automatically.
+Confirmed present in production:
+
+- `public.dog_photos.dog_photos_select_browsable` — `exists (select 1 from dogs_browsable b where b.id = dog_photos.dog_id)`
+- `storage.objects.dog_photos_storage_browsable_select` — same, keyed on `storage.foldername(name)[1]`
+
+Because the view stays unfiltered, that automatic propagation does not happen
+here. Both policies therefore gain an explicit `removed_at is null` check against
+`dogs` directly. Without this, a dog removed for abusive imagery keeps serving
+that imagery to every signed-in member — which would make removal useless for the
+moderation case it exists to serve.
+
+The owner-scoped policies `dog_photos_select_own` and
+`dog_photos_storage_owner_access` are **left untouched**, per 0019's own note that
+they must keep working independently of browsability. Policies are OR'd, so
+narrowing only the browsable pair is sufficient and safe.
+
 
 ### The restatement hazard
 
@@ -219,6 +271,9 @@ Every write in this section emits an `audit_log` row.
 5. No admin action destroys a health document or a message.
 5a. A deactivated owner's puppies are absent from `browse_puppies`, closing the
    pre-existing leak.
+5b. A removed dog's photos are no longer served to other members from either
+   `dog_photos` or the `dog-photos` storage bucket, while its name still resolves
+   in existing match threads and the review queue.
 6. Every console write appears at `/admin/audit-log`.
 7. `npm test`, `npx tsc --noEmit`, and `npm run lint` are clean.
 
