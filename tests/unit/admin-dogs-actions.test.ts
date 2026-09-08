@@ -88,6 +88,8 @@ describe('removeDogAction', () => {
     mocks.createClient.mockResolvedValue(client({ user: null, roles: [] }))
     const { removeDogAction } = await import('@/app/admin/dogs/actions')
     await expect(removeDogAction(fd({ dogId: 'dog-1' }))).rejects.toThrow('Unauthorized')
+    expect(mocks.rpc).not.toHaveBeenCalled()
+    expect(mocks.auditInsert).not.toHaveBeenCalled()
   })
 
   it('surfaces a database refusal and records nothing', async () => {
@@ -109,6 +111,31 @@ describe('restoreDogAction', () => {
     expect(mocks.auditInsert).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'dog.restore', target_id: 'dog-2' }),
     )
+  })
+
+  it('refuses a non-admin before touching the database', async () => {
+    mocks.createClient.mockResolvedValue(client({ user: 'plain1', roles: [] }))
+    const { restoreDogAction } = await import('@/app/admin/dogs/actions')
+    await expect(restoreDogAction(fd({ dogId: 'dog-2' }))).rejects.toThrow('Forbidden')
+    expect(mocks.rpc).not.toHaveBeenCalled()
+    expect(mocks.revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it('refuses a signed-out caller', async () => {
+    mocks.createClient.mockResolvedValue(client({ user: null, roles: [] }))
+    const { restoreDogAction } = await import('@/app/admin/dogs/actions')
+    await expect(restoreDogAction(fd({ dogId: 'dog-2' }))).rejects.toThrow('Unauthorized')
+    expect(mocks.rpc).not.toHaveBeenCalled()
+    expect(mocks.auditInsert).not.toHaveBeenCalled()
+  })
+
+  it('surfaces a database refusal and records nothing', async () => {
+    mocks.createClient.mockResolvedValue(
+      client({ user: 'admin1', roles: ['admin'], rpcError: { message: 'already restored' } }),
+    )
+    const { restoreDogAction } = await import('@/app/admin/dogs/actions')
+    await expect(restoreDogAction(fd({ dogId: 'dog-2' }))).rejects.toThrow('already restored')
+    expect(mocks.auditInsert).not.toHaveBeenCalled()
   })
 })
 
@@ -171,6 +198,7 @@ describe('reassignDogAction', () => {
       reassignDogAction(fd({ dogId: 'dog-4', newOwnerId: 'o2', dogName: 'Rex', confirmName: 'rexx' })),
     ).rejects.toThrow('Confirmation did not match')
     expect(mocks.update).not.toHaveBeenCalled()
+    expect(mocks.auditInsert).not.toHaveBeenCalled()
   })
 
   it('reassigns and audits both owners when the name matches', async () => {
