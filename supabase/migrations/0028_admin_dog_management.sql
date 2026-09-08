@@ -13,9 +13,12 @@
 -- this: a restatement that drops `o.deactivated_at is null` silently un-hides
 -- every deactivated owner. Both filters are preserved here and one is added.
 
+-- Every statement in this file is written to be safely re-runnable. A migration
+-- that aborts halfway through leaves the database in a state no later statement
+-- can repair, and the operator's only recourse is to re-run it.
 alter table public.dogs
-  add column removed_at timestamptz,
-  add column removed_by uuid references public.owners(id) on delete set null;
+  add column if not exists removed_at timestamptz,
+  add column if not exists removed_by uuid references public.owners(id) on delete set null;
 
 comment on column public.dogs.removed_at is
   'Set by admin_remove_dog. A removed dog leaves discovery and its owner''s own '
@@ -24,7 +27,7 @@ comment on column public.dogs.removed_at is
 
 -- Partial index on the column dogs_select_own actually filters by. An index on
 -- (id) would just duplicate the primary key.
-create index dogs_owner_not_removed_idx on public.dogs (owner_id) where removed_at is null;
+create index if not exists dogs_owner_not_removed_idx on public.dogs (owner_id) where removed_at is null;
 
 -- ---------------------------------------------------------------------------
 -- RLS
@@ -39,8 +42,49 @@ create policy "dogs_select_own" on public.dogs
 
 -- The actually-missing capability. USING is row-independent, so it also governs
 -- the post-update row and an owner_id reassignment passes.
+drop policy if exists "dogs_update_admin" on public.dogs;
 create policy "dogs_update_admin" on public.dogs
   for update to authenticated using (public.is_admin());
+
+-- dogs_update_admin alone is not enough. dogs_litter_ownership_on_update is a
+-- RESTRICTIVE UPDATE policy on {authenticated}, and restrictive policies are
+-- AND'ed with the OR of every permissive one — so its WITH CHECK is a veto that
+-- dogs_update_admin cannot outvote. Its two existing alternatives are "the row
+-- has no litter" and "the caller is the litter's breeder"; an admin moderating
+-- another member's puppy is neither, so the update is rejected outright.
+--
+-- Latent on 2026-09-07 (0 of 20 dogs carry a litter_id, 0 litters exist), which
+-- is exactly why it has never been noticed. It goes live with puppy listings —
+-- the next thing on the plan — and would then fail Task 5's updateDogAction on
+-- precisely the listings an admin most needs to moderate, with a bare RLS
+-- rejection and no explanation.
+--
+-- Restated below from the live definition captured with pg_policies against
+-- project wyzcnkdonbdykidmcxvx on 2026-09-07. The two original alternatives are
+-- preserved verbatim and in their original order, so the policy's meaning for
+-- every non-admin is unchanged; public.is_admin() is added as a third.
+--
+-- dogs_litter_ownership_on_insert has the identical WITH CHECK and is
+-- deliberately NOT changed. There is no permissive admin INSERT policy on dogs
+-- (dogs_insert_own requires owner_id = auth.uid()), so the restrictive policy is
+-- never what blocks an admin — an admin has no route to insert another member's
+-- dog at all. Adding is_admin() there would not unblock anything 0028 needs; it
+-- would only let an admin attach their OWN dog to somebody else's litter, which
+-- is the precise abuse the policy exists to prevent.
+drop policy if exists "dogs_litter_ownership_on_update" on public.dogs;
+create policy "dogs_litter_ownership_on_update" on public.dogs
+  as restrictive
+  for update to authenticated
+  with check (
+    litter_id is null
+    or exists (
+      select 1
+      from public.litters
+      where litters.id = dogs.litter_id
+        and litters.breeder_id = auth.uid()
+    )
+    or public.is_admin()
+  );
 
 -- ---------------------------------------------------------------------------
 -- Removal and restore
@@ -51,7 +95,13 @@ create policy "dogs_update_admin" on public.dogs
 -- check is satisfied by a real session rather than by a definer's identity.
 -- ---------------------------------------------------------------------------
 
-create or replace function public.admin_remove_dog(p_dog_id uuid, p_reason text default null)
+create or replace function public.admin_remove_dog(
+  p_dog_id uuid,
+  -- Deliberately unused, by design: the reason is recorded in audit_log by the
+  -- caller via lib/auth/audit.ts (see the note above), never by this function.
+  -- The database does not store it. Do not assume otherwise.
+  p_reason text default null
+)
 returns void
 language plpgsql
 security definer
@@ -274,9 +324,23 @@ $$;
 -- serving that imagery to every signed-in member.
 --
 -- The owner-scoped policies dog_photos_select_own and
--- dog_photos_storage_owner_access are deliberately untouched, per 0019's note
--- that they must keep working independently of browsability. Policies are OR'd,
--- so narrowing only the browsable pair is sufficient and safe.
+-- dog_photos_storage_owner_access are not edited by this migration, but they are
+-- NOT unaffected by it, and 0019's note that they "keep working independently of
+-- browsability" is only half true after 0028. Both reach the owner through a
+-- subquery on public.dogs, which runs under the caller's own RLS, and
+-- dogs_select_own now excludes removed rows. So the effect is transitive: once a
+-- dog is removed its owner also loses their own dog's dog_photos rows, and
+-- because dog_photos_storage_owner_access is FOR ALL with only a USING clause
+-- (Postgres reuses USING as the WITH CHECK there), the owner loses read, upload
+-- and delete on the corresponding storage objects too.
+--
+-- That is the intended product behaviour — a dog removed for abusive imagery
+-- should not stay editable by the member who uploaded it — and nothing is
+-- destroyed, since restore reverses it in full. It is written down because it is
+-- reached through dogs_select_own rather than stated anywhere in these two
+-- policies, so it is invisible at the point where someone would look for it.
+-- Narrowing only the browsable pair is still sufficient for the non-owner case:
+-- permissive policies are OR'd, so an owner's access would otherwise survive it.
 --
 -- The removed_at check is stated through public.dog_is_removed() and NOT through
 -- a join to public.dogs. PostgreSQL applies row-level security to tables
