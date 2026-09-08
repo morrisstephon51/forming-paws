@@ -11,6 +11,12 @@ begin;
 create temporary table t_ids (k text primary key, v uuid);
 insert into t_ids (k, v) values ('audit_admin', gen_random_uuid()), ('audit_plain', gen_random_uuid());
 
+-- Temp tables are owned by the creating role, and everything below runs as
+-- `authenticated`. Without this grant every RLS assertion in this file dies on
+-- `permission denied for table t_ids` -- which reads as a script error, not as a
+-- failed assertion, so the security checks silently never run.
+grant select on t_ids to authenticated;
+
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
                         email_confirmed_at, created_at, updated_at,
                         raw_app_meta_data, raw_user_meta_data)
