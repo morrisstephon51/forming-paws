@@ -62,15 +62,27 @@ create policy "dogs_update_admin" on public.dogs
 -- Restated below from the live definition captured with pg_policies against
 -- project wyzcnkdonbdykidmcxvx on 2026-09-07. The two original alternatives are
 -- preserved verbatim and in their original order, so the policy's meaning for
--- every non-admin is unchanged; public.is_admin() is added as a third.
+-- every non-admin is unchanged; a third alternative is added for admins.
+--
+-- That third alternative is `public.is_admin() and dogs.owner_id <> auth.uid()`,
+-- NOT a bare public.is_admin(). WITH CHECK sees the POST-update row, so a bare
+-- is_admin() also fires on the admin's OWN dog — and an admin could then insert
+-- their own dog with a null litter_id (dogs_insert_own allows exactly that) and
+-- UPDATE it into any member's litter, in two steps, with no breeder consent
+-- anywhere. That is self-dealing into somebody else's litter, which is the abuse
+-- this policy exists to stop. Narrowing it to other members' rows keeps
+-- everything 0028 needs — an admin moderating a member's puppy has
+-- owner_id <> auth.uid() and still passes — while leaving self-dealing vetoed.
 --
 -- dogs_litter_ownership_on_insert has the identical WITH CHECK and is
--- deliberately NOT changed. There is no permissive admin INSERT policy on dogs
--- (dogs_insert_own requires owner_id = auth.uid()), so the restrictive policy is
+-- deliberately NOT changed. The reason is reachability, not the abuse argument
+-- above: with the narrowed alternative, that abuse is now vetoed on UPDATE
+-- anyway. The only permissive INSERT policy on dogs is dogs_insert_own, whose
+-- WITH CHECK pins owner_id = auth.uid(), so the restrictive INSERT policy is
 -- never what blocks an admin — an admin has no route to insert another member's
--- dog at all. Adding is_admin() there would not unblock anything 0028 needs; it
--- would only let an admin attach their OWN dog to somebody else's litter, which
--- is the precise abuse the policy exists to prevent.
+-- dog at all, and every row an admin CAN insert is their own, where the breeder
+-- alternative already governs. Adding is_admin() there would unblock nothing
+-- 0028 needs and would only widen the surface.
 drop policy if exists "dogs_litter_ownership_on_update" on public.dogs;
 create policy "dogs_litter_ownership_on_update" on public.dogs
   as restrictive
@@ -83,7 +95,7 @@ create policy "dogs_litter_ownership_on_update" on public.dogs
       where litters.id = dogs.litter_id
         and litters.breeder_id = auth.uid()
     )
-    or public.is_admin()
+    or (public.is_admin() and dogs.owner_id <> auth.uid())
   );
 
 -- ---------------------------------------------------------------------------
@@ -162,11 +174,27 @@ as $$
   select coalesce((select removed_at is not null from public.dogs where id = p_dog_id), false);
 $$;
 
-revoke all on function public.dog_is_removed(uuid) from public;
+-- `from anon, public`, NOT `from public`. This project carries a pg_default_acl
+-- entry (defaclobjtype 'f', schema public, owned by postgres) granting EXECUTE on
+-- every newly created function DIRECTLY to anon, authenticated and service_role.
+-- A direct grant to `anon` is not a grant to PUBLIC, so
+-- `revoke all on function ... from public` leaves it in place and anon keeps
+-- EXECUTE. 0010 documented this mechanism and used the correct idiom; 0026
+-- regressed to the PUBLIC-only form and shipped grant_role anon-executable to
+-- production, where it was unauthenticated admin escalation for about four hours
+-- until 0029 fixed it. Read 0029 for the full mechanism. Never shorten these
+-- three to `from public`.
+--
+-- dog_is_removed is the one that matters most here: it is security definer, reads
+-- public.dogs as its owner, and an anon caller could use it to probe whether an
+-- arbitrary dog id exists and has been moderated. The two admin RPCs are not
+-- exploitable by anon (is_admin() resolves false when auth.uid() is null, so both
+-- raise before touching a row), but the surface is unnecessary.
+revoke all on function public.dog_is_removed(uuid) from anon, public;
 grant execute on function public.dog_is_removed(uuid) to authenticated;
 
-revoke all on function public.admin_remove_dog(uuid, text) from public;
-revoke all on function public.admin_restore_dog(uuid) from public;
+revoke all on function public.admin_remove_dog(uuid, text) from anon, public;
+revoke all on function public.admin_restore_dog(uuid) from anon, public;
 grant execute on function public.admin_remove_dog(uuid, text) to authenticated;
 grant execute on function public.admin_restore_dog(uuid) to authenticated;
 

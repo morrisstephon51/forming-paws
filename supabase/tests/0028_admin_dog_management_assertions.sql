@@ -27,7 +27,8 @@ begin;
 create temporary table t_ids (k text primary key, v uuid);
 insert into t_ids (k, v)
 select k, gen_random_uuid()
-from unnest(array['dog_admin','dog_owner','dog_viewer','dog','sire','dam','puppy','litter']) k;
+from unnest(array['dog_admin','dog_owner','dog_viewer',
+                  'dog','sire','dam','puppy','admin_dog','litter']) k;
 
 grant select on t_ids to authenticated;
 
@@ -63,6 +64,20 @@ select t.v,
        (current_date - interval '2 years')::date
 from t_ids t
 where t.k in ('dog', 'sire', 'dam', 'puppy');
+
+-- A fifth dog, owned by the ADMIN. Section 7 needs a row where the admin is the
+-- owner, to prove that dogs_litter_ownership_on_update still vetoes an admin
+-- attaching their OWN dog to another member's litter. Its litter_id stays null:
+-- that is the state an admin would reach legitimately through dogs_insert_own
+-- (which pins owner_id = auth.uid()), and it is the starting point of the two-step
+-- self-dealing route the narrowed third alternative closes.
+insert into public.dogs (id, owner_id, name, breed_id, sex, birth_date)
+select (select v from t_ids where k = 'admin_dog'),
+       (select v from t_ids where k = 'dog_admin'),
+       'Assertion admin_dog',
+       (select id from public.breeds order by id limit 1),
+       'male'::public.dog_sex,
+       (current_date - interval '2 years')::date;
 
 insert into public.litters (id, breeder_id, sire_id, dam_id, born_on, ready_on)
 select (select v from t_ids where k = 'litter'),
@@ -160,17 +175,25 @@ begin
     raise exception 'FAIL: authenticated cannot execute: %', bad;
   end if;
 
-  -- anon still holding execute means `revoke all ... from public` did not land,
-  -- because PUBLIC gets execute on a new function by default. dog_is_removed is
-  -- in this list too: the migration revokes it from public for the same reason,
-  -- and it leaks whether an arbitrary dog id exists and has been moderated.
+  -- anon must hold no EXECUTE on any of the three. The likely cause of a failure
+  -- here is NOT "the revoke is missing" but "the revoke says `from public`": this
+  -- project has a pg_default_acl entry (defaclobjtype 'f', schema public, owner
+  -- postgres) that grants EXECUTE on every newly created function DIRECTLY to
+  -- anon, and a direct grant to anon is not a grant to PUBLIC, so a PUBLIC-only
+  -- revoke does not remove it. 0026 shipped exactly that mistake to production
+  -- and made grant_role anon-callable; 0029 is the fix and explains it in full.
+  -- The correct idiom, used by 0010 and by 0028, is `from anon, public`.
+  --
+  -- dog_is_removed is in this list too: it is security definer over public.dogs,
+  -- so anon EXECUTE would leak whether an arbitrary dog id exists and has been
+  -- moderated.
   select string_agg(sig, ', ') into bad
   from unnest(array['public.admin_remove_dog(uuid, text)',
                     'public.admin_restore_dog(uuid)',
                     'public.dog_is_removed(uuid)']) sig
   where has_function_privilege('anon', sig, 'execute');
   if bad is not null then
-    raise exception 'FAIL: anon can execute %; revoke from public did not land', bad;
+    raise exception 'FAIL: anon can execute %. Check the revoke says `from anon, public`, not `from public`: pg_default_acl grants EXECUTE on new public functions directly to anon, and a PUBLIC-only revoke does not remove a direct anon grant (see 0029).', bad;
   end if;
 end $$;
 
@@ -297,6 +320,16 @@ end $$;
 -- That is why community_stats is additionally asserted behaviourally, twice, in
 -- sections 4 and 9 — once per counter — rather than trusted to the occurrence
 -- count below, which is kept only as a fast, early tripwire.
+--
+-- Each fetch matches p.oid against to_regprocedure(<exact identity>) rather than
+-- p.proname. proname alone is not an identity: an accidental overload (a second
+-- browse_dogs with one extra filter argument, say) would make `select ... into d`
+-- pick an arbitrary one of them, and every check below could then pass against a
+-- body nobody calls. The signatures below are the live ones, read from
+-- pg_get_function_identity_arguments on wyzcnkdonbdykidmcxvx on 2026-09-07, and
+-- they are also 0028's own signatures. to_regprocedure returns NULL when nothing
+-- matches, so a renamed or re-signatured function falls through to the `is null`
+-- guard and is reported rather than skipped.
 -- ---------------------------------------------------------------------------
 
 do $$
@@ -305,10 +338,11 @@ declare
   removed_hits int;
 begin
   select pg_get_functiondef(p.oid) into d
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname = 'browse_dogs';
+  from pg_proc p
+  where p.oid = to_regprocedure(
+    'public.browse_dogs(bigint, public.dog_sex, boolean, integer, integer, numeric)');
   if d is null then
-    raise exception 'FAIL: public.browse_dogs is missing';
+    raise exception 'FAIL: public.browse_dogs(bigint, dog_sex, boolean, integer, integer, numeric) is missing or its signature changed';
   end if;
   if d not like '%o.deactivated_at is null%' then
     raise exception 'FAIL: browse_dogs lost `o.deactivated_at is null`; deactivated owners are back in the feed';
@@ -318,10 +352,10 @@ begin
   end if;
 
   select pg_get_functiondef(p.oid) into d
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname = 'browse_puppies';
+  from pg_proc p
+  where p.oid = to_regprocedure('public.browse_puppies(bigint, numeric)');
   if d is null then
-    raise exception 'FAIL: public.browse_puppies is missing';
+    raise exception 'FAIL: public.browse_puppies(bigint, numeric) is missing or its signature changed';
   end if;
   if d not like '%o.deactivated_at is null%' then
     raise exception 'FAIL: browse_puppies lost `o.deactivated_at is null`';
@@ -331,10 +365,10 @@ begin
   end if;
 
   select pg_get_functiondef(p.oid) into d
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-  where n.nspname = 'public' and p.proname = 'community_stats';
+  from pg_proc p
+  where p.oid = to_regprocedure('public.community_stats()');
   if d is null then
-    raise exception 'FAIL: public.community_stats is missing';
+    raise exception 'FAIL: public.community_stats() is missing or its signature changed';
   end if;
   removed_hits := (length(d) - length(replace(d, 'removed_at', ''))) / length('removed_at');
   if removed_hits < 2 then
@@ -606,6 +640,80 @@ begin
   end if;
 end $$;
 
+-- And the narrowed half of the third alternative. 0028 widens this policy with
+-- `public.is_admin() and dogs.owner_id <> auth.uid()`, not a bare is_admin().
+-- WITH CHECK sees the POST-update row, so a bare is_admin() would also fire on
+-- the admin's own dog and open a two-step self-deal: insert your own dog with a
+-- null litter_id (dogs_insert_own permits exactly that), then UPDATE it into any
+-- member's litter. The three checks above all pass under a bare is_admin() too,
+-- so this is the only one that can tell the two versions apart.
+--
+-- The vacuity guard runs with RLS off, on purpose: litters has no admin SELECT
+-- policy (litters_select_own is breeder-scoped), so the admin cannot read the
+-- litter row at all and the guard would report 0 for the wrong reason.
+reset role;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'admin_dog')
+    and owner_id = (select v from t_ids where k = 'dog_admin')
+    and litter_id is null;
+  if n <> 1 then
+    raise exception 'FAIL: the admin does not own a litter-less fixture dog (got %); the refusal below could not be the refusal it claims to be', n;
+  end if;
+
+  select count(*) into n from public.litters
+  where id = (select v from t_ids where k = 'litter')
+    and breeder_id = (select v from t_ids where k = 'dog_owner')
+    and breeder_id <> (select v from t_ids where k = 'dog_admin');
+  if n <> 1 then
+    raise exception 'FAIL: the fixture litter is not another member''s litter (got %); the refusal below would prove nothing', n;
+  end if;
+end $$;
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_admin'), 'role', 'authenticated')::text, true);
+
+do $$
+declare n int;
+begin
+  begin
+    update public.dogs
+       set litter_id = (select v from t_ids where k = 'litter')
+     where id = (select v from t_ids where k = 'admin_dog');
+    get diagnostics n = row_count;
+  exception
+    -- A WITH CHECK veto is the ONLY way this update can raise 42501: the row is
+    -- the admin's own, so both permissive UPDATE policies (dogs_update_own and
+    -- dogs_update_admin) pass USING, and public.dogs carries no user triggers.
+    when insufficient_privilege then
+      n := -1;
+  end;
+  if n = 0 then
+    raise exception 'FAIL: the self-deal update matched no row at all; the refusal it is supposed to provoke was never reached';
+  elsif n <> -1 then
+    raise exception 'FAIL: an admin attached their OWN dog to another member''s litter (% row(s) updated). dogs_litter_ownership_on_update must read `public.is_admin() and dogs.owner_id <> auth.uid()`; a bare is_admin() lets an admin self-deal into any breeder''s litter in two steps.', n;
+  end if;
+end $$;
+
+-- The refused update must have left the row alone. An exception handler rolls
+-- back to its implicit savepoint, so this is the proof that nothing leaked past
+-- the veto.
+reset role;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'admin_dog') and litter_id is null;
+  if n <> 1 then
+    raise exception 'FAIL: the refused self-deal still moved the admin''s dog into the litter (got %)', n;
+  end if;
+end $$;
+
+set local role authenticated;
+
 
 -- ---------------------------------------------------------------------------
 -- 8. An admin removes the dog.
@@ -656,13 +764,26 @@ end $$;
 
 -- Removing twice must fail rather than silently re-stamp removed_at, which
 -- would rewrite the removal time and lose who removed it first.
+--
+-- The handler discriminates, like the ones in section 6. A bare
+-- `when others then raised := true` accepts ANY failure — a dropped grant, a
+-- renamed function, a bad fixture id — and would report "double removal is
+-- refused" when nothing of the sort had been shown. admin_remove_dog's
+-- already-removed guard is a plain `raise exception` (SQLSTATE P0001) whose
+-- message ends in "does not exist or is already removed"; anything else is
+-- re-raised as a FAIL naming the sqlstate that actually came back.
 do $$
 declare raised boolean := false;
 begin
   begin
     perform public.admin_remove_dog((select v from t_ids where k = 'dog'), 'again');
   exception
-    when others then raised := true;
+    when others then
+      if sqlerrm not like '%does not exist or is already removed%' then
+        raise exception 'FAIL: the second admin_remove_dog raised sqlstate % (%), not its already-removed guard; the double-removal check proves nothing',
+          sqlstate, sqlerrm;
+      end if;
+      raised := true;
   end;
   if not raised then
     raise exception 'FAIL: admin_remove_dog silently re-removed an already-removed dog';
@@ -766,16 +887,20 @@ end $$;
 -- ---------------------------------------------------------------------------
 
 do $$
+declare docs int;
 begin
   if not exists (select 1 from public.dogs where id = (select v from t_ids where k = 'dog')) then
     raise exception 'FAIL: the dog row itself was destroyed';
   end if;
 
-  if not exists (
-    select 1 from public.health_documents
-    where dog_id = (select v from t_ids where k = 'dog') and status = 'verified'
-  ) then
-    raise exception 'FAIL: the verified health document was destroyed by removal; the FK cascade fired';
+  -- BOTH of them. The fixture inserts two verified documents (a vaccination and
+  -- a vet_exam, because dog_is_baseline_verified needs both), so a bare EXISTS
+  -- would still be satisfied by a cascade that destroyed one of the two. Counting
+  -- is what makes this an assertion about the cascade rather than about one row.
+  select count(*) into docs from public.health_documents
+  where dog_id = (select v from t_ids where k = 'dog') and status = 'verified';
+  if docs <> 2 then
+    raise exception 'FAIL: % of the 2 verified health documents survived removal; the FK cascade fired', docs;
   end if;
 
   if not exists (select 1 from public.dog_photos where dog_id = (select v from t_ids where k = 'dog')) then
