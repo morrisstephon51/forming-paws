@@ -21,7 +21,8 @@ from t_ids;
 
 select public.grant_role((select v from t_ids where k = 'audit_admin'), 'admin');
 
--- The table must exist with the exact column set lib/auth/audit.ts writes.
+-- The table must have at least the columns lib/auth/audit.ts writes. This
+-- only detects a missing column, not an extra one the app doesn't use.
 do $$
 declare missing text;
 begin
@@ -60,44 +61,28 @@ begin
   end if;
 end $$;
 
--- A non-admin must not be able to insert, even claiming their own actor_id.
+-- Switch to the admin actor first, so the non-admin read check below has a
+-- real row to fail to see.
 set local role authenticated;
-select set_config('request.jwt.claims',
-  json_build_object('sub', (select v from t_ids where k = 'audit_plain'), 'role', 'authenticated')::text,
-  true);
-
-do $$
-begin
-  begin
-    insert into public.audit_log (actor_id, action, target_type, target_id)
-    values ((select v from t_ids where k = 'audit_plain'), 'role.grant', 'owner', 'x');
-    raise exception 'FAIL: a non-admin inserted an audit row';
-  exception
-    when insufficient_privilege then null;
-    when others then
-      if sqlerrm like 'FAIL:%' then raise; end if;
-  end;
-end $$;
-
--- A non-admin must not be able to READ the log either.
-do $$
-declare visible int;
-begin
-  select count(*) into visible from public.audit_log;
-  if visible > 0 then
-    raise exception 'FAIL: a non-admin can read % audit row(s)', visible;
-  end if;
-end $$;
-
--- An admin may insert a row for themselves.
 select set_config('request.jwt.claims',
   json_build_object('sub', (select v from t_ids where k = 'audit_admin'), 'role', 'authenticated')::text,
   true);
 
-insert into public.audit_log (actor_id, action, target_type, target_id, detail)
-values ((select v from t_ids where k = 'audit_admin'), 'role.grant', 'owner', 'target-1',
-        jsonb_build_object('role', 'breeder'));
+-- An admin may insert a row for themselves. Wrapped so an unexpected failure
+-- here (e.g. audit_log_insert_admin missing or misconfigured) surfaces as
+-- FAIL: instead of aborting the script with a raw Postgres error.
+do $$
+begin
+  insert into public.audit_log (actor_id, action, target_type, target_id, detail)
+  values ((select v from t_ids where k = 'audit_admin'), 'role.grant', 'owner', 'target-1',
+          jsonb_build_object('role', 'breeder'));
+exception
+  when others then
+    raise exception 'FAIL: admin insert failed unexpectedly: %', sqlerrm;
+end $$;
 
+-- The insert must have actually landed: the non-admin read check right after
+-- this depends on a real row existing.
 do $$
 declare n int;
 begin
@@ -108,6 +93,43 @@ begin
   end if;
 end $$;
 
+-- Switch to the non-admin actor while the admin's row still exists.
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'audit_plain'), 'role', 'authenticated')::text,
+  true);
+
+-- A non-admin must not be able to READ the log either. This only proves
+-- anything because a row already exists (inserted above, as the admin): if
+-- the table were still empty, `visible = 0` would pass identically whether
+-- audit_log_select_admin is correct, absent, or replaced with `using (true)`.
+-- Do not simplify this back to running before any row exists.
+do $$
+declare visible int;
+begin
+  select count(*) into visible from public.audit_log;
+  if visible > 0 then
+    raise exception 'FAIL: a non-admin can read % audit row(s)', visible;
+  end if;
+end $$;
+
+-- A non-admin must not be able to insert, even claiming their own actor_id.
+do $$
+begin
+  begin
+    insert into public.audit_log (actor_id, action, target_type, target_id)
+    values ((select v from t_ids where k = 'audit_plain'), 'role.grant', 'owner', 'x');
+    raise exception 'FAIL: a non-admin inserted an audit row';
+  exception
+    when insufficient_privilege then null;
+    when others then raise;
+  end;
+end $$;
+
+-- Switch back to the admin actor for the forge check.
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'audit_admin'), 'role', 'authenticated')::text,
+  true);
+
 -- An admin must NOT be able to forge another actor's row.
 do $$
 begin
@@ -117,8 +139,7 @@ begin
     raise exception 'FAIL: an admin inserted an audit row attributed to someone else';
   exception
     when insufficient_privilege then null;
-    when others then
-      if sqlerrm like 'FAIL:%' then raise; end if;
+    when others then raise;
   end;
 end $$;
 
