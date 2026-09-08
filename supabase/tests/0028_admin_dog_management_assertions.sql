@@ -225,14 +225,26 @@ begin
   end if;
 end $$;
 
+-- Existence and cmd = 'UPDATE' are not enough on their own. A policy of this
+-- name written `using (true)` satisfies both and hands every authenticated
+-- member UPDATE on every dog on the site — including other members' removed_at,
+-- the one column 0028 adds a trigger to protect. So the qual is asserted too.
+-- pg_policies renders a qual with search_path already applied, so
+-- `public.is_admin()` comes back as `is_admin()`; matching the bare name accepts
+-- either spelling, and a qual that reaches admin-ness some other way (an inline
+-- `exists (select 1 from user_roles ...)`, say) is intentionally NOT accepted:
+-- 0026 exists so there is exactly one definition of "is an admin".
 do $$
+declare q text;
 begin
-  if not exists (
-    select 1 from pg_policies
-    where schemaname = 'public' and tablename = 'dogs'
-      and policyname = 'dogs_update_admin' and cmd = 'UPDATE'
-  ) then
-    raise exception 'FAIL: dogs_update_admin does not exist; an admin cannot edit a member''s dog';
+  select qual into q from pg_policies
+  where schemaname = 'public' and tablename = 'dogs'
+    and policyname = 'dogs_update_admin' and cmd = 'UPDATE';
+  if q is null then
+    raise exception 'FAIL: dogs_update_admin is missing, or carries no USING clause; an admin cannot edit a member''s dog';
+  end if;
+  if q not like '%is_admin%' then
+    raise exception 'FAIL: dogs_update_admin''s USING is (%), which is not admin-scoped; every authenticated member could update every dog on the site', q;
   end if;
 end $$;
 
@@ -687,7 +699,11 @@ begin
   exception
     -- A WITH CHECK veto is the ONLY way this update can raise 42501: the row is
     -- the admin's own, so both permissive UPDATE policies (dogs_update_own and
-    -- dogs_update_admin) pass USING, and public.dogs carries no user triggers.
+    -- dogs_update_admin) pass USING, and the single user trigger on public.dogs
+    -- cannot be the source. 0028's dogs_prevent_non_admin_removal_change guards
+    -- removed_at and removed_by; this statement sets litter_id, so its condition
+    -- is false, and it raises a plain P0001 rather than 42501 precisely so that
+    -- an insufficient_privilege here still means one thing only.
     when insufficient_privilege then
       n := -1;
   end;
@@ -881,6 +897,37 @@ begin
   end if;
 end $$;
 
+-- The same removal, applied to the fixture PUPPY, because browse_puppies has its
+-- own `d.removed_at is null` and nothing behavioural reached it: the dog removed
+-- above has no litter, so it never enters browse_puppies at all, and that filter
+-- was covered only by the substring match in section 3 — which a comment in the
+-- function body would satisfy just as well. This mirrors how browse_dogs is
+-- already covered, and it is not vacuous: sections 4 and 5 both assert this same
+-- puppy IS returned to this same viewer beforehand, and section 11 restores it
+-- and asserts it comes back.
+--
+-- Deliberately sequenced AFTER the community_stats comparison above. That
+-- assertion is a drop of EXACTLY one; a second removal before it would make it a
+-- drop of two and it would fail for a reason that has nothing to do with the
+-- filter it is testing.
+set local role authenticated;
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_admin'), 'role', 'authenticated')::text, true);
+select public.admin_remove_dog((select v from t_ids where k = 'puppy'), 'assertion');
+
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_viewer'), 'role', 'authenticated')::text, true);
+do $$
+declare n int;
+begin
+  select count(*) into n from public.browse_puppies() where id = (select v from t_ids where k = 'puppy');
+  if n <> 0 then
+    raise exception 'FAIL: a removed puppy still appears in browse_puppies (got %); browse_puppies is missing `d.removed_at is null` from its WHERE clause, wherever the substring may occur in its body', n;
+  end if;
+end $$;
+
+reset role;
+
 
 -- ---------------------------------------------------------------------------
 -- 10. What removal must NOT destroy. This is the entire argument for soft delete.
@@ -928,6 +975,7 @@ set local role authenticated;
 select set_config('request.jwt.claims',
   json_build_object('sub', (select v from t_ids where k = 'dog_admin'), 'role', 'authenticated')::text, true);
 select public.admin_restore_dog((select v from t_ids where k = 'dog'));
+select public.admin_restore_dog((select v from t_ids where k = 'puppy'));
 
 do $$
 declare n int;
@@ -964,6 +1012,152 @@ begin
   select count(*) into n from public.dog_photos where dog_id = (select v from t_ids where k = 'dog');
   if n <> 1 then
     raise exception 'FAIL: a restored dog''s photo is still hidden from other members (got %)', n;
+  end if;
+
+  -- The puppy, restored through the same RPC. Without this the removal asserted
+  -- at the end of section 9 is compatible with a browse_puppies that hides every
+  -- puppy unconditionally.
+  select count(*) into n from public.browse_puppies() where id = (select v from t_ids where k = 'puppy');
+  if n <> 1 then
+    raise exception 'FAIL: a restored puppy did not return to browse_puppies (got %); the hidden result in section 9 proved nothing', n;
+  end if;
+end $$;
+
+
+-- ---------------------------------------------------------------------------
+-- 12. removed_at and removed_by are admin-only on the DIRECT update path too.
+--
+-- The two RPCs are not the only way to reach these columns. `authenticated`
+-- holds table-level UPDATE on public.dogs, the two columns 0028 adds included,
+-- and the permissive dogs_update_own is `using (owner_id = auth.uid())` with no
+-- WITH CHECK, so a member's own moderated dog is still a row that member owns
+-- and may write.
+--
+-- What refuses a FILTERED `update ... where id = <dog>` is not that policy but
+-- dogs_select_own: an UPDATE whose WHERE reads a column has the SELECT policies
+-- applied to it as well, and 0028 took removed rows out of dogs_select_own, so
+-- the statement matches nothing. That protection is real but incidental, and it
+-- evaporates the moment the statement stops reading a column. The refusal below
+-- is therefore asserted in the UNFILTERED shape, which is the shape that is
+-- actually dangerous; the filtered shape would pass here for a reason that has
+-- nothing to do with the trigger this section exists to test.
+--
+-- admin_remove_dog and admin_restore_dog are deliberately NOT re-tested here.
+-- Sections 8 and 11 already call both against a database with this trigger
+-- installed, and both assert their effect on removed_at/removed_by directly, so
+-- a trigger that broke either RPC fails there, first and loudly. Likewise a
+-- trigger that was over-broad — refusing every non-admin UPDATE rather than only
+-- one that changes these two columns — fails at section 7's breeder edit.
+-- ---------------------------------------------------------------------------
+
+-- First the admin's DIRECT update, not the RPC. dogs_update_admin exists so that
+-- Task 5's updateDogAction can write public.dogs without going through a definer
+-- function, and the trigger must not stand in its way.
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_admin'), 'role', 'authenticated')::text, true);
+
+-- Vacuity guard: section 11 restored the dog, so removed_at is null going in.
+-- Without this, "removed_at is set afterwards" could be true of a row that was
+-- already removed and never actually written to here.
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'dog') and removed_at is null;
+  if n <> 1 then
+    raise exception 'FAIL: the fixture dog is not present and un-removed before the admin''s direct update (got %); the assertion below would prove nothing', n;
+  end if;
+end $$;
+
+do $$
+declare n int;
+begin
+  begin
+    update public.dogs
+       set removed_at = now(), removed_by = auth.uid()
+     where id = (select v from t_ids where k = 'dog');
+    get diagnostics n = row_count;
+  exception
+    when others then
+      raise exception 'FAIL: an admin''s direct UPDATE of removed_at was refused with sqlstate % (%). 0028''s trigger gates on public.is_admin(), not on which function is running, so a genuine admin must pass it here too, or Task 5''s updateDogAction cannot moderate anything.',
+        sqlstate, sqlerrm;
+  end;
+  if n <> 1 then
+    raise exception 'FAIL: an admin''s direct UPDATE of removed_at touched % row(s); expected exactly 1', n;
+  end if;
+
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'dog')
+    and removed_at is not null
+    and removed_by = (select v from t_ids where k = 'dog_admin');
+  if n <> 1 then
+    raise exception 'FAIL: the admin''s direct UPDATE reported a row but removed_at/removed_by did not change (got %)', n;
+  end if;
+end $$;
+
+-- Now the member whose dog it is. The vacuity guard runs with RLS off, on
+-- purpose: hiding the row from its owner is exactly what dogs_select_own now
+-- does, so reading it as the owner would report 0 for the wrong reason.
+reset role;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where owner_id = (select v from t_ids where k = 'dog_owner') and removed_at is not null;
+  if n <> 1 then
+    raise exception 'FAIL: the owner owns % removed dog(s); expected exactly 1. The unfiltered statement below would then change no removed_at at all and the trigger would have nothing to refuse.', n;
+  end if;
+end $$;
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_owner'), 'role', 'authenticated')::text, true);
+
+do $$
+declare
+  n int;
+  raised boolean := false;
+begin
+  begin
+    -- No WHERE clause, and that is the entire point. A statement that reads no
+    -- column has no SELECT policy applied to it, so dogs_select_own — the thing
+    -- that makes the `where id = <dog>` form match zero rows — never runs.
+    -- dogs_update_own alone would then permit this on every row this member
+    -- owns, the moderated one included, and admin moderation would be undoable
+    -- by the member it was applied to.
+    update public.dogs set removed_at = null;
+    get diagnostics n = row_count;
+  exception
+    when others then
+      -- Discriminated, like the handlers in sections 6 and 8. The trigger raises
+      -- a plain P0001 whose message ends in "may only be changed by an admin";
+      -- any other failure (a dropped grant, a WITH CHECK veto, a bad fixture id)
+      -- would otherwise be reported as a refusal it is not.
+      if sqlerrm not like '%may only be changed by an admin%' then
+        raise exception 'FAIL: the owner''s unfiltered clear of removed_at raised sqlstate % (%), which is not 0028''s trigger refusing it; this assertion proves nothing',
+          sqlstate, sqlerrm;
+      end if;
+      raised := true;
+  end;
+  if not raised then
+    if n = 0 then
+      raise exception 'FAIL: the unfiltered UPDATE matched no row at all; the refusal it is supposed to provoke was never reached';
+    end if;
+    raise exception 'FAIL: a member cleared removed_at on their own moderated dog with an unfiltered UPDATE (% row(s) updated). dogs_update_own has no WITH CHECK, and an UPDATE that reads no column has no SELECT policy applied to it, so only a trigger can stop this.', n;
+  end if;
+end $$;
+
+-- And the refusal held. An exception handler rolls back to its implicit
+-- savepoint, so this is the proof that no row leaked past the trigger — and it
+-- is read with RLS off, because the owner cannot see this row either way.
+reset role;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'dog') and removed_at is not null;
+  if n <> 1 then
+    raise exception 'FAIL: the refused unfiltered UPDATE still cleared removed_at (got %)', n;
   end if;
 end $$;
 

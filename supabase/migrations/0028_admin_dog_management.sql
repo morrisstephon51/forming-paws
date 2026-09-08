@@ -99,6 +99,89 @@ create policy "dogs_litter_ownership_on_update" on public.dogs
   );
 
 -- ---------------------------------------------------------------------------
+-- removed_at and removed_by are admin-only, enforced by a trigger.
+--
+-- `authenticated` holds table-level UPDATE on public.dogs, which covers the two
+-- columns added at the top of this file, and the permissive dogs_update_own is
+-- `using (owner_id = auth.uid())` with no WITH CHECK at all. A member's own
+-- moderated dog is still a row that member owns.
+--
+-- A FILTERED `PATCH /dogs?id=eq.X` clearing removed_at is already refused, but
+-- only incidentally: an UPDATE whose WHERE reads a column has the SELECT
+-- policies applied to it as well, and dogs_select_own above no longer returns
+-- removed rows, so the statement matches nothing. That protection disappears the
+-- moment the statement stops reading a column. An UNFILTERED
+-- `update public.dogs set removed_at = null` reads no column, so no SELECT
+-- policy is ever consulted; dogs_update_own alone then permits it on every row
+-- the member owns, and a member removed for abusive content un-removes
+-- themselves in one statement. removed_at exists precisely so that cannot
+-- happen, which is why this is a trigger and not a policy: the hole is a
+-- statement shape, not a row predicate.
+--
+-- Modelled on 0014's owners_prevent_self_admin_escalation, which solves the
+-- structurally identical problem for owners.is_admin, and it keeps 0014's
+-- auth.uid() rule for 0014's reasons: auth.uid() is null when a statement runs
+-- without a JWT context (direct SQL through the Supabase MCP execute_sql tool or
+-- the dashboard SQL editor, both of which run as postgres/service_role) and
+-- non-null for anything that arrived through PostgREST with a user's token. So
+-- the operational SQL path — and the 0026/0028 assertion scripts, which depend
+-- on it — keep working, while the same change over the authenticated REST API
+-- is blocked.
+--
+-- admin_remove_dog and admin_restore_dog are NOT exempted, and need no
+-- exemption. A trigger fires for SECURITY DEFINER callers and for BYPASSRLS
+-- roles alike, so an exemption is not available to be granted in the first
+-- place; what makes those two pass is that they genuinely satisfy the check.
+-- SECURITY DEFINER changes current_user, not the request's JWT, and
+-- public.is_admin() resolves entirely through auth.uid()
+-- (is_admin -> has_role -> user_roles.owner_id = auth.uid()), reading the
+-- request.jwt.claims GUC that is set for the whole transaction. Inside
+-- admin_remove_dog the trigger therefore sees exactly what the calling session
+-- sees, and both RPCs raise 42501 unless public.is_admin() is already true, so
+-- by the time either one reaches its UPDATE the caller is an admin by
+-- construction. A genuine admin's DIRECT update passes for the same reason,
+-- which is what dogs_update_admin and Task 5's updateDogAction require.
+--
+-- `is distinct from`, not `<>`: removed_at is null on almost every row, and
+-- `null <> null` is null rather than true, so `<>` would wave through every set
+-- and every clear — the exact bug this trigger exists to prevent.
+--
+-- The refusal is a plain `raise exception` (SQLSTATE P0001), matching 0014 and
+-- deliberately NOT errcode 42501, so that a 42501 raised by an UPDATE on
+-- public.dogs still means one thing only: a policy's WITH CHECK vetoed it.
+-- ---------------------------------------------------------------------------
+
+create or replace function public.prevent_non_admin_dog_removal_change()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if (new.removed_at is distinct from old.removed_at
+       or new.removed_by is distinct from old.removed_by)
+     and auth.uid() is not null
+     and not public.is_admin() then
+    raise exception 'removed_at and removed_by may only be changed by an admin';
+  end if;
+  return new;
+end;
+$$;
+
+-- Dropped and recreated rather than 0014's bare `create trigger`, which on a
+-- re-run of this file would abort with "trigger already exists". Every other
+-- object here is written to be re-runnable and this one has to be too.
+--
+-- No revoke follows, unlike the three functions below. A trigger function is not
+-- callable as an ordinary function — plpgsql refuses one invoked outside a
+-- trigger context — so the pg_default_acl EXECUTE grant that 0029 is about
+-- confers nothing here. 0014's trigger function is ungranted-from in exactly the
+-- same way.
+drop trigger if exists dogs_prevent_non_admin_removal_change on public.dogs;
+create trigger dogs_prevent_non_admin_removal_change
+  before update on public.dogs
+  for each row execute function public.prevent_non_admin_dog_removal_change();
+
+-- ---------------------------------------------------------------------------
 -- Removal and restore
 --
 -- These mirror grant_role/revoke_role: the database is the real gate, and the
