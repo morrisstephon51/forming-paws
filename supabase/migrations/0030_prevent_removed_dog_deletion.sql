@@ -27,6 +27,31 @@
 -- on", and adds no dogs_delete_admin for that reason. This is the same hole seen
 -- from the other side: the hard delete performed by the moderated party.
 --
+-- There is a SECOND route into public.dogs, and this trigger covers it too.
+-- public.dogs.litter_id references public.litters(id) ON DELETE CASCADE
+-- (dogs_litter_id_fkey, read from pg_constraint on wyzcnkdonbdykidmcxvx
+-- 2026-09-07), and litters_delete_own is a permissive DELETE policy on
+-- {authenticated} with `using (breeder_id = auth.uid())` (read from pg_policies,
+-- same day). So a breeder deleting their own litter deletes every puppy in it
+-- without the statement ever naming public.dogs, and a statement that never
+-- names dogs is not reached by dogs_delete_own or by any policy on dogs at all:
+-- referential actions run with the FK's own rights, not the caller's.
+--
+-- A CASCADE delete does fire the child table's row triggers, exactly as a direct
+-- DELETE does. So this trigger IS consulted once per cascaded puppy, and one
+-- removed puppy in the litter aborts the ENTIRE litter delete — the litter row
+-- and every littermate with it — with this file's message rather than an RLS
+-- silence. That is the correct outcome and it is written down here so it is not
+-- read as a bug later: the moderation evidence outranks a breeder's ability to
+-- tidy up a litter, and the alternative (letting the litter delete through)
+-- would be precisely the hole this migration closes, reached one foreign key
+-- away. A breeder in that position needs an admin to restore or delete the
+-- moderated puppy first.
+--
+-- Dormant today: production holds 0 litters and 0 dogs with a non-null litter_id
+-- (2026-09-07), which is why nobody has met it. It goes live with puppy
+-- listings, and it is cheaper to state now than to diagnose then.
+--
 -- Like 0028's sibling, this is a trigger and not a policy, and for three
 -- reasons rather than symmetry alone.
 --
@@ -70,13 +95,40 @@
 -- dog belonging to one member inside the 30-day purge window would abort the
 -- nightly purge job outright — every night, for everybody.
 --
--- `not public.is_admin()` mirrors the sibling. It is currently unreachable
--- rather than dead: there is no DELETE policy on public.dogs that an admin can
--- satisfy for another member's dog (dogs_delete_own pins owner_id = auth.uid(),
--- and 0028 deliberately adds no dogs_delete_admin), so an admin's DELETE matches
--- nothing before this trigger is ever consulted. It is stated anyway so the
--- refusal says what it means — "not entitled" — rather than encoding the
--- accident that admins currently have no route in at all.
+-- `not public.is_admin()` mirrors the sibling, and it is LIVE — not unreachable,
+-- and not dead. An admin is also a member: dogs_delete_own is `owner_id =
+-- auth.uid()` with no exclusion for admins, so an admin whose OWN dog has been
+-- removed satisfies it, reaches this trigger, and is let through by this clause.
+-- The clause is load-bearing for exactly that person.
+--
+-- Which is a product decision, so state it plainly rather than leaving it to be
+-- inferred: AN ADMIN MAY PERMANENTLY DESTROY THE MODERATION EVIDENCE AGAINST
+-- THEIR OWN DOG. The verified vet records and the message threads cascade away
+-- with the row, and neither this migration nor 0028 stops it. That is accepted
+-- here because an admin can already restore the dog, revoke the removal, or
+-- grant themselves anything else they want; a member whose dog was taken from
+-- them cannot, and they are who this trigger is for.
+--
+-- The compensating control is partial and worth stating exactly. 0027's
+-- audit_log carries the REMOVAL — written by lib/auth/audit.ts when an admin
+-- calls admin_remove_dog — and audit_log.target_id is text with no foreign key
+-- to public.dogs (checked on production 2026-09-07), so that row outlives the
+-- dog and the fact that a moderation happened cannot be erased by deleting the
+-- subject. What is not covered is the hard delete itself, which goes through
+-- PostgREST as an ordinary DELETE and writes no audit row at all, and the
+-- evidence, which cascades away for good. If that stops being enough, the fix is
+-- to drop `not public.is_admin()` from the condition below — refusing admins
+-- too — and to give admins an audited RPC for the deletions they genuinely need.
+-- Not a narrowed dogs_delete_own: a policy filters rather than refuses, so it
+-- would report success and quietly leave the row, which is the failure mode the
+-- top of this file rejects.
+--
+-- What is genuinely unreachable is the OTHER case: an admin deleting SOMEONE
+-- ELSE'S removed dog. dogs_delete_own pins owner_id = auth.uid() and 0028
+-- deliberately adds no dogs_delete_admin, so that statement matches no row and
+-- this trigger is never consulted for it. The clause is written to cover that
+-- case anyway, so the refusal says what it means — "not entitled" — rather than
+-- encoding the accident that admins have no route into another member's row.
 --
 -- `old.removed_at is not null`, not `is distinct from`: unlike the UPDATE case
 -- there is no NEW row to compare against. This is a question about one row's

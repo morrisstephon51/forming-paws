@@ -9,7 +9,7 @@
 -- refuses actually had something to act on, and by a control proving the same
 -- statement succeeds when it should.
 --
--- What each of the three claims needs to be true in the database to mean
+-- What each of the five claims needs to be true in the database to mean
 -- anything, and where that is established:
 --
 --   1. "an owner CAN delete their own un-removed dog" needs a dog that exists,
@@ -34,6 +34,22 @@
 --      select_own plus dog_photos' owner policies make "merely invisible" the
 --      default state for a removed dog, which is exactly the confusion that
 --      would otherwise make section 5 unreadable.
+--
+--   4. "an admin CAN delete a removed dog" needs an acting admin who also OWNS
+--      the removed row. dogs_delete_own (`owner_id = auth.uid()`) is the only
+--      DELETE-capable policy on public.dogs — 0028's section 2 pins that set
+--      exactly — so an admin has no route to another member's dog at all and
+--      the only reachable form of this claim is an admin's own dog. Section 6
+--      builds a fourth fixture dog owned by the admin, has the admin remove it,
+--      and reads it back through dogs_select_admin (the same visibility the
+--      filtered delete depends on) immediately before deleting it.
+--
+--   5. "a caller with no JWT can still delete a removed dog" needs the row to be
+--      present and removed, and auth.uid() to actually BE null, at the moment of
+--      the delete. Section 7 asserts both immediately beforehand: without the
+--      null check it would silently be re-testing section 6's admin branch, and
+--      without the presence check a delete reporting 0 rows would be
+--      indistinguishable from the refusal it is supposed to rule out.
 
 begin;
 
@@ -52,7 +68,7 @@ begin;
 create temporary table t_ids (k text primary key, v uuid);
 insert into t_ids (k, v)
 select k, gen_random_uuid()
-from unnest(array['dog_admin', 'dog_owner', 'dog', 'spare', 'keeper']) k;
+from unnest(array['dog_admin', 'dog_owner', 'dog', 'spare', 'keeper', 'admin_dog']) k;
 
 grant select on t_ids to authenticated;
 
@@ -119,6 +135,30 @@ select (select v from t_ids where k = 'dog'), 'assertions/0030/vet-exam.pdf',
 
 insert into public.dog_photos (dog_id, storage_path, position)
 select (select v from t_ids where k = 'dog'), 'assertions/0030/photo.jpg', 0;
+
+-- A fourth dog, owned by dog_admin rather than dog_owner, for section 6.
+--
+-- The admin-permit branch is only reachable on an admin's OWN dog: dogs_delete_
+-- own (`owner_id = auth.uid()`) is the only DELETE-capable policy on public.dogs
+-- and 0028's section 2 pins that set to exactly {dogs_delete_own}, so an admin
+-- deleting somebody else's removed dog matches no row and never reaches the
+-- trigger at all. A fixture built the other way round — the admin deleting
+-- dog_owner's removed dog — would report 0 rows and fail, and it would fail for
+-- a reason that has nothing to do with the branch being asserted.
+--
+-- It disturbs nothing else in the file. Section 3's guards are scoped either to
+-- dog_owner (who does not own this row) or to the fixture dog's id, and section
+-- 4's unfiltered DELETE runs as dog_owner, whose candidate set under
+-- dogs_delete_own is their own rows only. It carries no health documents and no
+-- photo on purpose: section 6 is about a refusal NOT happening, and giving it
+-- children would only add cascade noise to a delete that is supposed to succeed.
+insert into public.dogs (id, owner_id, name, breed_id, sex, birth_date)
+select (select v from t_ids where k = 'admin_dog'),
+       (select v from t_ids where k = 'dog_admin'),
+       'Assertion 0030 admin_dog',
+       (select id from public.breeds order by id limit 1),
+       'female'::public.dog_sex,
+       (current_date - interval '2 years')::date;
 
 
 -- ---------------------------------------------------------------------------
@@ -298,6 +338,41 @@ set local role authenticated;
 select set_config('request.jwt.claims',
   json_build_object('sub', (select v from t_ids where k = 'dog_owner'), 'role', 'authenticated')::text, true);
 
+-- Guarded, and this is the only statement in the file that is.
+--
+-- Every other delete here names a row. `where id = <fixture id>` stays bounded
+-- by the fixture whatever role or identity it ends up running under, so the
+-- worst a lost `set local role` can do to those is make an assertion fail. This
+-- one names nothing: its candidate set is decided entirely by who is asking.
+--
+-- As `authenticated` with dog_owner's JWT that set is two fixture rows. If the
+-- role switch two statements up did not take effect — a pooler resetting session
+-- state between statements, a tool that splits this file across connections, a
+-- later edit that moves or drops the `set local` — the statement instead runs as
+-- postgres, which holds rolbypassrls, and the candidate set is EVERY ROW IN
+-- public.dogs: 20 dogs on production today, cascading 8 health documents, 1
+-- match and its 7 messages. The rollback at the end of this file means nothing
+-- is permanently lost, but that is the smaller half of the problem.
+--
+-- The larger half is that the file would then PASS while proving nothing about
+-- RLS. The trigger still fires on the fixture's removed row, sqlerrm still ends
+-- in "may only be deleted by an admin", `raised` is still true, and every count
+-- in section 5 is scoped to a fixture id, so all of them still hold. A green run
+-- would mean "postgres cannot delete a removed dog either", which nobody is
+-- asking and which would be read as "a member cannot".
+--
+-- So prove the identity first and refuse rather than assert: a failure here is a
+-- broken harness, not a failed security claim, and it must not be reported as
+-- one.
+do $$ begin
+  if current_user <> 'authenticated' then
+    raise exception 'FAIL: about to run an unfiltered DELETE as %; refusing', current_user;
+  end if;
+  if auth.uid() is distinct from (select v from t_ids where k = 'dog_owner') then
+    raise exception 'FAIL: the unfiltered DELETE would run under the wrong identity (%)', auth.uid();
+  end if;
+end $$;
+
 do $$
 declare
   n int;
@@ -373,6 +448,165 @@ begin
   where id = (select v from t_ids where k = 'keeper');
   if n <> 1 then
     raise exception 'FAIL: the owner''s un-removed dog was destroyed by the refused statement (got %); the trigger silently cancelled the removed row instead of aborting the whole DELETE', n;
+  end if;
+end $$;
+
+
+-- ---------------------------------------------------------------------------
+-- 6. The permit branch. An admin CAN hard-delete a removed dog.
+--
+-- Nothing above this line notices if `not public.is_admin()` falls out of the
+-- trigger's condition, or if is_admin() comes to answer false for a real admin.
+-- A trigger that refuses EVERY caller of a removed row, admins included, passes
+-- sections 1 through 5 exactly as a correct one does: section 2's control
+-- deletes an UN-removed dog, so it never reaches the admin clause at all, and
+-- sections 4 and 5 are asserting a refusal in the first place. This section is
+-- the only thing in the file that fails.
+--
+-- Asserted on the admin's OWN dog, because that is the only reachable form of
+-- the claim. dogs_delete_own (`owner_id = auth.uid()`) is the only DELETE-
+-- capable policy on public.dogs and 0028's section 2 pins that set exactly, so
+-- an admin's delete of another member's removed dog matches no row and never
+-- reaches this trigger — asserting THAT would be asserting the absence of a
+-- policy, which 0028 already does directly. What is asserted here is what 0030's
+-- header now states outright: an admin may permanently destroy the moderation
+-- evidence against their own dog.
+-- ---------------------------------------------------------------------------
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  json_build_object('sub', (select v from t_ids where k = 'dog_admin'), 'role', 'authenticated')::text, true);
+select public.admin_remove_dog((select v from t_ids where k = 'admin_dog'), 'assertion 0030 admin self-removal');
+
+-- Vacuity guard: the row must exist, be owned by the acting admin, and be
+-- REMOVED. Removed above all — an un-removed dog is deleted by its own owner
+-- with the trigger's condition short-circuiting on `old.removed_at is not null`,
+-- which is section 2's statement, not this one; without this half of the guard
+-- the section below would succeed while consulting the admin clause never.
+--
+-- Read AS the admin rather than with RLS off, deliberately — that is
+-- the same visibility the delete below depends on. A DELETE whose WHERE reads a
+-- column has the SELECT policies applied to it too, and dogs_select_own excludes
+-- removed rows from their own owner, so this statement can only find its row
+-- through dogs_select_admin, which 0028 deliberately leaves unfiltered. Reading
+-- with RLS off here would conceal a missing dogs_select_admin and turn the
+-- delete's "0 rows" into an unexplained accusation against 0030's trigger.
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'admin_dog')
+    and owner_id = (select v from t_ids where k = 'dog_admin')
+    and removed_at is not null;
+  if n <> 1 then
+    raise exception 'FAIL: the admin''s own dog is not a present, removed, admin-visible row (got %); the delete below would report 0 rows for a reason that has nothing to do with 0030', n;
+  end if;
+end $$;
+
+do $$
+declare n int;
+begin
+  begin
+    delete from public.dogs where id = (select v from t_ids where k = 'admin_dog');
+    get diagnostics n = row_count;
+  exception
+    when others then
+      raise exception 'FAIL: an admin''s delete of their OWN removed dog was refused with sqlstate % (%). 0030''s `not public.is_admin()` clause is live rather than decorative — an admin is also a member, and dogs_delete_own admits them to their own row — so as written the trigger is refusing the one caller the migration says is entitled.',
+        sqlstate, sqlerrm;
+  end;
+  if n <> 1 then
+    raise exception 'FAIL: an admin''s delete of their own removed dog reported % row(s); expected exactly 1. A BEFORE DELETE trigger that returns NULL raises nothing and cancels the row silently, and this is what that looks like.', n;
+  end if;
+end $$;
+
+-- Measured, not assumed, as in section 2: the check above reads a count reported
+-- by the statement whose effect is in question, this one reads the table. Taken
+-- with RLS off, because to the admin a deleted dog and a hidden dog are the same
+-- count.
+reset role;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs where id = (select v from t_ids where k = 'admin_dog');
+  if n <> 0 then
+    raise exception 'FAIL: the admin''s delete reported 1 row but their removed dog is still in the table (got %); the delete did not actually happen', n;
+  end if;
+end $$;
+
+
+-- ---------------------------------------------------------------------------
+-- 7. The null-auth.uid() path still deletes. LAST SECTION, DELIBERATELY.
+--
+-- The trigger's `auth.uid() is not null` clause is not a courtesy to the SQL
+-- editor. public.purge_deactivated_accounts() runs nightly from pg_cron as
+-- postgres — no JWT context, so a null auth.uid() — and deletes straight out of
+-- auth.users; that delete cascades auth.users -> owners -> dogs, and a CASCADE
+-- fires row triggers exactly as a direct DELETE does, so this trigger is
+-- consulted once for every dog the purge takes. Drop the clause and one
+-- moderated dog belonging to one member inside the 30-day purge window aborts
+-- the entire job — every night, for everybody — and nothing else in this file
+-- would notice, because every other section supplies a JWT.
+--
+-- LAST, and this is load-bearing rather than tidiness: this section hard-deletes
+-- the very row sections 4 and 5 assert survived. Run any earlier, section 5's
+-- "the removed dog is still here" becomes an assertion about a row this section
+-- already took, and the file would report a cascade failure that never happened.
+-- Nothing may be added after it except the rollback.
+--
+-- It deletes public.dogs directly rather than deleting out of auth.users as the
+-- real job does. Same trigger, same OLD row, same null identity; going through
+-- auth.users would additionally drag dog_owner's owners row and their surviving
+-- keeper dog away with it, proving nothing extra about the clause under test.
+-- ---------------------------------------------------------------------------
+
+reset role;
+select set_config('request.jwt.claims', '', true);
+
+-- Vacuity guard in two halves. The identity half first: with the claims cleared
+-- auth.uid() must actually BE null, or this section is quietly re-running
+-- section 6's admin branch — dog_admin's claims are the ones most recently set —
+-- and would pass for a reason that is not the one being claimed. Then the row
+-- half, in two parts: PRESENT, or the delete below reports 0 rows for a reason
+-- that has nothing to do with any trigger; and still REMOVED, or the trigger's
+-- condition short-circuits on `old.removed_at is not null` and the delete
+-- succeeds without the null-uid clause ever being reached — a pass that asserts
+-- nothing, which is exactly what this file's design rule forbids.
+do $$
+declare n int;
+begin
+  if auth.uid() is not null then
+    raise exception 'FAIL: request.jwt.claims did not clear; auth.uid() is still %, so this section would be re-testing section 6''s admin branch rather than the null-uid one', auth.uid();
+  end if;
+  select count(*) into n from public.dogs
+  where id = (select v from t_ids where k = 'dog') and removed_at is not null;
+  if n <> 1 then
+    raise exception 'FAIL: the removed fixture dog is not present going into the purge-path delete (got %); the delete below could then report 0 rows with nothing having refused anything', n;
+  end if;
+end $$;
+
+do $$
+declare n int;
+begin
+  begin
+    delete from public.dogs where id = (select v from t_ids where k = 'dog');
+    get diagnostics n = row_count;
+  exception
+    when others then
+      raise exception 'FAIL: deleting a removed dog with a null auth.uid() was refused with sqlstate % (%). That is the path public.purge_deactivated_accounts() takes from pg_cron, so the nightly purge now aborts for every member holding a moderated dog, silently, until someone reads this trigger.',
+        sqlstate, sqlerrm;
+  end;
+  if n <> 1 then
+    raise exception 'FAIL: the null-auth.uid() delete of the removed dog reported % row(s); expected exactly 1. A BEFORE DELETE trigger that returns NULL cancels the row silently and reports 0, which is the purge quietly leaving rows behind with no error to find it by.', n;
+  end if;
+end $$;
+
+-- Measured, not assumed, as in sections 2 and 6.
+do $$
+declare n int;
+begin
+  select count(*) into n from public.dogs where id = (select v from t_ids where k = 'dog');
+  if n <> 0 then
+    raise exception 'FAIL: the null-auth.uid() delete reported 1 row but the removed dog is still in the table (got %); the purge path does not actually clear it', n;
   end if;
 end $$;
 
