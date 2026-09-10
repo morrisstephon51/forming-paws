@@ -3,6 +3,7 @@ import SiteFooter from '@/components/SiteFooter'
 import ShareButtons from '@/components/ShareButtons'
 import { pageMetadata } from '@/lib/seo'
 import { CONTACT_EMAIL, SITE_NAME, SITE_URL } from '@/lib/site'
+import RecordLine from '@/components/record/RecordLine'
 
 export const metadata = pageMetadata({
   title: 'Support us',
@@ -47,9 +48,8 @@ export default function DonatePage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="fp-h1">
-          <span aria-hidden="true">❤️</span> Support {SITE_NAME}
-        </h1>
+        <RecordLine label="Support" value={SITE_NAME} className="mb-4" />
+        <h1 className="fp-h1">Support {SITE_NAME}</h1>
 
         {/*
           No donate button, deliberately.
@@ -58,8 +58,12 @@ export default function DonatePage() {
           with no processor and no fiscal sponsor in place would mean holding
           funds we cannot properly account for. The page says so instead.
         */}
-        <div className="fp-card mt-6 border-l-4 border-l-accent">
-          <p className="font-semibold text-ink">We are not accepting donations yet.</p>
+        <div className="mt-6 border-y border-hairline py-5">
+          <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            <RecordLine status="none" label="501(c)(3) status" value="Not yet" />
+            <RecordLine status="none" label="Fiscal sponsor" value="None in place" />
+          </div>
+          <p className="mt-4 font-semibold text-ink">We are not accepting donations yet.</p>
           <p className="mt-2 text-sm text-ink-soft">
             {SITE_NAME} is being built as a nonprofit but is <strong>not an IRS-approved
             501(c)(3)</strong>. Until that comes through or a fiscal sponsor is in place, we cannot

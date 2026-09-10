@@ -8,13 +8,23 @@ import { safeEmailParam } from '@/lib/auth/prefill'
 import { SITE_URL } from '@/lib/site'
 import { FAQS } from '@/lib/faq'
 import { RESPONSE_TIME } from '@/lib/promise'
+import { STEPS, ROADMAP } from '@/lib/journey'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
-import Splash from '@/components/landing/Splash'
+import WorldflightHero from '@/components/homepage/WorldflightHero'
 import SectionDivider from '@/components/art/SectionDivider'
-import Reveal from '@/components/motion/Reveal'
 import StepStack from '@/components/motion/StepStack'
-import CountUp from '@/components/motion/CountUp'
+import Sage from '@/components/mascot/Sage'
+
+/**
+ * The scrollcraft rebuild (2026-09-01) replaced Splash, Reveal and CountUp:
+ * the opening is now WorldflightHero (a two-leg illustrated worldflight, see
+ * its own file docs), and everything below uses the scrollcraft engine's own
+ * `flow` + `in` + `count` devices instead of the old bespoke components —
+ * one engine mounted once, covering the worldflight hero and this ordinary
+ * document-flow body in the same pass. StepStack is untouched; it is a
+ * layout primitive, not a competing motion system.
+ */
 
 /**
  * theplugai.xyz — the public front door and the app's landing in one page.
@@ -27,29 +37,6 @@ import CountUp from '@/components/motion/CountUp'
  * Credentials are handled by LoginForm and nowhere else.
  */
 
-const STEPS = [
-  {
-    n: 1,
-    title: 'Create a profile',
-    body: "Add your dog's breed, age, temperament, and photos. Owners verify their identity; dogs get their own profile page.",
-  },
-  {
-    n: 2,
-    title: 'Upload health records',
-    body: 'Vet wellness exams, vaccinations, and breed-specific screenings go into a private health vault. Our team reviews and verifies them.',
-  },
-  {
-    n: 3,
-    title: 'Match nearby',
-    body: "Filter by breed, sex, age, and distance. Express interest, and when it's mutual, chat unlocks so owners can talk first.",
-  },
-  {
-    n: 4,
-    title: 'Meet safely',
-    body: 'We suggest neutral meeting locations and a record-exchange checklist, so both owners meet prepared and confident.',
-  },
-]
-
 const HEALTH = [
   {
     icon: '🩺',
@@ -59,38 +46,16 @@ const HEALTH = [
   {
     icon: '❤️‍🩹',
     title: 'A path to healthy',
-    body: "Dogs whose records don't pass aren't rejected. They're referred to partner veterinarians with a plan to bring their health up to standard.",
+    body: "Dogs whose records don't pass aren't rejected. Right now that means a referral to PAWS Chicago's low-cost veterinary clinic; a dedicated partner network is next.",
   },
   {
+    // "Litter caps per profile" was aspirational until migration 0026 --
+    // grep found zero implementing code before it. Now real: one litter per
+    // parent dog per rolling 12 months, enforced at insert time, not just
+    // stated here.
     icon: '🚫',
     title: 'Built against puppy mills',
-    body: 'Litter caps per profile, mandatory documentation, and community reporting keep high-volume breeders off the platform.',
-  },
-]
-
-const ROADMAP = [
-  {
-    tag: 'Now',
-    title: 'Matching platform',
-    body: 'Profiles, health verification, local matching, and owner chat: the foundation you are looking at today.',
-  },
-  {
-    tag: 'Next',
-    title: 'Vet partner network',
-    body: 'Referral pathways so under-documented dogs get affordable care and re-enter matching healthy.',
-  },
-  {
-    // "Expert-reviewed" was aspirational and is now checkable: /education is
-    // live and no veterinarian has reviewed it. The claim moves to what is
-    // actually true, and the page says so itself.
-    tag: 'Started',
-    title: 'Education hub',
-    body: 'Practical guides on documentation, questions for your vet, and meeting safely. Live now, and growing as the vet network does.',
-  },
-  {
-    tag: 'Vision',
-    title: 'Safe breeding facility',
-    body: 'A physical safe space for supervised mating, breeding, and whelping, run by the nonprofit.',
+    body: 'A hard cap of one litter per dog per year, mandatory documentation, and community reporting keep high-volume breeders off the platform.',
   },
 ]
 
@@ -117,7 +82,7 @@ export default async function HomePage({
   return (
     <>
       <main>
-        <Splash />
+        <WorldflightHero />
 
         <div className="fp-shell py-8">
         {/*
@@ -126,26 +91,13 @@ export default async function HomePage({
           compete with the headline is here instead — the three trust points and
           the sign-in panel, one scroll down and nothing hidden.
         */}
-        {/*
-          tabIndex={-1} is what makes the splash's scroll cue keep its promise.
-          next/link preventDefaults the click, so the browser never performs the
-          native fragment navigation that would set the sequential-focus starting
-          point here. Next scrolls this element and then calls focus() on it —
-          which is a no-op on an element that is not focusable, and a bare <div>
-          is not. The result was a cue that moved the page and the URL but left
-          focus back on the cue, so the next Tab went to the header rather than
-          into the section the visitor just asked for.
-
-          It keeps a focus ring rather than `outline-none`. The ring only shows
-          for the keyboard arrival that actually needs it — :focus-visible does
-          not match a programmatic focus that followed a click — and suppressing
-          it here would repeat, on the destination, the defect this pass fixed on
-          the cue. brand on ivory is 5.82:1, well clear of the 3:1 floor.
-        */}
         <div
           id="start"
-          tabIndex={-1}
-          className="grid scroll-mt-6 gap-10 pt-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand md:grid-cols-5 md:items-start"
+          data-sc-act="flow"
+          data-sc-drift="#FBF7F0"
+          className="grid scroll-mt-6 gap-10 pt-10 md:grid-cols-5 md:items-start"
+          data-sc-in
+          data-sc-stagger="70"
         >
           <section className="md:col-span-3">
             <h2 className="fp-h2">Start here</h2>
@@ -195,7 +147,7 @@ export default async function HomePage({
           </section>
         </div>
 
-        <Reveal as="section" id="how" className="mt-20 scroll-mt-8">
+        <section id="how" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> How Forming Paws works
           </h2>
@@ -218,12 +170,12 @@ export default async function HomePage({
               ),
             }))}
           />
-        </Reveal>
+        </section>
 
         {/* Breathing room between the two heaviest sections on the page. */}
         <SectionDivider className="mt-16" />
 
-        <Reveal as="section" id="health" className="mt-4 scroll-mt-8">
+        <section id="health" data-sc-act="flow" className="mt-4 scroll-mt-8" data-sc-in data-sc-stagger="70">
           <h2 className="fp-h2">
             <span aria-hidden="true">🐾</span> Health first. It&apos;s the whole point
           </h2>
@@ -231,9 +183,9 @@ export default async function HomePage({
             Forming Paws exists to raise the standard of dog breeding, not just to make
             introductions.
           </p>
-          <div className="fp-depth mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {HEALTH.map((card) => (
-              <div key={card.title} className="fp-card">
+              <div key={card.title} className="fp-card" data-sc-tilt="6">
                 <span className="text-2xl" aria-hidden="true">
                   {card.icon}
                 </span>
@@ -242,14 +194,16 @@ export default async function HomePage({
               </div>
             ))}
           </div>
-        </Reveal>
+        </section>
 
-        <Reveal as="section" id="roadmap" className="mt-20 scroll-mt-8">
+        <section id="roadmap" data-sc-act="flow" className="mt-20 scroll-mt-8" data-sc-in data-sc-stagger="70">
           <h2 className="fp-h2">Where we&apos;re headed</h2>
           <p className="mt-2 text-ink-soft">A nonprofit that grows with its community.</p>
-          <ol className="fp-depth mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {ROADMAP.map((item) => (
-              <li key={item.tag} className="fp-card">
+              // key is title, not tag: two items now legitimately share the
+              // "Now" tag (Matching platform, PAWS Chicago referral).
+              <li key={item.title} className="fp-card" data-sc-tilt="6">
                 <span className="fp-eyebrow">
                   {item.tag}
                 </span>
@@ -258,10 +212,20 @@ export default async function HomePage({
               </li>
             ))}
           </ol>
-        </Reveal>
+        </section>
 
-        {/* Visitors only reach this page signed out, so no guard is needed. */}
-        <Reveal as="section" id="waitlist" className="fp-band mt-20 scroll-mt-8">
+        {/* Visitors only reach this page signed out, so no guard is needed.
+            data-sc-act="flow" (not just data-sc-in) because data-sc-count
+            only registers for counters inside a [data-sc-act] element.
+
+            The text inside each counter is its FINAL value, not its starting
+            value. It used to be a literal 0, which is what the engine counts
+            up from — but it is also the only thing a crawler or a visitor
+            without JavaScript ever sees, so the page advertised "0 founding
+            spots" to Google. The engine overwrites this text on mount and
+            still animates 0 -> 20 from the data-sc-count range, so the
+            animation is unchanged and the served HTML is now true. */}
+        <section id="waitlist" data-sc-act="flow" data-sc-in data-sc-stagger="70" className="fp-band mt-20 scroll-mt-8">
           <h2 className="fp-h2">Be a Founding Member</h2>
           <p className="mt-2 text-ink-soft">
             Join the waitlist. The first 20 owners in our launch city get health verification{' '}
@@ -270,13 +234,15 @@ export default async function HomePage({
           <div className="mt-7 grid gap-6 sm:max-w-md sm:grid-cols-2">
             <p>
               <span className="fp-h2 block text-brand">
-                <CountUp to={20} />
+                <span data-sc-count="0 20" data-sc-count-at="0.1 0.5">20</span>
               </span>
               <span className="fp-eyebrow mt-1 block">founding spots</span>
             </p>
             <p>
               <span className="fp-h2 block text-brand">
-                <CountUp to={RESPONSE_TIME.hours} suffix="h" />
+                <span data-sc-count={`0 ${RESPONSE_TIME.hours}`} data-sc-count-at="0.15 0.55">
+                  {RESPONSE_TIME.hours}
+                </span>h
               </span>
               <span className="fp-eyebrow mt-1 block">max reply time</span>
             </p>
@@ -293,9 +259,9 @@ export default async function HomePage({
             </Link>{' '}
             first.
           </p>
-        </Reveal>
+        </section>
 
-        <Reveal as="section" id="faq" className="mt-20 scroll-mt-8">
+        <section id="faq" data-sc-act="flow" data-sc-in className="mt-20 scroll-mt-8">
           <h2 className="fp-h2">Questions people ask first</h2>
           <p className="mt-2 text-ink-soft">
             The five that come up most.{' '}
@@ -304,7 +270,7 @@ export default async function HomePage({
             </Link>
             .
           </p>
-          <div className="fp-depth mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex flex-col gap-3">
             {FAQS.map((faq) => (
               <details key={faq.question} className="fp-card">
                 <summary className="cursor-pointer font-semibold">{faq.question}</summary>
@@ -312,15 +278,20 @@ export default async function HomePage({
               </details>
             ))}
           </div>
-        </Reveal>
+        </section>
 
-        <Reveal as="section" className="fp-band-deep mt-16">
-          <h2 className="fp-h2">Still deciding?</h2>
-          <p className="mt-2 text-ink-soft">
-            {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person answers.
-          </p>
+        <section data-sc-act="flow" className="fp-band-deep mt-16" data-sc-in data-sc-stagger="70">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="fp-h2">Still deciding?</h2>
+              <p className="mt-2 text-ink-soft">
+                {RESPONSE_TIME.sentence} Ask us anything before you sign up. A real person answers.
+              </p>
+            </div>
+            <Sage mood="celebrating" size={72} />
+          </div>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/contact" className="fp-btn">
+            <Link href="/contact" className="fp-btn" data-sc-magnet="0.24">
               Ask a question
             </Link>
             <Link href="/app" className="fp-btn-ghost">
@@ -333,7 +304,7 @@ export default async function HomePage({
               title="Forming Paws: health-verified breeding matches for dog owners"
             />
           </div>
-        </Reveal>
+        </section>
         </div>
       </main>
 

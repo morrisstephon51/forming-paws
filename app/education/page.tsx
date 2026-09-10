@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import SiteFooter from '@/components/SiteFooter'
 import { GUIDES } from '@/lib/education'
+import RecordLine from '@/components/record/RecordLine'
 import { pageMetadata } from '@/lib/seo'
 import BannerArt from '@/components/art/BannerArt'
 import learnHub from '@/assets/art/learn-hub.jpg'
@@ -17,9 +18,8 @@ export default function EducationPage() {
     <div className="mx-auto max-w-3xl px-6 py-4">
 
       <main className="mt-8">
-        <h1 className="fp-h1">
-          <span aria-hidden="true">📚</span> Learn
-        </h1>
+        <RecordLine label="Catalogue" value="Guides" className="mb-4" />
+        <h1 className="fp-h1">Learn</h1>
         <p className="mt-4 text-ink-soft">
           Short, practical guides for owners thinking about breeding responsibly: what paperwork is
           needed, what to ask a professional, and how to handle the first meeting.
@@ -32,11 +32,14 @@ export default function EducationPage() {
           reviewed by a veterinarian, and a member who mistakes it for medical
           guidance might act on it instead of booking an appointment.
         */}
-        <p className="fp-card mt-6 border-l-4 border-l-accent text-sm text-ink-soft">
-          <strong className="text-ink">These are not veterinary advice.</strong> They cover process
-          and safety: paperwork, questions worth asking, meeting a stranger sensibly. Nothing here
-          has been written or reviewed by a veterinarian, and none of it is a substitute for one.
-        </p>
+        <div className="mt-6 border-y border-hairline py-5">
+          <RecordLine status="none" label="Vet-reviewed" value="Not yet" />
+          <p className="mt-3 max-w-[46rem] text-sm text-ink-soft">
+            <strong className="text-ink">These are not veterinary advice.</strong> They cover process
+            and safety: paperwork, questions worth asking, meeting a stranger sensibly. Nothing here
+            has been written or reviewed by a veterinarian, and none of it is a substitute for one.
+          </p>
+        </div>
 
         <ul className="fp-depth mt-8 flex flex-col gap-4">
           {GUIDES.map((guide) => (
@@ -50,6 +53,12 @@ export default function EducationPage() {
                   <span className="fp-badge">{guide.readingMinutes} min read</span>
                 </div>
                 <p className="mt-2 text-sm text-ink-soft">{guide.summary}</p>
+                {/*
+                  Repeated per guide on purpose. One disclaimer at the top of a
+                  list is read once and then forgotten by the third card; the
+                  mark travels with the thing it qualifies.
+                */}
+                <RecordLine status="none" label="Vet-reviewed" value="Not yet" className="mt-3" />
               </Link>
             </li>
           ))}

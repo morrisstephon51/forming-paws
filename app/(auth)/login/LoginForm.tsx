@@ -122,7 +122,7 @@ export default function LoginForm({
   return (
     <div className="w-full">
       {error && (
-        <p className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p className="mt-4 rounded-lg border border-accent-dark/25 bg-accent-soft p-3 text-sm text-accent-dark">
           {error}
         </p>
       )}
@@ -140,7 +140,7 @@ export default function LoginForm({
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border border-hairline p-2"
+          className="fp-input"
         />
         <label htmlFor="login-password" className="sr-only">
           Password
@@ -154,7 +154,7 @@ export default function LoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border border-hairline p-2"
+          className="fp-input"
         />
         <button type="submit" className="fp-btn">
           Log in
@@ -164,16 +164,16 @@ export default function LoginForm({
       {!showReset && (
         <button
           onClick={() => setShowReset(true)}
-          className="mt-3 text-sm underline text-ink-soft"
+          className="fp-link mt-3 text-sm"
         >
           Forgot your password?
         </button>
       )}
 
       {showReset && (
-        <div className="mt-6 border-t pt-6">
+        <div className="fp-hairline mt-6 pt-6">
           {resetState === 'sent' ? (
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-brand-dark">
               If {resetEmail} has an account, a reset link is on its way. Open it and you can choose
               a new password.
             </p>
@@ -189,17 +189,17 @@ export default function LoginForm({
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
                   placeholder="Your email"
-                  className="border border-hairline p-2 flex-1"
+                  className="fp-input flex-1"
                 />
                 <button
                   onClick={handleReset}
                   disabled={!resetEmail || resetState === 'sending'}
-                  className="border border-hairline px-3 rounded disabled:opacity-50"
+                  className="fp-btn-ghost shrink-0 px-4 py-2.5 disabled:opacity-50"
                 >
                   {resetState === 'sending' ? 'Sending…' : 'Send link'}
                 </button>
               </div>
-              {resetError && <p className="mt-2 text-sm text-red-600">{resetError}</p>}
+              {resetError && <p className="mt-2 text-sm text-accent-dark">{resetError}</p>}
             </>
           )}
         </div>
@@ -212,15 +212,15 @@ export default function LoginForm({
         NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true once the provider is configured.
       */}
       {process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true' && (
-        <button onClick={handleGoogleLogin} className="mt-4 border border-hairline p-2 rounded w-full">
+        <button onClick={handleGoogleLogin} className="fp-btn-ghost mt-4 w-full">
           Continue with Google
         </button>
       )}
 
       {showResend && (
-        <div className="mt-6 border-t pt-6">
+        <div className="fp-hairline mt-6 pt-6">
           {resendState === 'sent' ? (
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-brand-dark">
               New confirmation link sent to {resendEmail}. Check your inbox and spam folder.
             </p>
           ) : (
@@ -235,17 +235,17 @@ export default function LoginForm({
                   value={resendEmail}
                   onChange={(e) => setResendEmail(e.target.value)}
                   placeholder="Your email"
-                  className="border border-hairline p-2 flex-1"
+                  className="fp-input flex-1"
                 />
                 <button
                   onClick={handleResend}
                   disabled={!resendEmail || resendState === 'sending'}
-                  className="border border-hairline px-3 rounded disabled:opacity-50"
+                  className="fp-btn-ghost shrink-0 px-4 py-2.5 disabled:opacity-50"
                 >
                   {resendState === 'sending' ? 'Sending…' : 'Send'}
                 </button>
               </div>
-              {resendError && <p className="mt-2 text-sm text-red-600">{resendError}</p>}
+              {resendError && <p className="mt-2 text-sm text-accent-dark">{resendError}</p>}
             </>
           )}
         </div>

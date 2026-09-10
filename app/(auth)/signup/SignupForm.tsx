@@ -56,9 +56,15 @@ export default function SignupForm() {
   }
 
   return (
-    <main className="mx-auto max-w-sm p-8">
-      <Sage mood="waving" size={72} />
-      <h1 className="mt-3 fp-h2">Create your account</h1>
+    // No <main> here: the page owns the landmark and the page shell, so this
+    // stays a form. Two <main> elements on one document is the bug that used to
+    // ship when this component carried its own.
+    <div>
+      <Sage mood="waving" size={64} />
+      <h1 className="fp-h2 mt-3">Create your account</h1>
+      <p className="fp-lead mt-2 text-base">
+        Free, and your dog&rsquo;s profile takes a few minutes.
+      </p>
       <form action={handleSubmit} className="mt-6 flex flex-col gap-4">
         <label htmlFor="signup-displayName" className="sr-only">
           Your name
@@ -70,7 +76,7 @@ export default function SignupForm() {
           required
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="border border-hairline p-2"
+          className="fp-input"
         />
         <label htmlFor="signup-email" className="sr-only">
           Email
@@ -84,7 +90,7 @@ export default function SignupForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border border-hairline p-2"
+          className="fp-input"
         />
         <label htmlFor="signup-password" className="sr-only">
           Password
@@ -98,7 +104,7 @@ export default function SignupForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="border border-hairline p-2"
+          className="fp-input"
         />
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -109,11 +115,11 @@ export default function SignupForm() {
           />
           I confirm I am 18 years of age or older
         </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-accent-dark">{error}</p>}
         <button type="submit" className="fp-btn">
           Sign up
         </button>
       </form>
-    </main>
+    </div>
   )
 }

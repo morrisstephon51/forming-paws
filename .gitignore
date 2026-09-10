@@ -12,3 +12,9 @@ tsconfig.tsbuildinfo
 
 # superpowers skill scratch state — per-session, not shared.
 .superpowers/
+
+# scrollcraft skill's local build workspace (BRIEF.md, raw source stills,
+# its own package.json/node_modules) and verification screenshots — dev-time
+# artifacts, not shipped. The optimized assets it produced live in public/.
+/scrollcraft/
+/lab/

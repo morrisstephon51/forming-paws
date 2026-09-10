@@ -33,6 +33,7 @@ describe('navLinks', () => {
     expect(navLinks('member').map((l) => l.href)).toEqual([
       '/home',
       '/browse',
+      '/marketplace',
       '/matches',
       '/education',
       '/settings',

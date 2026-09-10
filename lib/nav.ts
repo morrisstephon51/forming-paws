@@ -17,6 +17,7 @@ const PUBLIC_LINKS: NavLink[] = [
 const MEMBER_LINKS: NavLink[] = [
   { href: '/home', label: 'Home' },
   { href: '/browse', label: 'Browse' },
+  { href: '/marketplace', label: 'Marketplace' },
   { href: '/matches', label: 'Matches' },
   { href: '/education', label: 'Learn' },
   { href: '/settings', label: 'Settings' },
