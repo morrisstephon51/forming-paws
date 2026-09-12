@@ -1,4 +1,4 @@
--- supabase/migrations/0028_sync_owners_email_on_auth_change.sql
+-- supabase/migrations/0032_sync_owners_email_on_auth_change.sql
 --
 -- Keep public.owners.email in step with auth.users.email after an email change.
 --

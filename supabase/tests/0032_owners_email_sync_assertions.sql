@@ -1,10 +1,10 @@
--- supabase/tests/0028_owners_email_sync_assertions.sql
+-- supabase/tests/0032_owners_email_sync_assertions.sql
 --
--- Run against a database that has migration 0028 applied. Everything happens
+-- Run against a database that has migration 0032 applied. Everything happens
 -- inside a transaction that ends in `rollback`, so it asserts against the real
 -- trigger and real data without leaving anything behind.
 --
---   psql "$DATABASE_URL" -f supabase/tests/0028_owners_email_sync_assertions.sql
+--   psql "$DATABASE_URL" -f supabase/tests/0032_owners_email_sync_assertions.sql
 --
 -- Each assertion is a `do $$ ... raise exception ... $$`, so the script fails
 -- loudly on the first broken expectation.
