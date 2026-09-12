@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { setReportStatus } from './actions'
 import { pageMetadata } from '@/lib/seo'
+import { requireRole } from '@/lib/auth/roles'
 
 export const metadata = pageMetadata({
   title: 'Reported conversations',
@@ -20,16 +20,9 @@ const REASON_LABELS: Record<string, string> = {
 }
 
 export default async function ReportsPage() {
+  await requireRole('admin')
   const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
 
-  const { data: owner } = await supabase
-    .from('owners')
-    .select('is_admin')
-    .eq('id', userData.user.id)
-    .single()
-  if (!owner?.is_admin) redirect('/home')
 
   const { data: reports } = await supabase
     .from('match_reports')
