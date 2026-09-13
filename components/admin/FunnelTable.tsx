@@ -44,8 +44,17 @@ export default function FunnelTable({ funnel }: { funnel: DashboardStats['funnel
           return (
             <tr key={step.key} className="border-t border-hairline hover:bg-wash">
               <th scope="row" className="py-2 pr-4 text-left font-normal text-ink">
-                {step.label}
-                {drop === step.key ? <span className="ml-2 text-ink-soft">Largest drop</span> : null}
+                {step.label}{drop === step.key && (
+                  <>
+                    {/*
+                      The comma is visually hidden but read aloud. Without it the
+                      margin separates the words on screen only, and assistive tech
+                      announces "Added a dogLargest drop" as one word.
+                    */}
+                    <span className="sr-only">, </span>
+                    <span className="ml-2 text-ink-soft">Largest drop</span>
+                  </>
+                )}
               </th>
               <td className="py-2 pr-4 text-right tabular-nums text-ink">{value}</td>
               <td className="py-2 pr-4 text-right tabular-nums text-ink-soft">

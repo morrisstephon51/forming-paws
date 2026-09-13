@@ -13,10 +13,15 @@ describe('FunnelTable', () => {
       'Signed up',
       'Confirmed email',
       'Signed in',
-      'Added a dogLargest drop',
+      'Added a dog, Largest drop',
       'Has a verified dog',
       'Matched',
     ])
+  })
+
+  it('gives the largest-drop row an accessible name with a real separator', () => {
+    render(<FunnelTable funnel={STATS.funnel} />)
+    expect(screen.getByRole('rowheader', { name: 'Added a dog , Largest drop' })).toBeInTheDocument()
   })
 
   it('shows each count and its share of the previous step', () => {
