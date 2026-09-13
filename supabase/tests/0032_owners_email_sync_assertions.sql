@@ -97,4 +97,23 @@ begin
   raise notice 'PASS 4: owners.email untouched by a non-email auth write';
 end $$;
 
+-- ---------------------------------------------------------------------------
+-- 5. Trigger-only: the function exists and no API role can call it directly.
+--    The existence check comes first so a missing function reads as a FAIL,
+--    not as a has_function_privilege error.
+-- ---------------------------------------------------------------------------
+do $$
+begin
+  if to_regprocedure('public.sync_owner_email()') is null then
+    raise exception 'FAIL: public.sync_owner_email() does not exist';
+  end if;
+  if has_function_privilege('anon', 'public.sync_owner_email()', 'EXECUTE') then
+    raise exception 'FAIL: anon can execute sync_owner_email';
+  end if;
+  if has_function_privilege('authenticated', 'public.sync_owner_email()', 'EXECUTE') then
+    raise exception 'FAIL: authenticated can execute sync_owner_email';
+  end if;
+  raise notice 'PASS 5: sync_owner_email is not callable by anon or authenticated';
+end $$;
+
 rollback;

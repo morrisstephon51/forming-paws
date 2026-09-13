@@ -70,3 +70,9 @@ create trigger on_auth_user_email_changed
   for each row
   when (old.email is distinct from new.email)
   execute function public.sync_owner_email();
+
+-- Trigger-only: nothing should call this through the API. Match handle_new_user,
+-- whose EXECUTE is held only by postgres and service_role. Without this revoke
+-- the default grants hand EXECUTE to PUBLIC, anon and authenticated, and the
+-- security advisor flags it. The trigger still fires, as handle_new_user shows.
+revoke execute on function public.sync_owner_email() from anon, authenticated, public;
