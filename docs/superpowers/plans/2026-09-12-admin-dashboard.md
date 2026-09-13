@@ -906,10 +906,22 @@ describe('FunnelTable', () => {
       'Signed up',
       'Confirmed email',
       'Signed in',
-      'Added a dogLargest drop',
+      'Added a dog, Largest drop',
       'Has a verified dog',
       'Matched',
     ])
+  })
+
+  it('gives the largest-drop row an accessible name with a real separator', () => {
+    render(<FunnelTable funnel={STATS.funnel} />)
+    // Pinned by aria-label, so this is the exact string every engine announces.
+    expect(screen.getByRole('rowheader', { name: 'Added a dog, Largest drop' })).toBeInTheDocument()
+  })
+
+  it('sets an aria-label only on the largest-drop row', () => {
+    render(<FunnelTable funnel={STATS.funnel} />)
+    const labelled = screen.getAllByRole('rowheader').filter((h) => h.hasAttribute('aria-label'))
+    expect(labelled).toHaveLength(1)
   })
 
   it('shows each count and its share of the previous step', () => {
@@ -1026,9 +1038,28 @@ export default function FunnelTable({ funnel }: { funnel: DashboardStats['funnel
           const previous = i === 0 ? null : funnel[FUNNEL_STEPS[i - 1].key]
           return (
             <tr key={step.key} className="border-t border-hairline hover:bg-wash">
-              <th scope="row" className="py-2 pr-4 text-left font-normal text-ink">
+              {/*
+                The flagged row's accessible name is pinned with aria-label,
+                because a name computed from content depends on the engine:
+                jsdom joins every child element with a space ("Added a dog ,
+                Largest drop"), and browsers generally do not space inline
+                spans, so without a separator they read "Added a dogLargest
+                drop". aria-label gives every engine exactly "Added a dog,
+                Largest drop". The visually hidden comma stays so copied text
+                and textContent read the same way.
+              */}
+              <th
+                scope="row"
+                aria-label={drop === step.key ? `${step.label}, Largest drop` : undefined}
+                className="py-2 pr-4 text-left font-normal text-ink"
+              >
                 {step.label}
-                {drop === step.key ? <span className="ml-2 text-ink-soft">Largest drop</span> : null}
+                {drop === step.key ? (
+                  <>
+                    <span className="sr-only">, </span>
+                    <span className="ml-2 text-ink-soft">Largest drop</span>
+                  </>
+                ) : null}
               </th>
               <td className="py-2 pr-4 text-right tabular-nums text-ink">{value}</td>
               <td className="py-2 pr-4 text-right tabular-nums text-ink-soft">
@@ -1158,7 +1189,7 @@ export default function SignupColumns({ weeks }: { weeks: DashboardStats['signup
 - [ ] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run tests/unit/admin-dashboard-charts.test.tsx`
-Expected: PASS, 8 tests.
+Expected: PASS, 10 tests.
 
 - [ ] **Step 6: Commit**
 
@@ -1610,7 +1641,7 @@ Expected: `TSC_OK`, then eslint exits with no errors.
 - [ ] **Step 3: Full unit suite**
 
 Run: `npm test 2>&1 | grep -E "Test Files|Tests "`
-Expected: every test file passes. The count is the previous total plus 32 (14 + 8 + 7 + 3).
+Expected: every test file passes. The count is the previous total plus 34 (14 + 10 + 7 + 3).
 
 - [ ] **Step 4: Production build**
 
