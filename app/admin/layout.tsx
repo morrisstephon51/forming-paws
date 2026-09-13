@@ -8,6 +8,7 @@ import { requireRole } from '@/lib/auth/roles'
  * own <main> at max-w-2xl — the nav matches that.
  */
 const NAV = [
+  { href: '/admin', label: 'Overview' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/dogs', label: 'Dogs' },
   { href: '/admin/review-queue', label: 'Review queue' },
