@@ -43,18 +43,28 @@ export default function FunnelTable({ funnel }: { funnel: DashboardStats['funnel
           const previous = i === 0 ? null : funnel[FUNNEL_STEPS[i - 1].key]
           return (
             <tr key={step.key} className="border-t border-hairline hover:bg-wash">
-              <th scope="row" className="py-2 pr-4 text-left font-normal text-ink">
-                {step.label}{drop === step.key && (
+              {/*
+                The flagged row's accessible name is pinned with aria-label,
+                because a name computed from content depends on the engine:
+                jsdom joins every child element with a space ("Added a dog ,
+                Largest drop"), and browsers generally do not space inline
+                spans, so without a separator they read "Added a dogLargest
+                drop". aria-label gives every engine exactly "Added a dog,
+                Largest drop". The visually hidden comma stays so copied text
+                and textContent read the same way.
+              */}
+              <th
+                scope="row"
+                aria-label={drop === step.key ? `${step.label}, Largest drop` : undefined}
+                className="py-2 pr-4 text-left font-normal text-ink"
+              >
+                {step.label}
+                {drop === step.key ? (
                   <>
-                    {/*
-                      The comma is visually hidden but read aloud. Without it the
-                      margin separates the words on screen only, and assistive tech
-                      announces "Added a dogLargest drop" as one word.
-                    */}
                     <span className="sr-only">, </span>
                     <span className="ml-2 text-ink-soft">Largest drop</span>
                   </>
-                )}
+                ) : null}
               </th>
               <td className="py-2 pr-4 text-right tabular-nums text-ink">{value}</td>
               <td className="py-2 pr-4 text-right tabular-nums text-ink-soft">

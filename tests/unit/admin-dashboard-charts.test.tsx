@@ -21,7 +21,14 @@ describe('FunnelTable', () => {
 
   it('gives the largest-drop row an accessible name with a real separator', () => {
     render(<FunnelTable funnel={STATS.funnel} />)
-    expect(screen.getByRole('rowheader', { name: 'Added a dog , Largest drop' })).toBeInTheDocument()
+    // Pinned by aria-label, so this is the exact string every engine announces.
+    expect(screen.getByRole('rowheader', { name: 'Added a dog, Largest drop' })).toBeInTheDocument()
+  })
+
+  it('sets an aria-label only on the largest-drop row', () => {
+    render(<FunnelTable funnel={STATS.funnel} />)
+    const labelled = screen.getAllByRole('rowheader').filter((h) => h.hasAttribute('aria-label'))
+    expect(labelled).toHaveLength(1)
   })
 
   it('shows each count and its share of the previous step', () => {
