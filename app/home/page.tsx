@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { createClient } from '@/lib/supabase/server'
 import Sage from '@/components/mascot/Sage'
 import SageNote from '@/components/mascot/SageNote'
@@ -28,7 +29,7 @@ export const metadata = pageMetadata({
 export default async function HomePage() {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   const { data: owner } = await supabase
     .from('owners')

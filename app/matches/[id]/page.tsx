@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { createClient } from '@/lib/supabase/server'
 import Thread from './Thread'
 import ReportForm from './ReportForm'
@@ -17,7 +18,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const { id: matchId } = await params
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
   const myOwnerId = userData.user.id
 
   // RLS returns nothing unless this owner is in the match, so a miss is a 404

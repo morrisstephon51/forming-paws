@@ -23,8 +23,17 @@ const MEMBER_LINKS: NavLink[] = [
   { href: '/settings', label: 'Settings' },
 ]
 
-export function navLinks(variant: NavVariant): NavLink[] {
-  return variant === 'public' ? PUBLIC_LINKS : MEMBER_LINKS
+const ADMIN_LINK: NavLink = { href: '/admin', label: 'Admin' }
+
+/**
+ * Admins also get the console. Without this link the only way in was typing
+ * /admin, and signing in from anywhere else landed on /home with nothing on the
+ * page to say the console existed. Only the link depends on `isAdmin`; every
+ * /admin route enforces the role itself.
+ */
+export function navLinks(variant: NavVariant, { isAdmin = false }: { isAdmin?: boolean } = {}): NavLink[] {
+  if (variant === 'public') return PUBLIC_LINKS
+  return isAdmin ? [...MEMBER_LINKS, ADMIN_LINK] : MEMBER_LINKS
 }
 
 /**

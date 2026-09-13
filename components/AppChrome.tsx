@@ -25,10 +25,12 @@ export default function AppChrome({
   signedIn,
   displayName,
   unreadCount,
+  isAdmin,
 }: {
   signedIn: boolean
   displayName: string | null
   unreadCount: number
+  isAdmin: boolean
 }) {
   const pathname = usePathname() ?? '/'
 
@@ -40,6 +42,7 @@ export default function AppChrome({
           pathname={pathname}
           unreadCount={unreadCount}
           displayName={displayName}
+          isAdmin={isAdmin}
         />
       </div>
       {/*

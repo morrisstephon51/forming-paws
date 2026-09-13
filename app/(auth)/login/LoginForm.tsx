@@ -15,10 +15,13 @@ export default function LoginForm({
   error: initialError,
   offerResend,
   initialEmail,
+  next = '/home',
 }: {
   error: string | null
   offerResend: boolean
   initialEmail?: string
+  /** Where to land after signing in. Callers pass it through postLoginPath first. */
+  next?: string
 }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(initialError)
@@ -59,7 +62,7 @@ export default function LoginForm({
       return
     }
 
-    router.push('/home')
+    router.push(next)
     router.refresh()
   }
 

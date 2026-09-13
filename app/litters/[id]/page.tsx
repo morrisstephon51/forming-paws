@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { pageMetadata } from '@/lib/seo'
 import { formatCalendarDate } from '@/lib/dates'
 import AddPuppyForm from './AddPuppyForm'
@@ -15,7 +16,7 @@ export default async function LitterDetailPage({ params }: { params: Promise<{ i
   const { id } = await params
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   // litters_select_own restricts this to the caller's own litter already --
   // a non-owner's request for someone else's litter id returns no row, not

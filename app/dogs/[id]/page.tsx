@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import ExpressInterestForm from './ExpressInterestForm'
 import PuppyInquiryForm from './PuppyInquiryForm'
 import { pageMetadata } from '@/lib/seo'
@@ -16,7 +17,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   const { id } = await params
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   const { data: ownDog } = await supabase
     .from('dogs')

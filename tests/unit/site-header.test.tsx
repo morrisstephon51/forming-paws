@@ -51,3 +51,15 @@ describe('SiteHeader', () => {
     expect(container.querySelector('form[action="/auth/signout"]')).toBeNull()
   })
 })
+
+describe('SiteHeader admin link', () => {
+  it('links an admin to the console', () => {
+    render(<SiteHeader variant="member" pathname="/home" isAdmin />)
+    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
+  })
+
+  it('shows no admin link to other members', () => {
+    render(<SiteHeader variant="member" pathname="/home" />)
+    expect(screen.queryByRole('link', { name: 'Admin' })).toBeNull()
+  })
+})

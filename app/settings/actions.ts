@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { createClient } from '@/lib/supabase/server'
 import {
   displayNameSchema,
@@ -21,7 +22,7 @@ export type ActionResult = { ok: boolean; message: string }
 async function requireUser() {
   const supabase = await createClient()
   const { data } = await supabase.auth.getUser()
-  if (!data.user) redirect('/login')
+  if (!data.user) redirect(await loginRedirectPath())
   return { supabase, user: data.user }
 }
 

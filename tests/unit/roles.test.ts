@@ -1,7 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const mocks = vi.hoisted(() => ({ createClient: vi.fn(), redirect: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  createClient: vi.fn(),
+  redirect: vi.fn(),
+  // The page middleware reports as requested, via the x-fp-path request header.
+  requestedPath: { value: null as string | null },
+}))
 vi.mock('@/lib/supabase/server', () => ({ createClient: mocks.createClient }))
+vi.mock('next/headers', () => ({
+  headers: async () =>
+    new Headers(mocks.requestedPath.value ? { 'x-fp-path': mocks.requestedPath.value } : {}),
+}))
 vi.mock('next/navigation', () => ({
   redirect: (p: string) => {
     mocks.redirect(p)
@@ -31,6 +40,7 @@ describe('requireRole', () => {
   beforeEach(() => {
     mocks.redirect.mockReset()
     mocks.createClient.mockReset()
+    mocks.requestedPath.value = null
   })
 
   it('returns the user id when the role is held', async () => {
@@ -44,6 +54,16 @@ describe('requireRole', () => {
     const { requireRole } = await import('@/lib/auth/roles')
     await expect(requireRole('admin')).rejects.toThrow('NEXT_REDIRECT')
     expect(mocks.redirect).toHaveBeenCalledWith('/login')
+  })
+
+  // An admin opening /admin/users in a browser where they are not signed in
+  // must come back to /admin/users, not land on /home with no way to the console.
+  it('carries the requested page to /login when signed out', async () => {
+    mocks.requestedPath.value = '/admin/users'
+    mocks.createClient.mockResolvedValue(client({ user: null, roles: [] }))
+    const { requireRole } = await import('@/lib/auth/roles')
+    await expect(requireRole('admin')).rejects.toThrow('NEXT_REDIRECT')
+    expect(mocks.redirect).toHaveBeenCalledWith('/login?next=%2Fadmin%2Fusers')
   })
 
   it('redirects to /home when the role is missing', async () => {

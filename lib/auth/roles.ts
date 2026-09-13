@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { createClient } from '@/lib/supabase/server'
 
 type Options = { redirectTo?: string }
@@ -30,7 +31,7 @@ export async function requireAnyRole(
 ): Promise<{ userId: string }> {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   const { data } = await supabase.rpc('has_any_role', { role_names: roles })
   if (data !== true) redirect(opts.redirectTo ?? '/home')
