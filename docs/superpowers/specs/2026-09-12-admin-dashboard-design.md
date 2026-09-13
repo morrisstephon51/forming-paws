@@ -331,8 +331,9 @@ Two traps that file documents, both of which apply here:
 ### 6.3 Gates before merge
 
 `tsc`, `lint`, full unit suite, production build, the platform sweep
-(`scripts/verify-open-file.mjs`), and e2e compared against the current `main`
-baseline measured the same day.
+(`scripts/verify-open-file.mjs`), and `/admin` returning 307 signed out. E2E is
+not run for this branch: its signup spec writes accounts to production, and no
+spec covers `/admin` (decided 2026-09-12).
 
 ## 7. Rollout
 

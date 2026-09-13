@@ -23,7 +23,7 @@
 - Chart marks use `bg-brand`. All text uses `text-ink`, `text-ink-soft` or `text-ivory` on an ink tooltip, never the brand green.
 - Bars are at most 24px thick, have a 4px rounded data-end and a square baseline end, and are separated by a 2px gap, never a border. Every chart has a table view; tooltips show on hover **and** keyboard focus and are never the only way to read a value.
 - **Any action against the production database requires an explicit go-ahead from Stefan first**, including a rolled-back dry run. Task 7 marks each stop.
-- Kill stale servers on ports 3000 and 3100 before builds and e2e. Rebuild after any e2e run: Playwright starts `next dev`, which clobbers the production `.next` output.
+- Kill stale servers on ports 3000 and 3100 before builds. Do not run the e2e suite for this branch: its signup spec writes accounts to production (decided 2026-09-12).
 
 ---
 
@@ -415,6 +415,7 @@ set search_path = public
 as $$
 declare
   result json;
+  window_start constant timestamptz := now() - interval '30 days';
 begin
   -- has_role reads auth.uid() from the request JWT, so it identifies the real
   -- caller even inside security definer; grant_role relies on the same thing.
@@ -435,6 +436,13 @@ begin
   live_dogs as (
     select id, owner_id from real_dogs where removed_at is null
   ),
+  pending_docs as (
+    select uploaded_at from public.health_documents where status = 'pending_review'
+  ),
+  real_messages as (
+    select match_id, created_at from public.messages
+    where sender_owner_id in (select id from real_users)
+  ),
   weeks as (
     select generate_series(
       date_trunc('week', now()) - interval '7 weeks',
@@ -451,8 +459,8 @@ begin
     -- Work queues. NOT filtered for test accounts: each count links to a page
     -- that lists every row, and the two must agree.
     'attention', json_build_object(
-      'docs_pending', (select count(*) from public.health_documents where status = 'pending_review'),
-      'oldest_pending_uploaded_at', (select min(uploaded_at) from public.health_documents where status = 'pending_review'),
+      'docs_pending', (select count(*) from pending_docs),
+      'oldest_pending_uploaded_at', (select min(uploaded_at) from pending_docs),
       'reports_open', (select count(*) from public.match_reports where status in ('open', 'reviewing')),
       'contact_unhandled', (select count(*) from public.contact_messages where handled_at is null),
       'dogs_removed', (select count(*) from public.dogs where removed_at is not null)
@@ -482,46 +490,41 @@ begin
       from weeks w
     ),
 
+    -- One predicate per metric; the 30-day window is a FILTER on the same scan,
+    -- so all-time and last-30-days can never disagree about who counts.
     'engagement', json_build_object(
-      'interests', json_build_object(
-        'total', (select count(*) from public.dog_interests di
-                  where di.expressing_dog_id in (select id from real_dogs)),
-        'last_30d', (select count(*) from public.dog_interests di
-                     where di.expressing_dog_id in (select id from real_dogs)
-                       and di.created_at > now() - interval '30 days')
+      'interests', (
+        select json_build_object('total', count(*),
+                                 'last_30d', count(*) filter (where di.created_at > window_start))
+        from public.dog_interests di
+        where di.expressing_dog_id in (select id from real_dogs)
       ),
-      'matches', json_build_object(
-        'total', (select count(*) from public.matches m
-                  where m.dog_a_id in (select id from real_dogs) or m.dog_b_id in (select id from real_dogs)),
-        'last_30d', (select count(*) from public.matches m
-                     where (m.dog_a_id in (select id from real_dogs) or m.dog_b_id in (select id from real_dogs))
-                       and m.matched_at > now() - interval '30 days')
+      'matches', (
+        select json_build_object('total', count(*),
+                                 'last_30d', count(*) filter (where m.matched_at > window_start))
+        from public.matches m
+        where m.dog_a_id in (select id from real_dogs) or m.dog_b_id in (select id from real_dogs)
       ),
-      'messages', json_build_object(
-        'total', (select count(*) from public.messages msg
-                  where msg.sender_owner_id in (select id from real_users)),
-        'last_30d', (select count(*) from public.messages msg
-                     where msg.sender_owner_id in (select id from real_users)
-                       and msg.created_at > now() - interval '30 days')
+      'messages', (
+        select json_build_object('total', count(*),
+                                 'last_30d', count(*) filter (where created_at > window_start))
+        from real_messages
       ),
-      'active_conversations', json_build_object(
-        'last_30d', (select count(distinct msg.match_id) from public.messages msg
-                     where msg.sender_owner_id in (select id from real_users)
-                       and msg.created_at > now() - interval '30 days')
+      'active_conversations', (
+        select json_build_object('last_30d', count(distinct match_id) filter (where created_at > window_start))
+        from real_messages
       ),
-      'litters', json_build_object(
-        'total', (select count(*) from public.litters l
-                  where l.breeder_id in (select id from real_users)),
-        'last_30d', (select count(*) from public.litters l
-                     where l.breeder_id in (select id from real_users)
-                       and l.created_at > now() - interval '30 days')
+      'litters', (
+        select json_build_object('total', count(*),
+                                 'last_30d', count(*) filter (where l.created_at > window_start))
+        from public.litters l
+        where l.breeder_id in (select id from real_users)
       ),
-      'puppy_inquiries', json_build_object(
-        'total', (select count(*) from public.puppy_inquiries pi
-                  where pi.buyer_id is null or pi.buyer_id in (select id from real_users)),
-        'last_30d', (select count(*) from public.puppy_inquiries pi
-                     where (pi.buyer_id is null or pi.buyer_id in (select id from real_users))
-                       and pi.created_at > now() - interval '30 days')
+      'puppy_inquiries', (
+        select json_build_object('total', count(*),
+                                 'last_30d', count(*) filter (where pi.created_at > window_start))
+        from public.puppy_inquiries pi
+        where pi.buyer_id is null or pi.buyer_id in (select id from real_users)
       )
     )
   ) into result;
@@ -1584,6 +1587,10 @@ git commit -m "$(printf 'Give the admin console a home at /admin\n\nCo-Authored-
 
 Nothing here touches production.
 
+E2E is deliberately not run here (decided 2026-09-12): the signup spec writes a new
+account into production auth on every run, and no spec signs in as an admin or covers
+`/admin`, so it would pollute production without testing this change.
+
 **Files:** none created. If a gate fails, fix it in the task that owns the file and re-run this task from Step 1.
 
 **Interfaces:**
@@ -1619,27 +1626,6 @@ curl -s -o /dev/null -w "/admin %{http_code}\n" http://localhost:3100/admin
 node scripts/verify-open-file.mjs 2>&1 | tail -1
 ```
 Expected: `/admin 307`, then `55/55 page+width combinations passed.` (or whatever total the sweep currently reports, all passing).
-
-- [ ] **Step 6: E2E against a same-day baseline**
-
-Run the branch, then current `main` in a throwaway worktree, so the comparison is like for like:
-```bash
-lsof -ti:3100 | xargs kill -9 2>/dev/null; lsof -ti:3000 | xargs kill -9 2>/dev/null
-npx playwright test --reporter=list > /tmp/e2e-branch.txt 2>&1; grep -E "passed|failed" /tmp/e2e-branch.txt | tail -2
-git worktree add --detach /tmp/fp-e2e-base origin/main
-ln -s "$PWD/node_modules" /tmp/fp-e2e-base/node_modules && cp .env.local /tmp/fp-e2e-base/
-(cd /tmp/fp-e2e-base && npx playwright test --reporter=list > /tmp/e2e-base.txt 2>&1); grep -E "passed|failed" /tmp/e2e-base.txt | tail -2
-rm /tmp/fp-e2e-base/node_modules && git worktree remove --force /tmp/fp-e2e-base
-grep "✘" /tmp/e2e-branch.txt; echo ---; grep "✘" /tmp/e2e-base.txt
-```
-Expected: the set of failing specs on the branch is the same as, or a subset of, the set on `main`. If the branch has an extra failure, run that spec alone 3 times (`npx playwright test <spec>:<line> --reporter=line`). `navigation-chrome.spec.ts:31` is a known parallel-auth flake that passes in isolation. Any other extra failure is a regression to fix before continuing.
-
-- [ ] **Step 7: Rebuild after e2e**
-
-Playwright's `next dev` overwrote `.next`, so any later production check needs a fresh build.
-
-Run: `rm -rf .next && npm run build 2>&1 | grep -E "✓ Compiled|Error"`
-Expected: `✓ Compiled successfully`.
 
 ---
 
