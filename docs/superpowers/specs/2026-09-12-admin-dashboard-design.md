@@ -200,10 +200,12 @@ week and the 7 before it, produced with `generate_series` over
 
 | Helper | Behaviour |
 |---|---|
-| `pct(part, whole)` | Whole-number percent string, e.g. `"85%"`. Returns `"—"` when `whole` is 0. |
+| `pct(part, whole)` | Whole-number percent string, e.g. `"85%"`. Returns `"n/a"` when `whole` is 0 (rendered copy on this site contains no em dashes). |
 | `waitingFor(iso, now)` | `null` → `"Nothing waiting"`; under 24h → `"Waiting under a day"`; otherwise `"Waiting N days"` (floor, singular for 1). |
 | `weekLabel(date)` | Short month and day of the week start, e.g. `"Sep 7"`. |
 | `barPercent(value, max)` | `0–100` for a CSS width. Returns 0 when `max` is 0, never `NaN`. |
+| `generatedLabel(iso)` | Generation time in `America/Chicago`, e.g. `"Sep 12, 3:04 PM CDT"`, with ICU's narrow no-break space normalised to an ordinary space. |
+| `largestDrop(funnel)` | The step where the most people were lost; the earliest step wins a tie; `null` when no step loses anyone. |
 
 ### 4.3 Page layout
 
@@ -218,25 +220,43 @@ In order:
 2. **Needs attention.** One ruled row per queue. Each shows the count and
    links to its page (`/admin/review-queue`, `/admin/reports`,
    `/admin/messages`, `/admin/dogs`). The documents row adds
-   `waitingFor(oldest_pending_uploaded_at)`. A queue at zero shows a verified
-   `Mark` and `Nothing waiting` instead of a bare `0`.
-3. **Activation funnel.** One row per step: label, count, percent of the
-   previous step, and a horizontal CSS bar whose width is the count as a
-   percent of `signed_up`. The largest drop between adjacent steps is labelled.
-4. **Signups, last 8 weeks.** Eight vertical CSS bars scaled to the week
-   maximum, each labelled with `weekLabel` and its exact count, so a zero
-   week is visible as zero.
+   `waitingFor(oldest_pending_uploaded_at)`. A work queue at zero shows a
+   verified `Mark` and `Nothing waiting` instead of a bare `0`. Removed dogs
+   are not waiting work, so zero there reads `None removed`.
+3. **Activation funnel.** A real `<table>`: step, count, percent of the
+   previous step, and a cell holding a horizontal CSS bar whose width is the
+   count as a percent of `signed_up`. The table is the chart, so it is its own
+   table view. The largest drop between adjacent steps is labelled in text.
+4. **Signups, last 8 weeks.** Eight CSS columns scaled to the week maximum,
+   `weekLabel` under each. Labels are selective: only the current week and the
+   peak week carry their count on the cap. Every column is keyboard-focusable
+   and shows its week and count on hover **and** focus. A
+   `<details>` "Show as table" twin lists all eight weeks with their counts,
+   so no value is reachable only by hovering.
 5. **Engagement.** Ruled rows: label, last 30 days, all time.
 
-Load the `dataviz` skill before writing the bars. Every bar carries its exact
-number as text; bar length is never the only encoding.
+Chart rules, from the `dataviz` skill (loaded 2026-09-12):
+
+- Bars and columns are at most 24px thick, with a 4px rounded data-end and a
+  square end at the baseline. Adjacent columns are separated by a 2px gap in
+  the surface colour, never by a border.
+- Marks use `bg-brand`. All text (labels, values, tooltips) uses `text-ink` or
+  `text-ink-soft`, never the brand green.
+- Each chart has one series, so there is no legend; the section heading names it.
+- The hit area of each column is its full slot, at least 24px wide, not just
+  the painted bar.
+- `validate_palette.js "#2F6B5C" --mode light --surface "#FBF7F0"` reports a
+  chroma FAIL (0.067), but the validator's own scope note limits that check to
+  categorical palettes. Here each chart has one series and identity comes from
+  the heading, so the binding check is contrast against the surface, which
+  passes.
 
 ### 4.4 States
 
 | State | Rendering |
 |---|---|
 | RPC error, or `stats` is `null` | A single record line, `Couldn't load figures`, with no partial numbers. The nav stays usable. |
-| All zeros | Every section still renders with zeros, `—` percentages and zero-height bars. No section disappears. |
+| All zeros | Every section still renders with zeros, `n/a` percentages and zero-height bars. No section disappears. |
 | Signed out | `/admin` redirects to `/login` (layout and page both call `requireRole`). |
 | Signed in, not admin | Redirect to `/home`. If the function were ever called directly, it raises `42501`. |
 
@@ -292,16 +312,19 @@ Two traps that file documents, both of which apply here:
 6. Inserting a non-test auth user increments `funnel.signed_up` by 1.
 7. Inserting a `pending_review` health document increments
    `attention.docs_pending` by 1.
-8. `community_stats()` returns the same `members` value before and after the
-   function body change (run the comparison inside the transaction).
+8. `community_stats()` returns the same `members` and `dogs` values as the
+   pre-0033 inline rule. Inside one transaction the old body is already
+   replaced, so the rule itself is the "before".
 
 ### 6.2 Unit: `tests/unit/admin-dashboard.test.ts`
 
 - Every helper in §4.2, including `pct(3, 0)`, `barPercent(5, 0)`,
   `waitingFor(null)` and the singular `"Waiting 1 day"`.
 - `DashboardView` rendered with a fixture: counts appear, each queue links to
-  the right page, a zero queue shows `Nothing waiting`, the funnel renders six
-  steps, signups render eight bars.
+  the right page, a zero queue shows `Nothing waiting`, the funnel table has
+  six step rows, signups render eight focusable columns, only the current and
+  peak weeks carry a cap label, and the table twin lists all eight weeks with
+  their counts.
 - `DashboardView` with `stats: null` renders `Couldn't load figures` and no
   numbers.
 
