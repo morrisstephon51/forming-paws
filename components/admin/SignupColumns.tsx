@@ -35,8 +35,9 @@ export default function SignupColumns({ weeks }: { weeks: DashboardStats['signup
               aria-label={summary}
               className="group relative flex h-full min-w-6 flex-1 items-end justify-center rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
+              {/* Visual only: the li's aria-label already carries this text. */}
               <span
-                role="tooltip"
+                aria-hidden="true"
                 className="pointer-events-none absolute -top-8 z-10 hidden whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-ivory group-hover:block group-focus-visible:block"
               >
                 {summary}

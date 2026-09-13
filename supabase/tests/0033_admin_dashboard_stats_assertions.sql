@@ -264,6 +264,13 @@ begin
     raise exception 'FAIL 8: community_stats dogs differs from the pre-0033 rule';
   end if;
 
+  if (cs->>'verified_dogs')::bigint <> (
+    select count(*) from public.dogs d
+    where d.removed_at is null and public.dog_is_baseline_verified(d.id)
+  ) then
+    raise exception 'FAIL 8: community_stats verified_dogs differs from the pre-0033 rule';
+  end if;
+
   raise notice 'PASS 8: community_stats matches the pre-0033 rule';
 end $$;
 

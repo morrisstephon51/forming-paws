@@ -180,7 +180,7 @@ week and the 7 before it, produced with `generate_series` over
 | `messages` | `messages.sender_owner_id` is a real user |
 | `active_conversations.last_30d` | distinct `messages.match_id` with a real sender in the last 30 days |
 | `litters` | `litters.breeder_id` is a real user |
-| `puppy_inquiries` | `buyer_id` is null (anonymous inquiry) or a real user |
+| `puppy_inquiries` | `buyer_id` is a real user (the column is `NOT NULL`, per migration 0026) |
 
 `meta.test_accounts_excluded` is the count of `auth.users` where
 `is_test_account(email)` is true.

@@ -46,8 +46,9 @@ export default function FunnelTable({ funnel }: { funnel: DashboardStats['funnel
               {/*
                 The flagged row's accessible name is pinned with aria-label,
                 because a name computed from content depends on the engine:
-                jsdom joins every child element with a space ("Added a dog ,
-                Largest drop"), and browsers generally do not space inline
+                dom-accessibility-api (the name computation Testing Library
+                runs in jsdom) joins every child element with a space ("Added a
+                dog , Largest drop"), and browsers generally do not space inline
                 spans, so without a separator they read "Added a dogLargest
                 drop". aria-label gives every engine exactly "Added a dog,
                 Largest drop". The visually hidden comma stays so copied text

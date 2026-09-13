@@ -89,7 +89,7 @@ export function generatedLabel(iso: string): string {
       timeZone: 'America/Chicago',
       timeZoneName: 'short',
     })
-    .replace(/ /g, ' ')
+    .replace(/\u202f/g, ' ')
 }
 
 /** 0 to 100 for a CSS width or height. Never NaN, never negative, never over 100. */

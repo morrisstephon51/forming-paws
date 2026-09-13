@@ -176,7 +176,8 @@ begin
         select json_build_object('total', count(*),
                                  'last_30d', count(*) filter (where pi.created_at > window_start))
         from public.puppy_inquiries pi
-        where pi.buyer_id is null or pi.buyer_id in (select id from real_users)
+        -- buyer_id is NOT NULL (0026), so every inquiry has a buyer to check.
+        where pi.buyer_id in (select id from real_users)
       )
     )
   ) into result;
