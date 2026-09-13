@@ -335,6 +335,13 @@ begin
     raise exception 'FAIL 8: community_stats dogs differs from the pre-0033 rule';
   end if;
 
+  if (cs->>'verified_dogs')::bigint <> (
+    select count(*) from public.dogs d
+    where d.removed_at is null and public.dog_is_baseline_verified(d.id)
+  ) then
+    raise exception 'FAIL 8: community_stats verified_dogs differs from the pre-0033 rule';
+  end if;
+
   raise notice 'PASS 8: community_stats matches the pre-0033 rule';
 end $$;
 
@@ -524,7 +531,8 @@ begin
         select json_build_object('total', count(*),
                                  'last_30d', count(*) filter (where pi.created_at > window_start))
         from public.puppy_inquiries pi
-        where pi.buyer_id is null or pi.buyer_id in (select id from real_users)
+        -- buyer_id is NOT NULL (0026), so every inquiry has a buyer to check.
+        where pi.buyer_id in (select id from real_users)
       )
     )
   ) into result;
@@ -834,7 +842,7 @@ export function generatedLabel(iso: string): string {
       timeZone: 'America/Chicago',
       timeZoneName: 'short',
     })
-    .replace(/ /g, ' ')
+    .replace(/\u202f/g, ' ')
 }
 
 /** 0 to 100 for a CSS width or height. Never NaN, never negative, never over 100. */
@@ -1041,8 +1049,9 @@ export default function FunnelTable({ funnel }: { funnel: DashboardStats['funnel
               {/*
                 The flagged row's accessible name is pinned with aria-label,
                 because a name computed from content depends on the engine:
-                jsdom joins every child element with a space ("Added a dog ,
-                Largest drop"), and browsers generally do not space inline
+                dom-accessibility-api (the name computation Testing Library
+                runs in jsdom) joins every child element with a space ("Added a
+                dog , Largest drop"), and browsers generally do not space inline
                 spans, so without a separator they read "Added a dogLargest
                 drop". aria-label gives every engine exactly "Added a dog,
                 Largest drop". The visually hidden comma stays so copied text
@@ -1124,8 +1133,9 @@ export default function SignupColumns({ weeks }: { weeks: DashboardStats['signup
               aria-label={summary}
               className="group relative flex h-full min-w-6 flex-1 items-end justify-center rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
+              {/* Visual only: the li's aria-label already carries this text. */}
               <span
-                role="tooltip"
+                aria-hidden="true"
                 className="pointer-events-none absolute -top-8 z-10 hidden whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-ivory group-hover:block group-focus-visible:block"
               >
                 {summary}
