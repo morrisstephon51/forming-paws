@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Logo from './Logo'
 import { navLinks, isActive, type NavVariant } from '@/lib/nav'
+import { WHAT_WE_DO_SHORT } from '@/lib/positioning'
 
 /**
  * The one header for every page.
@@ -91,6 +92,26 @@ export default function SiteHeader({
           </>
         )}
       </nav>
+
+      {/*
+        What this site is, on every public page, above the fold, with no scroll
+        and no JavaScript.
+
+        This is the first of the three places lib/positioning is rendered by
+        rule. Visitors were reaching the site and asking what we actually do, and
+        a visitor who bounces from the header never reaches the hero copy, let
+        alone the band below it. The compressed form is used rather than the full
+        sentence because the sentence wraps to three lines in this strip at
+        390px, which is how a clarifying line turns into clutter.
+
+        `w-full` so it takes its own row in the wrapping flex header instead of
+        competing with the nav for horizontal space. Members do not get it: a
+        signed-in owner knows what the site is, and the row would be permanent
+        furniture on every page of the app.
+      */}
+      {variant === 'public' ? (
+        <p className="w-full text-sm text-ink-soft">{WHAT_WE_DO_SHORT}</p>
+      ) : null}
     </header>
   )
 }

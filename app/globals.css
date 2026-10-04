@@ -23,6 +23,13 @@
     --fp-accent: #e8734a;
     --fp-ivory: #fbf7f0;
 
+    /*
+     * One camera for the whole site. Every .fp-stage and .fp-depth that does
+     * not override this shares it, which is what stops each section from
+     * looking like it was shot with a different lens.
+     */
+    --fp-persp: 1100px;
+
     /* Section rhythm. References converge on 80–96px desktop; we step down to
        56px on a phone, where 96px of empty space reads as a broken page. */
     --fp-section-gap: 3.5rem;
@@ -477,27 +484,47 @@
 /*
  * Depth cues on cards.
  *
- * A pointer-driven tilt in real 3D space, on the surfaces the reader is already
- * pointing at. Perspective lives on the container rather than the card, so a
- * row of cards shares one vanishing point and the row reads as a plane rather
- * than as several unrelated boxes each with their own camera.
+ * Real 3D space on the surfaces a reader is already looking at. Perspective
+ * lives on the container rather than the card, so a row of cards shares one
+ * vanishing point and reads as a plane rather than as several unrelated boxes
+ * each with its own camera.
  *
- * transform only, GPU composited, and the whole thing is a no-op on touch —
- * `@media (hover: hover)` — because a tilt that needs a cursor is dead weight on
- * a phone and would only ever fire on tap.
+ * Perspective is NOT inside the hover query any more, and that was the bug.
+ * The whole class used to sit behind `@media (hover: hover)`, so on every phone
+ * and tablet .fp-depth was an inert class name on nine pages. The half that
+ * needs a cursor still is; the half that only needs a scroll position is not.
+ *
+ * --fp-settle is written by DepthField, one driver for the whole site, and
+ * defaults to 1 — the flat, settled pose. That default is what renders with no
+ * JavaScript, so a card that is never driven is a card that simply sits still.
+ * Nothing here is ever hidden, which is the whole difference between this and
+ * the scrollcraft reveal devices: a failed script costs motion, never content.
  */
-@media (hover: hover) and (pointer: fine) {
-  .fp-depth {
-    perspective: 1100px;
-  }
+.fp-depth {
+  perspective: var(--fp-persp);
+  perspective-origin: 50% 40%;
+}
 
+.fp-depth > * {
+  --fp-settle: 1;
+  /* So box-shadow traces the card, not the class-less <li> wrapping it. */
+  border-radius: 1.25rem;
+  transform-style: preserve-3d;
+  transform: translate3d(0, 0, calc((1 - var(--fp-settle)) * -34px))
+    rotateX(calc((1 - var(--fp-settle)) * 7deg));
+  /*
+   * 260ms, down from 420ms. The transition now has two jobs — easing the hover
+   * lift, and smoothing a value a rAF driver rewrites every frame — and at
+   * 420ms the second one reads as the card lagging behind the scroll rather
+   * than settling into it.
+   */
+  transition:
+    transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
   .fp-depth > * {
-    /* So box-shadow traces the card, not the class-less <li> wrapping it. */
-    border-radius: 1.25rem;
-    transition:
-      transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
-      box-shadow 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
-    transform-style: preserve-3d;
     will-change: transform;
   }
 
@@ -505,6 +532,36 @@
     transform: translate3d(0, -6px, 26px) rotateX(2.2deg);
     box-shadow: theme('boxShadow.float');
   }
+}
+
+/*
+ * The 3D stage, and the cards that sit in it.
+ *
+ * .fp-stage is the camera; .fp-tilt is a card whose transform Tilt3D writes
+ * from scroll position and pointer distance. Perspective belongs on the
+ * container, never on the card — siblings under one perspective share a
+ * vanishing point and read as a plane in space. Give each its own and they read
+ * as unrelated boxes that happen to be tilted.
+ *
+ * Depth here is rotation, translation and layering only. It never adds a drop
+ * shadow: this system's rule is that elevation comes from the surface ramp, and
+ * a shadow under a warm card on warm paper reads as grime.
+ */
+.fp-stage {
+  perspective: var(--fp-persp);
+  perspective-origin: 50% 40%;
+}
+
+.fp-tilt {
+  transform: var(--fp-tilt, none);
+  transform-style: preserve-3d;
+  will-change: transform;
+  /*
+   * No transition. The transform is written every animation frame from the
+   * scroll position, so a transition would fight the driver and add lag to a
+   * value that is already smooth. Transitions are for state changes; this is a
+   * continuous function of scroll.
+   */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -516,6 +573,19 @@
     transform: none !important;
     transition: none !important;
     box-shadow: none !important;
+  }
+  /*
+   * Declined, not shortened. Every driver here is a continuous function of
+   * scroll, and a continuous effect clamped to two poses snaps. The settled
+   * pose is also the no-JavaScript pose, so declining lands on the same frame
+   * a crawler sees.
+   */
+  .fp-stage {
+    perspective: none;
+  }
+  .fp-tilt {
+    transform: none !important;
+    will-change: auto;
   }
 }
 

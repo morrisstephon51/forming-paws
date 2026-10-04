@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Sage, { type SageMood } from '@/components/mascot/Sage'
 import Logo from '@/components/Logo'
+import { HERO_HEADLINE } from '@/lib/positioning'
 
 /**
  * The opening worldflight: problem -> turn -> Sage meets you -> meadow.
@@ -292,15 +293,25 @@ export default function WorldflightHero() {
               <Logo size="md" />
               <span>Forming Paws</span>
             </div>
+            {/*
+              Identity first, not problem first. A reader who does not yet know
+              what this product is cannot tell whether a problem statement is
+              about dog breeding, pet insurance or a vet directory -- which is
+              precisely why visitors kept asking what we actually do. The old
+              headline was a good line in the wrong slot; it now opens the
+              second beat, where amplifying the problem is the right job.
+              One source of truth in lib/positioning, rendered in three places.
+            */}
             <h1 className="fp-display" style={{ color: 'var(--sc-ink)' }}>
-              Finding the right match for your dog shouldn&rsquo;t be guesswork.
+              {HERO_HEADLINE}
             </h1>
           </div>
 
           <div className="sc-copy sc-copy--lead fp-flight-copy fp-flight-copy--plate" data-sc-copy data-sc-window="0.14 0.42">
             <p className="fp-lead" style={{ color: 'var(--sc-ink)' }}>
-              No way to see who is actually nearby. No clear picture of
-              whether a dog is healthy enough to match. No path forward yet
+              Finding the right match shouldn&rsquo;t be guesswork, but right
+              now it is. No way to see who is actually nearby. No clear picture
+              of whether a dog is healthy enough to match. No path forward yet
               if it isn&rsquo;t.
             </p>
           </div>

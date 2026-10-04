@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Newsreader, Public_Sans } from 'next/font/google'
 import './globals.css'
 import HashSessionRecovery from './auth/HashSessionRecovery'
+import DepthField from '@/components/motion/DepthField'
 import AppChrome from '@/components/AppChrome'
 import { createClient } from '@/lib/supabase/server'
 import { threadSummaries, totalUnread } from '@/lib/chat/threads'
@@ -170,6 +171,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         }`}
       >
         <HashSessionRecovery />
+        {/*
+          One scroll-depth driver for every .fp-depth grid on the site, mounted
+          here rather than per page so the nine pages that already carry the
+          class upgrade at once. It renders nothing, re-scans on route change,
+          and declines entirely under reduced motion. Unrelated to the
+          scrollcraft engine, which stays scoped to the landing page.
+        */}
+        <DepthField />
         <AppChrome signedIn={signedIn} displayName={displayName} unreadCount={unreadCount} />
         {children}
       </body>

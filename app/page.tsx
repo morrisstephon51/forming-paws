@@ -12,6 +12,8 @@ import { STEPS, ROADMAP } from '@/lib/journey'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
 import WorldflightHero from '@/components/homepage/WorldflightHero'
+import Tilt3D from '@/components/motion/Tilt3D'
+import { WHAT_WE_DO, WHAT_WE_DO_PLAIN } from '@/lib/positioning'
 import SectionDivider from '@/components/art/SectionDivider'
 import StepStack from '@/components/motion/StepStack'
 import Sage from '@/components/mascot/Sage'
@@ -84,6 +86,31 @@ export default async function HomePage({
       <main>
         <WorldflightHero />
 
+        {/*
+          The plain answer, and the one band on this page that deliberately
+          carries no scroll device at all.
+
+          That is the point of it. Visitors kept arriving and asking "what is it
+          that you guys actually do?" because the flight opens on a feeling and
+          the literal answer did not arrive until the finale eyebrow. This band
+          is the answer in words, at full opacity, in the server-rendered HTML:
+          no data-sc-in, so no engine, no gate and no script failure can take it
+          away, and a crawler reads it too.
+
+          Moss is rung 4 of the surface ramp rather than rung 3, because rung 3
+          against ivory is a ~1.6% luminance step that reads as a smudge instead
+          of a field. Body copy is ink-soft at a measured 4.56:1 on moss; accent
+          text is NOT used here, because accent-dark on moss is 4.28:1 and fails.
+        */}
+        <section aria-labelledby="what-we-do" className="bg-brand-moss">
+          <div className="fp-shell py-12 sm:py-14">
+            <h2 id="what-we-do" className="fp-h2 max-w-3xl text-ink">
+              {WHAT_WE_DO}
+            </h2>
+            <p className="fp-lead mt-4 max-w-3xl">{WHAT_WE_DO_PLAIN}</p>
+          </div>
+        </section>
+
         <div className="fp-shell py-8">
         {/*
           The first thing below the splash, and the reason the splash can afford
@@ -131,7 +158,22 @@ export default async function HomePage({
           to /home before this rendered, so anyone reading this panel needs the
           sign-in form.
         */}
-          <section id="signin" className="fp-card p-6 md:col-span-2">
+          {/*
+            Depth on the panel, and the nesting is load-bearing.
+
+            The tilt goes on an INNER element, never on this <section>. This
+            section is a direct child of a [data-sc-stagger] grid, so the engine
+            reveals it with `[data-sc-stagger] > .sc-in { transform: none }` at
+            specificity (0,2,0) -- which beats `.fp-tilt { transform: ... }` at
+            (0,1,0) and would silently kill the tilt with no error anywhere.
+            Outer element reveals, inner element tilts, neither fights.
+
+            CSS perspective rather than a second WebGL context: the worldflight
+            above already owns the only GPU context on this page, and a second
+            meadow mid-page would read as a rendering fault rather than as depth.
+          */}
+          <section id="signin" className="fp-stage md:col-span-2">
+            <Tilt3D className="fp-card p-6" entry={7} lean={4}>
             <h2 className="fp-h4">Member sign in</h2>
             <LoginForm
               error={params.error ?? null}
@@ -144,6 +186,7 @@ export default async function HomePage({
                 Create your account and dog profile
               </Link>
             </p>
+            </Tilt3D>
           </section>
         </div>
 
