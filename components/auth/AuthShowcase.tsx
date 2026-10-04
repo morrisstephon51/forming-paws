@@ -43,7 +43,7 @@ const ACCENT = '#E8734A'
 /** A private record: a sheet, kept shut. */
 function VaultDiagram() {
   return (
-    <svg viewBox="0 0 64 64" className="h-11 w-11" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 64 64" className="h-14 w-14" fill="none" aria-hidden="true">
       <rect x="14" y="8" width="30" height="40" rx="3" fill={MOSS} />
       <rect x="14" y="8" width="30" height="40" rx="3" stroke={BRAND} strokeWidth="2" />
       <path d="M20 20h18M20 27h18M20 34h11" stroke={BRAND} strokeWidth="2" strokeLinecap="round" />
@@ -57,7 +57,7 @@ function VaultDiagram() {
 /** A person reading a record. A lens over a sheet — no stamp, no verdict. */
 function ReviewDiagram() {
   return (
-    <svg viewBox="0 0 64 64" className="h-11 w-11" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 64 64" className="h-14 w-14" fill="none" aria-hidden="true">
       <rect x="10" y="9" width="30" height="40" rx="3" fill={MOSS} />
       <rect x="10" y="9" width="30" height="40" rx="3" stroke={BRAND} strokeWidth="2" />
       <path d="M16 19h18M16 26h18M16 33h11" stroke={BRAND} strokeWidth="2" strokeLinecap="round" />
@@ -75,7 +75,7 @@ function ReviewDiagram() {
  */
 function NearbyDiagram() {
   return (
-    <svg viewBox="0 0 64 64" className="h-11 w-11" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 64 64" className="h-14 w-14" fill="none" aria-hidden="true">
       <circle cx="32" cy="32" r="26" stroke={MOSS} strokeWidth="2" />
       <circle cx="32" cy="32" r="17" stroke={MOSS} strokeWidth="2" />
       <circle cx="32" cy="32" r="8" stroke={BRAND} strokeWidth="2" strokeDasharray="3 3" />

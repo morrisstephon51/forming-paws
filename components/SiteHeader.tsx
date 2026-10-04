@@ -25,7 +25,26 @@ export default function SiteHeader({
   const links = navLinks(variant)
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
+    /*
+      `relative z-50` is not decoration, it is the only thing that makes this
+      header clickable on the landing page.
+
+      The worldflight stage is `position: fixed; inset: 0` at z-index 1, so it
+      covers the entire viewport including this header. The header was static
+      with z-index auto, which means it never entered the comparison and the
+      poster won: document.elementFromPoint() over the "Log in" link returned
+      IMG.sc-world__poster, and every nav link, "Log in" and "Join free" was
+      dead on the one page every visitor lands on. Measured on production, so
+      this had been shipped and live, silently -- there is no error, no console
+      warning, and the links look perfectly normal.
+
+      50 places it above the engine's stage (1), grain (3) and copy (20) and
+      above this site's own fixed bars (z-40, MemberTabBar and StickyJoinBar),
+      while staying under scrollcraft's chrome (60) so the 2px scroll-progress
+      hairline still draws across the top edge. Nothing visual changes: the
+      header has no background, so the flight still shows through behind it.
+    */
+    <header className="relative z-50 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <Link href={variant === 'member' ? '/home' : '/'} className="shrink-0">
         <Logo size="lg" withWordmark />
       </Link>

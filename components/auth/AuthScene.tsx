@@ -48,12 +48,17 @@ export default function AuthScene() {
       <MeadowCanvas />
 
       {/*
-        The contrast guarantee. Sits above the ridges and below nothing, because
-        unlike the landing hero there is no sky here to desaturate — the failure
-        mode that put this scrim mid-stack on the landing page does not exist.
-        Stronger on the left, where the form sits.
+        A light wash, and deliberately light.
+        
+        Text contrast is NOT this layer's job any more: the form sits on an
+        opaque card and the copy beside it sits on its own plate, both by rule.
+        A scrim heavy enough to protect bare text over these ridges is also
+        heavy enough to desaturate the greens into the grey fog this project
+        already diagnosed once on the landing hero, where it read as a rendering
+        fault rather than a landscape. So this only softens the left, where the
+        form overlaps, and lets the right stay green.
       */}
-      <div className="absolute inset-0 bg-ivory/40 md:bg-gradient-to-r md:from-ivory/80 md:via-ivory/45 md:to-ivory/15" />
+      <div className="absolute inset-0 bg-ivory/20 md:bg-gradient-to-r md:from-ivory/55 md:via-ivory/20 md:to-transparent" />
 
       {/* Midground hills. Same path as the landing hero: one landscape, two pages. */}
       <svg

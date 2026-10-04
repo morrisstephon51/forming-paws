@@ -82,7 +82,25 @@ export default async function LoginPage({
                 somebody's first. One of the three places lib/positioning is
                 rendered by rule rather than by whoever remembered.
               */}
-              <aside className="lg:col-span-2 lg:pt-4">
+              {/*
+                The plate is applied by rule, not where a ratio complained.
+
+                On a phone this column stacks BELOW the form, which puts it over
+                the foreground ridge: ink-soft on #245448 is unreadable, and it
+                was. The lesson this project already paid for is that a remedy
+                applied to one of four copy blocks is a coincidence, not a
+                remedy, so the plate is unconditional. Ivory at 95% over the
+                darkest point in the scene composites to #F0EFE8, which carries
+                ink-soft at 5.24:1; over the palest point it is invisible, so
+                desktop looks exactly as it did.
+
+                95 and not 92: this project's Tailwind only emits the default
+                opacity steps, and bg-ivory/92 silently computed to
+                rgba(0,0,0,0) -- a plate with radius and padding and no surface
+                at all, which looks fine in the markup and fixes nothing. Always
+                read the computed backgroundColor back, never the class name.
+              */}
+              <aside className="rounded-xl bg-ivory/95 p-5 lg:col-span-2 lg:mt-4">
                 <p className="fp-eyebrow text-brand-dark">What this is</p>
                 <p className="fp-lead mt-3 text-base">{WHAT_WE_DO}</p>
               </aside>

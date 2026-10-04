@@ -101,9 +101,30 @@ export default async function HomePage({
           against ivory is a ~1.6% luminance step that reads as a smudge instead
           of a field. Body copy is ink-soft at a measured 4.56:1 on moss; accent
           text is NOT used here, because accent-dark on moss is 4.28:1 and fails.
+
+          WHY THE BAND IS TALL AND ITS CONTENT CENTRED, which is not a styling
+          whim. The worldflight's fixed stage is released geometrically, when
+          its spacer's bottom passes the viewport top -- and this band begins at
+          exactly that point, so the release threshold IS this band's arrival.
+          The check runs per animation frame, so it fires one scroll event late,
+          and the overshoot scales with scroll speed: measured at 34px, 84px and
+          184px for 50px, 100px and 300px wheel steps. With the band sized to
+          its text the heading arrived already clipped and then scrolled away,
+          so a reader saw half the sentence and never the first line. A fixed
+          top padding cannot cover an overshoot that grows with velocity; a tall
+          band with vertically centred content can, because the content starts
+          far enough in to survive the largest realistic overshoot. 80vh is the
+          size at which a 300px-per-event flick still lands the heading fully on
+          screen at 1440x900, 1280x720 and 390x844; 58vh passed the first two
+          speeds and clipped the third. It also gives the one plain statement on
+          the page the weight it should have: cinema, then a full screen that
+          simply says what this is, then sign in.
         */}
-        <section aria-labelledby="what-we-do" className="bg-brand-moss">
-          <div className="fp-shell py-12 sm:py-14">
+        <section
+          aria-labelledby="what-we-do"
+          className="flex min-h-[80vh] items-center bg-brand-moss"
+        >
+          <div className="fp-shell py-16">
             <h2 id="what-we-do" className="fp-h2 max-w-3xl text-ink">
               {WHAT_WE_DO}
             </h2>
