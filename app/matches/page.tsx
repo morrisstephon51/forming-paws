@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { threadSummaries } from '@/lib/chat/threads'
 import { pageMetadata } from '@/lib/seo'
 import SageNote from '@/components/mascot/SageNote'
@@ -15,7 +16,7 @@ export const metadata = pageMetadata({
 export default async function MatchesPage() {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
   const myOwnerId = userData.user.id
 
   // Same gate as /home, /browse and /settings. Without it a deactivated member

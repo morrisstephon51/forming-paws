@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { getBreeds } from '@/lib/breeds'
 import { getThumbnailUrl } from '@/lib/dogPhotos'
 import { ageInYears } from '@/lib/age'
@@ -44,7 +45,7 @@ export default async function BrowsePage({
   const params = await searchParams
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   const { data: me } = await supabase
     .from('owners')

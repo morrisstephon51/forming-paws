@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter'
 import AuthScene from '@/components/auth/AuthScene'
 import AuthShowcase from '@/components/auth/AuthShowcase'
 import { safeEmailParam } from '@/lib/auth/prefill'
+import { postLoginPath } from '@/lib/auth/redirects'
 import { pageMetadata } from '@/lib/seo'
 import { WHAT_WE_DO } from '@/lib/positioning'
 
@@ -44,7 +45,7 @@ export const metadata = pageMetadata({
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; resend?: string; email?: string }>
+  searchParams: Promise<{ error?: string; resend?: string; email?: string; next?: string }>
 }) {
   const params = await searchParams
 
@@ -67,6 +68,7 @@ export default async function LoginPage({
                   error={params.error ?? null}
                   offerResend={params.resend === '1'}
                   initialEmail={safeEmailParam(params.email)}
+                  next={postLoginPath(params.next)}
                 />
 
                 <p className="fp-hairline mt-7 pt-6 text-sm text-ink-soft">

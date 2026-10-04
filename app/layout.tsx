@@ -90,6 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   let displayName: string | null = null
   let unreadCount = 0
   let signedIn = false
+  let isAdmin = false
 
   if (userData.user) {
     const { data: owner } = await supabase
@@ -108,7 +109,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
     if (signedIn) {
       displayName = owner?.display_name ?? null
-      unreadCount = totalUnread(await threadSummaries(supabase))
+      // In parallel: the admin check is one more round trip on every member
+      // page, so it should not also queue behind the unread count.
+      const [threads, adminCheck] = await Promise.all([
+        threadSummaries(supabase),
+        supabase.rpc('has_role', { role_name: 'admin' }),
+      ])
+      unreadCount = totalUnread(threads)
+      // Resolved in the database like every role check (lib/auth/roles.ts). It
+      // only decides whether the header shows the Admin link.
+      isAdmin = adminCheck.data === true
     }
   }
 
@@ -179,7 +189,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           scrollcraft engine, which stays scoped to the landing page.
         */}
         <DepthField />
-        <AppChrome signedIn={signedIn} displayName={displayName} unreadCount={unreadCount} />
+        <AppChrome
+          signedIn={signedIn}
+          displayName={displayName}
+          unreadCount={unreadCount}
+          isAdmin={isAdmin}
+        />
         {children}
       </body>
     </html>

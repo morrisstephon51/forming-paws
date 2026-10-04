@@ -16,13 +16,15 @@ export default function SiteHeader({
   pathname = '/',
   unreadCount = 0,
   displayName = null,
+  isAdmin = false,
 }: {
   variant: NavVariant
   pathname?: string
   unreadCount?: number
   displayName?: string | null
+  isAdmin?: boolean
 }) {
-  const links = navLinks(variant)
+  const links = navLinks(variant, { isAdmin })
 
   return (
     /*

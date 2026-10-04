@@ -9,9 +9,12 @@ import learnHub from '@/assets/art/learn-hub.jpg'
 export const metadata = pageMetadata({
   title: 'Learn',
   description:
-    'Practical guides for dog owners: what health documents you need, what to ask your vet, and how to meet another owner safely.',
+    'Practical guides for dog owners: health documents, Illinois law, written agreements, choosing a trainer, behaviour help, year-round care, and meeting another owner safely.',
   path: '/education',
 })
+
+/** The claim each guide is not making, by notice type. */
+const REVIEW_LABEL = { vet: 'Vet-reviewed', legal: 'Lawyer-reviewed' } as const
 
 export default function EducationPage() {
   return (
@@ -21,8 +24,9 @@ export default function EducationPage() {
         <RecordLine label="Catalogue" value="Guides" className="mb-4" />
         <h1 className="fp-h1">Learn</h1>
         <p className="mt-4 text-ink-soft">
-          Short, practical guides for owners thinking about breeding responsibly: what paperwork is
-          needed, what to ask a professional, and how to handle the first meeting.
+          Short, practical guides for owners thinking about breeding responsibly: the paperwork,
+          the law as published, what to put in writing, how to pick a trainer or a behaviour
+          professional, and the ordinary care a year asks for.
         </p>
 
         <BannerArt priority src={learnHub} className="mt-8" />
@@ -34,10 +38,13 @@ export default function EducationPage() {
         */}
         <div className="mt-6 border-y border-hairline py-5">
           <RecordLine status="none" label="Vet-reviewed" value="Not yet" />
+          <RecordLine status="none" label="Lawyer-reviewed" value="Not yet" className="mt-2" />
           <p className="mt-3 max-w-[46rem] text-sm text-ink-soft">
-            <strong className="text-ink">These are not veterinary advice.</strong> They cover process
-            and safety: paperwork, questions worth asking, meeting a stranger sensibly. Nothing here
-            has been written or reviewed by a veterinarian, and none of it is a substitute for one.
+            <strong className="text-ink">These are not veterinary or legal advice.</strong> They
+            cover process, safety, and the published rules: paperwork, questions worth asking, what
+            a statute says and where to read it. Nothing here has been written or reviewed by a
+            veterinarian or a lawyer, and none of it substitutes for either. Every page that states
+            a rule links the document it came from.
           </p>
         </div>
 
@@ -58,7 +65,12 @@ export default function EducationPage() {
                   list is read once and then forgotten by the third card; the
                   mark travels with the thing it qualifies.
                 */}
-                <RecordLine status="none" label="Vet-reviewed" value="Not yet" className="mt-3" />
+                <RecordLine
+                  status="none"
+                  label={REVIEW_LABEL[guide.notice]}
+                  value="Not yet"
+                  className="mt-3"
+                />
               </Link>
             </li>
           ))}
@@ -69,9 +81,9 @@ export default function EducationPage() {
             More is coming
           </h2>
           <p className="mt-2 text-ink-soft">
-            This hub grows as the vet partner network does. Guides we can put a veterinarian&apos;s
-            name to will say so. Until then we would rather publish three honest pages than thirty
-            padded ones.
+            This hub grows whenever something is worth writing down, and it will grow faster once
+            the vet partner network exists. Guides we can put a veterinarian&apos;s name to will say
+            so. Until then we would rather publish a few honest pages than thirty padded ones.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link href="/vets" className="fp-btn-ghost">

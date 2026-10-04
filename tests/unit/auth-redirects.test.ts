@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { getRequestOrigin, safeRedirectPath, loginUrlWithError } from '@/lib/auth/redirects'
+import {
+  getRequestOrigin,
+  safeRedirectPath,
+  loginUrlWithError,
+  postLoginPath,
+  loginPathFor,
+} from '@/lib/auth/redirects'
 
 function req(url: string, headers: Record<string, string> = {}) {
   return new Request(url, { headers })
@@ -61,5 +67,47 @@ describe('loginUrlWithError', () => {
   it('adds the resend flag when the user can recover', () => {
     const url = loginUrlWithError('https://formingpaws.com', 'Expired', true)
     expect(url).toContain('resend=1')
+  })
+})
+
+describe('postLoginPath', () => {
+  it('returns the member to the page they asked for', () => {
+    expect(postLoginPath('/admin/users')).toBe('/admin/users')
+  })
+
+  it('keeps the query string', () => {
+    expect(postLoginPath('/browse?breed=3')).toBe('/browse?breed=3')
+  })
+
+  it('falls back to /home for anything that is not a same-origin path', () => {
+    expect(postLoginPath('https://evil.com')).toBe('/home')
+    expect(postLoginPath('//evil.com')).toBe('/home')
+    expect(postLoginPath(undefined)).toBe('/home')
+  })
+
+  it('never sends a member back to the sign-in or sign-up form', () => {
+    expect(postLoginPath('/login')).toBe('/home')
+    expect(postLoginPath('/login?next=/admin')).toBe('/home')
+    expect(postLoginPath('/signup')).toBe('/home')
+  })
+
+  it('does not mistake a longer path for the sign-in page', () => {
+    expect(postLoginPath('/loginhelp')).toBe('/loginhelp')
+  })
+})
+
+describe('loginPathFor', () => {
+  it('carries the requested page as next', () => {
+    expect(loginPathFor('/admin')).toBe('/login?next=%2Fadmin')
+  })
+
+  it('encodes a query string inside next', () => {
+    expect(loginPathFor('/admin/users?q=a&b=c')).toBe('/login?next=%2Fadmin%2Fusers%3Fq%3Da%26b%3Dc')
+  })
+
+  it('is plain /login when there is nowhere better to return to', () => {
+    expect(loginPathFor(null)).toBe('/login')
+    expect(loginPathFor('/home')).toBe('/login')
+    expect(loginPathFor('//evil.com')).toBe('/login')
   })
 })

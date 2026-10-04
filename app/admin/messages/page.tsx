@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { markHandled } from './actions'
 import { RESPONSE_TIME } from '@/lib/promise'
 import { pageMetadata } from '@/lib/seo'
+import { requireRole } from '@/lib/auth/roles'
 
 export const metadata = pageMetadata({
   title: 'Contact messages',
@@ -18,16 +18,9 @@ export const metadata = pageMetadata({
  * dropping the message.
  */
 export default async function MessagesPage() {
+  await requireRole('admin')
   const supabase = await createClient()
-  const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
 
-  const { data: owner } = await supabase
-    .from('owners')
-    .select('is_admin')
-    .eq('id', userData.user.id)
-    .single()
-  if (!owner?.is_admin) redirect('/home')
 
   const { data: messages } = await supabase
     .from('contact_messages')

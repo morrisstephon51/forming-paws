@@ -4,19 +4,26 @@ import { isBirthDateNotInFuture } from '@/lib/dogBirthDate'
 /**
  * The regression this guards against is a timezone off-by-one. `<input type="date">`
  * hands over a date-only string like "2026-08-15", and the old guard compared
- * `new Date("2026-08-15")` — which is UTC midnight — against the current instant.
- * West of UTC that let a *tomorrow* through: after 7pm in Chicago (UTC-5) "now"
- * is already past midnight UTC, so tomorrow-midnight-UTC sorts before it.
+ * `new Date("2026-08-15")` — UTC midnight — against the current instant. West of
+ * UTC that let a *tomorrow* through: after 7pm in Chicago "now" is already past
+ * midnight UTC, so tomorrow-midnight-UTC sorts before it.
  *
- * `now` is injectable so the boundary is pinned deterministically. Every `now`
- * below is built from *local* components (`new Date(y, m, d, …)`), so the
- * assertions read the same calendar day in any CI timezone.
+ * The guard now answers "is this after today?" in the members' calendar
+ * (America/Chicago) rather than the runtime's, so it holds on a UTC Vercel server
+ * as well as in a member's browser. Every `now` below is an absolute instant
+ * (`new Date('...Z')`) so the assertions pin that calendar in any CI timezone —
+ * the earlier fixtures were built from *local* components, which only ever proved
+ * "local in, local out" and never exercised the UTC evening window where the bug
+ * actually lives.
  */
 describe('isBirthDateNotInFuture', () => {
-  // Local Aug 14 2026, 8:00pm — the exact evening the old check misbehaved.
-  const chicagoEvening = new Date(2026, 7, 14, 20, 0, 0)
+  // 8:00pm Chicago on Aug 14 2026 (CDT, UTC-5) == 01:00Z Aug 15 — the evening
+  // window where a UTC clock has crossed midnight but the member has not.
+  const chicagoEvening = new Date('2026-08-15T01:00:00Z')
 
-  it('rejects tomorrow when the local clock is already evening (the bug)', () => {
+  it('rejects the member\'s tomorrow during the UTC evening window (the bug)', () => {
+    // A UTC runtime reads "now" as Aug 15 and would wave 2026-08-15 through; the
+    // member is still on Aug 14, so it is their tomorrow and must be rejected.
     expect(isBirthDateNotInFuture('2026-08-15', chicagoEvening)).toBe(false)
   })
 
@@ -27,8 +34,15 @@ describe('isBirthDateNotInFuture', () => {
     expect(oldCheck).toBe(true)
   })
 
-  it('accepts today in the local frame', () => {
+  it('accepts today in the members\' calendar', () => {
     expect(isBirthDateNotInFuture('2026-08-14', chicagoEvening)).toBe(true)
+  })
+
+  it('is daylight-saving aware at the winter boundary', () => {
+    // January is CST (UTC-6): 8pm Chicago Jan 15 == 02:00Z Jan 16.
+    const winterEvening = new Date('2026-01-16T02:00:00Z')
+    expect(isBirthDateNotInFuture('2026-01-16', winterEvening)).toBe(false) // member's tomorrow
+    expect(isBirthDateNotInFuture('2026-01-15', winterEvening)).toBe(true) // member's today
   })
 
   it('accepts a date in the past', () => {
@@ -40,7 +54,7 @@ describe('isBirthDateNotInFuture', () => {
   })
 
   it('accepts a leap day that has already passed', () => {
-    expect(isBirthDateNotInFuture('2024-02-29', new Date(2026, 0, 1, 9, 0, 0))).toBe(true)
+    expect(isBirthDateNotInFuture('2024-02-29', new Date('2026-01-01T15:00:00Z'))).toBe(true)
   })
 
   it('rejects an impossible calendar date', () => {

@@ -149,3 +149,29 @@ describe('isActive', () => {
     expect(isActive('/#how', '/about')).toBe(false)
   })
 })
+
+describe('admin link', () => {
+  it('adds the console to the member links for an admin', () => {
+    expect(navLinks('member', { isAdmin: true }).map((l) => l.href)).toEqual([
+      '/home',
+      '/browse',
+      '/marketplace',
+      '/matches',
+      '/education',
+      '/settings',
+      '/admin',
+    ])
+  })
+
+  it('is absent for a member without the role', () => {
+    expect(navLinks('member').some((l) => l.href === '/admin')).toBe(false)
+  })
+
+  it('never appears in the public header', () => {
+    expect(navLinks('public', { isAdmin: true }).some((l) => l.href === '/admin')).toBe(false)
+  })
+
+  it('stays lit across the console sections', () => {
+    expect(isActive('/admin', '/admin/users')).toBe(true)
+  })
+})

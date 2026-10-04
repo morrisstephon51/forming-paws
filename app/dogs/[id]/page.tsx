@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import ExpressInterestForm from './ExpressInterestForm'
 import PuppyInquiryForm from './PuppyInquiryForm'
 import { pageMetadata } from '@/lib/seo'
@@ -16,7 +17,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
   const { id } = await params
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  if (!userData.user) redirect('/login')
+  if (!userData.user) redirect(await loginRedirectPath())
 
   const { data: ownDog } = await supabase
     .from('dogs')
@@ -65,6 +66,22 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     })
 
     if (!ownerActive) notFound()
+
+    // Same shape and same reason as the owner_is_active check above: a removed
+    // dog stays reachable through dogs_browsable, because that view also
+    // resolves names inside existing conversations and the review queue and
+    // must not be filtered (0022). Via the RPC, not `select removed_at from
+    // dogs`: dogs_select_own now filters removed rows away entirely, so a
+    // direct select returns nothing and the check would quietly pass for every
+    // dog on the site.
+    //
+    // Admins never reach this branch — dogs_select_admin is unfiltered, so the
+    // `from('dogs')` read above already succeeded for them.
+    const { data: dogRemoved } = await supabase.rpc('dog_is_removed', {
+      p_dog_id: id,
+    })
+
+    if (dogRemoved) notFound()
 
     dog = { ...browsableDog, breedName: browsableDog.breed_name }
   }

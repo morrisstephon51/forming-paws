@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { hasRole } from '@/lib/auth/roles'
 
 export async function reviewDocument(
   docId: string,
@@ -17,12 +18,7 @@ export async function reviewDocument(
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) throw new Error('Unauthorized')
 
-  const { data: owner } = await supabase
-    .from('owners')
-    .select('is_admin')
-    .eq('id', userData.user.id)
-    .single()
-  if (!owner?.is_admin) throw new Error('Forbidden')
+  if (!(await hasRole('admin'))) throw new Error('Forbidden')
 
   const { error } = await supabase
     .from('health_documents')
