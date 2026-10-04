@@ -2,6 +2,18 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   /*
+   * Pin the file-tracing root to this project.
+   *
+   * There is a stray package-lock.json in the developer's home directory, so
+   * Next walks up, finds two lockfiles, and infers ~ as the workspace root --
+   * then warns that it may trace files from outside the project into the
+   * output. Vercel never sees that stray file and infers correctly, so this
+   * only changes local builds: it makes them agree with production instead of
+   * tracing from the home directory.
+   */
+  outputFileTracingRoot: process.cwd(),
+
+  /*
    * AVIF first, WebP second, original last.
    *
    * Next's default is WebP alone, so the AVIF half of this project's imagery

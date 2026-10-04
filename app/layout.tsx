@@ -6,7 +6,7 @@ import DepthField from '@/components/motion/DepthField'
 import AppChrome from '@/components/AppChrome'
 import { createClient } from '@/lib/supabase/server'
 import { threadSummaries, totalUnread } from '@/lib/chat/threads'
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/site'
 
 /*
  * Both faces are self-hosted rather than pulled in by an @import at the top of
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   // Makes every relative URL below resolve absolutely, which Open Graph requires.
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    default: SITE_TITLE,
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -54,14 +54,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: '/',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
   icons: {

@@ -10,6 +10,7 @@ import {
   WHAT_WE_DO_PLAIN,
   HERO_HEADLINE,
 } from '@/lib/positioning'
+import { SITE_TITLE } from '@/lib/site'
 
 /**
  * Guards the two rules this work exists to enforce.
@@ -100,6 +101,28 @@ describe('the plain answer, placed by rule', () => {
     for (const path of ['app/(auth)/login/page.tsx', 'app/(auth)/signup/page.tsx']) {
       expect(source(path)).toContain('WHAT_WE_DO')
     }
+  })
+})
+
+describe('the title says what this is', () => {
+  it('names the product category, not just a tagline', () => {
+    // "Forming Paws: Healthy Matches. Happy Litters." never said "dog". A tab,
+    // a search result and a pasted link are all places people arrive, and they
+    // arrived unable to tell what this was.
+    expect(SITE_TITLE).toContain('Forming Paws')
+    expect(SITE_TITLE.toLowerCase()).toContain('dog')
+    expect(SITE_TITLE.toLowerCase()).toContain('health-verified')
+  })
+
+  it('fits a search result without truncation', () => {
+    expect(SITE_TITLE.length).toBeLessThanOrEqual(60)
+  })
+
+  it('is defined once and reused, not retyped per meta tag', () => {
+    const layout = source('app/layout.tsx')
+    expect(layout).not.toContain('Healthy Matches. Happy Litters.')
+    // title.default, openGraph.title and twitter.title all read the constant.
+    expect(layout.match(/SITE_TITLE/g)?.length ?? 0).toBeGreaterThanOrEqual(4)
   })
 })
 
