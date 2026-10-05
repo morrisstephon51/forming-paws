@@ -12,6 +12,8 @@ import { STEPS, ROADMAP } from '@/lib/journey'
 import ShareButtons from '@/components/ShareButtons'
 import SiteFooter from '@/components/SiteFooter'
 import WorldflightHero from '@/components/homepage/WorldflightHero'
+import Tilt3D from '@/components/motion/Tilt3D'
+import { WHAT_WE_DO, WHAT_WE_DO_PLAIN } from '@/lib/positioning'
 import SectionDivider from '@/components/art/SectionDivider'
 import StepStack from '@/components/motion/StepStack'
 import Sage from '@/components/mascot/Sage'
@@ -84,6 +86,52 @@ export default async function HomePage({
       <main>
         <WorldflightHero />
 
+        {/*
+          The plain answer, and the one band on this page that deliberately
+          carries no scroll device at all.
+
+          That is the point of it. Visitors kept arriving and asking "what is it
+          that you guys actually do?" because the flight opens on a feeling and
+          the literal answer did not arrive until the finale eyebrow. This band
+          is the answer in words, at full opacity, in the server-rendered HTML:
+          no data-sc-in, so no engine, no gate and no script failure can take it
+          away, and a crawler reads it too.
+
+          Moss is rung 4 of the surface ramp rather than rung 3, because rung 3
+          against ivory is a ~1.6% luminance step that reads as a smudge instead
+          of a field. Body copy is ink-soft at a measured 4.56:1 on moss; accent
+          text is NOT used here, because accent-dark on moss is 4.28:1 and fails.
+
+          WHY THE BAND IS TALL AND ITS CONTENT CENTRED, which is not a styling
+          whim. The worldflight's fixed stage is released geometrically, when
+          its spacer's bottom passes the viewport top -- and this band begins at
+          exactly that point, so the release threshold IS this band's arrival.
+          The check runs per animation frame, so it fires one scroll event late,
+          and the overshoot scales with scroll speed: measured at 34px, 84px and
+          184px for 50px, 100px and 300px wheel steps. With the band sized to
+          its text the heading arrived already clipped and then scrolled away,
+          so a reader saw half the sentence and never the first line. A fixed
+          top padding cannot cover an overshoot that grows with velocity; a tall
+          band with vertically centred content can, because the content starts
+          far enough in to survive the largest realistic overshoot. 80vh is the
+          size at which a 300px-per-event flick still lands the heading fully on
+          screen at 1440x900, 1280x720 and 390x844; 58vh passed the first two
+          speeds and clipped the third. It also gives the one plain statement on
+          the page the weight it should have: cinema, then a full screen that
+          simply says what this is, then sign in.
+        */}
+        <section
+          aria-labelledby="what-we-do"
+          className="flex min-h-[80vh] items-center bg-brand-moss"
+        >
+          <div className="fp-shell py-16">
+            <h2 id="what-we-do" className="fp-h2 max-w-3xl text-ink">
+              {WHAT_WE_DO}
+            </h2>
+            <p className="fp-lead mt-4 max-w-3xl">{WHAT_WE_DO_PLAIN}</p>
+          </div>
+        </section>
+
         <div className="fp-shell py-8">
         {/*
           The first thing below the splash, and the reason the splash can afford
@@ -131,7 +179,22 @@ export default async function HomePage({
           to /home before this rendered, so anyone reading this panel needs the
           sign-in form.
         */}
-          <section id="signin" className="fp-card p-6 md:col-span-2">
+          {/*
+            Depth on the panel, and the nesting is load-bearing.
+
+            The tilt goes on an INNER element, never on this <section>. This
+            section is a direct child of a [data-sc-stagger] grid, so the engine
+            reveals it with `[data-sc-stagger] > .sc-in { transform: none }` at
+            specificity (0,2,0) -- which beats `.fp-tilt { transform: ... }` at
+            (0,1,0) and would silently kill the tilt with no error anywhere.
+            Outer element reveals, inner element tilts, neither fights.
+
+            CSS perspective rather than a second WebGL context: the worldflight
+            above already owns the only GPU context on this page, and a second
+            meadow mid-page would read as a rendering fault rather than as depth.
+          */}
+          <section id="signin" className="fp-stage md:col-span-2">
+            <Tilt3D className="fp-card p-6" entry={7} lean={4}>
             <h2 className="fp-h4">Member sign in</h2>
             <LoginForm
               error={params.error ?? null}
@@ -144,6 +207,7 @@ export default async function HomePage({
                 Create your account and dog profile
               </Link>
             </p>
+            </Tilt3D>
           </section>
         </div>
 

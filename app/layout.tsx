@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { Newsreader, Public_Sans } from 'next/font/google'
 import './globals.css'
 import HashSessionRecovery from './auth/HashSessionRecovery'
+import DepthField from '@/components/motion/DepthField'
 import AppChrome from '@/components/AppChrome'
 import { createClient } from '@/lib/supabase/server'
 import { threadSummaries, totalUnread } from '@/lib/chat/threads'
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/site'
 
 /*
  * Both faces are self-hosted rather than pulled in by an @import at the top of
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
   // Makes every relative URL below resolve absolutely, which Open Graph requires.
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    default: SITE_TITLE,
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -53,14 +54,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: '/',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME}: Healthy Matches. Happy Litters.`,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
   icons: {
@@ -180,6 +181,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         }`}
       >
         <HashSessionRecovery />
+        {/*
+          One scroll-depth driver for every .fp-depth grid on the site, mounted
+          here rather than per page so the nine pages that already carry the
+          class upgrade at once. It renders nothing, re-scans on route change,
+          and declines entirely under reduced motion. Unrelated to the
+          scrollcraft engine, which stays scoped to the landing page.
+        */}
+        <DepthField />
         <AppChrome
           signedIn={signedIn}
           displayName={displayName}

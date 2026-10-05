@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Logo from './Logo'
 import { navLinks, isActive, type NavVariant } from '@/lib/nav'
+import { WHAT_WE_DO_SHORT } from '@/lib/positioning'
 
 /**
  * The one header for every page.
@@ -26,7 +27,26 @@ export default function SiteHeader({
   const links = navLinks(variant, { isAdmin })
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
+    /*
+      `relative z-50` is not decoration, it is the only thing that makes this
+      header clickable on the landing page.
+
+      The worldflight stage is `position: fixed; inset: 0` at z-index 1, so it
+      covers the entire viewport including this header. The header was static
+      with z-index auto, which means it never entered the comparison and the
+      poster won: document.elementFromPoint() over the "Log in" link returned
+      IMG.sc-world__poster, and every nav link, "Log in" and "Join free" was
+      dead on the one page every visitor lands on. Measured on production, so
+      this had been shipped and live, silently -- there is no error, no console
+      warning, and the links look perfectly normal.
+
+      50 places it above the engine's stage (1), grain (3) and copy (20) and
+      above this site's own fixed bars (z-40, MemberTabBar and StickyJoinBar),
+      while staying under scrollcraft's chrome (60) so the 2px scroll-progress
+      hairline still draws across the top edge. Nothing visual changes: the
+      header has no background, so the flight still shows through behind it.
+    */
+    <header className="relative z-50 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4">
       <Link href={variant === 'member' ? '/home' : '/'} className="shrink-0">
         <Logo size="lg" withWordmark />
       </Link>
@@ -93,6 +113,26 @@ export default function SiteHeader({
           </>
         )}
       </nav>
+
+      {/*
+        What this site is, on every public page, above the fold, with no scroll
+        and no JavaScript.
+
+        This is the first of the three places lib/positioning is rendered by
+        rule. Visitors were reaching the site and asking what we actually do, and
+        a visitor who bounces from the header never reaches the hero copy, let
+        alone the band below it. The compressed form is used rather than the full
+        sentence because the sentence wraps to three lines in this strip at
+        390px, which is how a clarifying line turns into clutter.
+
+        `w-full` so it takes its own row in the wrapping flex header instead of
+        competing with the nav for horizontal space. Members do not get it: a
+        signed-in owner knows what the site is, and the row would be permanent
+        furniture on every page of the app.
+      */}
+      {variant === 'public' ? (
+        <p className="w-full text-sm text-ink-soft">{WHAT_WE_DO_SHORT}</p>
+      ) : null}
     </header>
   )
 }
