@@ -2,16 +2,44 @@ import { describe, it, expect } from 'vitest'
 import { newLitterSchema, newPuppySchema, puppyInquirySchema } from '@/lib/validators/litter'
 
 describe('newLitterSchema', () => {
+  const dogs = {
+    sireId: '11111111-1111-1111-1111-111111111111',
+    damId: '22222222-2222-2222-2222-222222222222',
+  }
+
   it('accepts a sire and dam with no dates', () => {
-    const result = newLitterSchema.safeParse({
-      sireId: '11111111-1111-1111-1111-111111111111',
-      damId: '22222222-2222-2222-2222-222222222222',
-    })
+    const result = newLitterSchema.safeParse({ ...dogs })
     expect(result.success).toBe(true)
   })
 
   it('rejects a non-uuid dog id', () => {
     const result = newLitterSchema.safeParse({ sireId: 'not-a-uuid', damId: 'also-not-a-uuid' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a born_on in the future', () => {
+    // born_on is a date that has already happened. A future value would flow
+    // into AddPuppyForm's defaultBirthDate, which the puppy form then rejects --
+    // the litter and puppy guards must agree. Mirror the puppy test's "tomorrow".
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+    const result = newLitterSchema.safeParse({ ...dogs, bornOn: tomorrow })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts a past born_on', () => {
+    const result = newLitterSchema.safeParse({ ...dogs, bornOn: '2020-06-01' })
+    expect(result.success).toBe(true)
+  })
+
+  it('allows a future ready_on (puppies go home weeks after birth)', () => {
+    // ready_on is intentionally unbounded above -- a naive "no future dates"
+    // guard would wrongly block normal listings. This pins that it stays open.
+    const result = newLitterSchema.safeParse({ ...dogs, bornOn: '2020-06-01', readyOn: '2099-01-01' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects ready_on before born_on', () => {
+    const result = newLitterSchema.safeParse({ ...dogs, bornOn: '2020-06-01', readyOn: '2020-05-01' })
     expect(result.success).toBe(false)
   })
 })
