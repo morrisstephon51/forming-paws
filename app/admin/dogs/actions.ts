@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { hasRole } from '@/lib/auth/roles'
 import { recordAuditEvent } from '@/lib/auth/audit'
+import { isBirthDateNotInFuture } from '@/lib/dogBirthDate'
 
 const SEXES = ['male', 'female'] as const
 
@@ -46,6 +47,14 @@ export async function updateDogAction(formData: FormData) {
   const sex = requiredString(formData, 'sex')
   if (!SEXES.includes(sex as (typeof SEXES)[number])) throw new Error('sex must be male or female')
   const birthDate = requiredString(formData, 'birthDate')
+  // Keep the admin edit path in lockstep with the member-facing create form
+  // (dogSchema -> isBirthDateNotInFuture): birth_date is a date that has
+  // necessarily already happened, and age.ts reads it back assuming the future
+  // was "guarded against elsewhere". Without this, an admin edit silently
+  // reintroduces a future birth_date the create form already rejects.
+  if (!isBirthDateNotInFuture(birthDate)) {
+    throw new Error('Birth date cannot be in the future')
+  }
 
   const patch = {
     name,
