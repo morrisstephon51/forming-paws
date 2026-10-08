@@ -24,6 +24,19 @@
 -- branch, and both dogs always exist here (both columns are FK to dogs), so
 -- the added EXISTS can never reject a legitimate opposite-sex interest for a
 -- missing row.
+-- Same boundary, same family: a breeding interest must also be between two
+-- breeding dogs, not marketplace puppy listings. A listing is a dogs row with
+-- litter_id set (0026); browse_puppies filters to litter_id IS NOT NULL and,
+-- since 0037 (#78/#79), browse_dogs filters to litter_id IS NULL, and the dog
+-- detail page branches on litter_id -- but a direct PostgREST insert into
+-- dog_interests had no such guard, so one could express a *breeding* interest
+-- in (or from) a puppy listed for placement. This insert policy is the only
+-- enforcement point for that path too, so the same EXISTS that pairs the two
+-- dogs for the sex check now also requires both to be breeding dogs
+-- (litter_id IS NULL), completing the "a listing is not a breeding dog"
+-- invariant family on the interest surface. litter_id is nullable (0026) so
+-- IS NULL is the correct test, and both rows always exist (FK), so this never
+-- rejects a legitimate pairing.
 drop policy "dog_interests_insert_own_verified" on public.dog_interests;
 create policy "dog_interests_insert_own_verified" on public.dog_interests
   for insert with check (
@@ -36,5 +49,7 @@ create policy "dog_interests_insert_own_verified" on public.dog_interests
       where de.id = expressing_dog_id
         and dt.id = target_dog_id
         and de.sex <> dt.sex
+        and de.litter_id is null
+        and dt.litter_id is null
     )
   );
