@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { hasRole } from '@/lib/auth/roles'
+import { recordAuditEvent } from '@/lib/auth/audit'
 
 export async function markHandled(messageId: string) {
   const supabase = await createClient()
@@ -20,5 +21,11 @@ export async function markHandled(messageId: string) {
     .eq('id', messageId)
 
   if (error) throw error
+
+  await recordAuditEvent({
+    action: 'contact_message.handled',
+    targetType: 'contact_message',
+    targetId: messageId,
+  })
   revalidatePath('/admin/messages')
 }
