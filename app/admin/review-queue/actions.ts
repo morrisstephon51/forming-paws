@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { hasRole } from '@/lib/auth/roles'
+import { recordAuditEvent } from '@/lib/auth/audit'
 
 export async function reviewDocument(
   docId: string,
@@ -26,5 +27,12 @@ export async function reviewDocument(
     .eq('id', docId)
 
   if (error) throw error
+
+  await recordAuditEvent({
+    action: `health_document.${decision}`,
+    targetType: 'health_document',
+    targetId: docId,
+    detail: notes ? { notes } : {},
+  })
   revalidatePath('/admin/review-queue')
 }
