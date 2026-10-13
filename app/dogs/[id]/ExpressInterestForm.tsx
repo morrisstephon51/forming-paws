@@ -4,18 +4,21 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-type MyDog = { id: string; name: string; isVerified: boolean }
+type MyDog = { id: string; name: string; sex: string; isVerified: boolean }
 
 export default function ExpressInterestForm({
   targetDogId,
+  targetDogSex,
   myDogs,
 }: {
   targetDogId: string
+  targetDogSex: string
   myDogs: MyDog[]
 }) {
   const router = useRouter()
-  const verifiedDogs = myDogs.filter((d) => d.isVerified)
-  const [selectedDogId, setSelectedDogId] = useState(verifiedDogs[0]?.id ?? '')
+  const oppositeSex = targetDogSex === 'male' ? 'female' : 'male'
+  const eligibleDogs = myDogs.filter((d) => d.sex === oppositeSex && d.isVerified)
+  const [selectedDogId, setSelectedDogId] = useState(eligibleDogs[0]?.id ?? '')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
@@ -23,14 +26,14 @@ export default function ExpressInterestForm({
     return <p className="mt-4 text-sm text-ink-soft">Add a dog of your own to express interest.</p>
   }
 
-  if (verifiedDogs.length === 0) {
+  if (eligibleDogs.length === 0) {
     return (
       <p className="mt-4 text-sm text-ink-soft">
-        Your dog needs verified health documents before it can express interest.{' '}
+        You need a verified {oppositeSex} dog to express interest here.{' '}
         <a href="/home" className="font-semibold text-brand underline">
-          Upload them from your dashboard
+          Check your dogs&apos; verification status
         </a>
-        . Verification is free for Founding Members.
+        .
       </p>
     )
   }
@@ -64,7 +67,7 @@ export default function ExpressInterestForm({
         onChange={(e) => setSelectedDogId(e.target.value)}
         className="fp-input text-sm"
       >
-        {verifiedDogs.map((d) => (
+        {eligibleDogs.map((d) => (
           <option key={d.id} value={d.id}>
             {d.name}
           </option>
