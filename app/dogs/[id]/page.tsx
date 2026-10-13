@@ -109,16 +109,16 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
     })
   )
 
-  let myVerifiedDogs: { id: string; name: string; isVerified: boolean }[] = []
+  let myVerifiedDogs: { id: string; name: string; sex: string; isVerified: boolean }[] = []
   if (!isOwnDog) {
     const { data: myDogs } = await supabase
       .from('dogs')
-      .select('id, name')
+      .select('id, name, sex')
       .eq('owner_id', userData.user.id)
     myVerifiedDogs = await Promise.all(
       (myDogs ?? []).map(async (d) => {
         const { data: verified } = await supabase.rpc('dog_is_baseline_verified', { p_dog_id: d.id })
-        return { id: d.id, name: d.name, isVerified: !!verified }
+        return { id: d.id, name: d.name, sex: d.sex, isVerified: !!verified }
       })
     )
   }
@@ -159,7 +159,7 @@ export default async function DogDetailPage({ params }: { params: Promise<{ id: 
           )}
         </>
       ) : (
-        !isOwnDog && <ExpressInterestForm targetDogId={dog.id} myDogs={myVerifiedDogs} />
+        !isOwnDog && <ExpressInterestForm targetDogId={dog.id} targetDogSex={dog.sex} myDogs={myVerifiedDogs} />
       )}
 
       <h2 className="mt-8 fp-h5">Photos</h2>
