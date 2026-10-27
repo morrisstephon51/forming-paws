@@ -54,13 +54,15 @@ describe('supabase migration filenames', () => {
   // sufficient: a renumber can give every file a distinct prefix yet still move a
   // migration to a position where it runs AFTER a migration that depends on it.
   // role_system is the SOLE definer of the role tables/functions
-  // (public.roles, public.user_roles, grant_role(), revoke_role()). Lower-numbered
-  // migrations reference them — 0029 revokes execute on grant_role/revoke_role,
-  // 0034 indexes public.user_roles. Applied in numeric order, a migration cannot
-  // reference an object a higher-numbered migration has not created yet, so a fresh
-  // `supabase db reset` aborts. These four names are defined ONLY in role_system,
-  // so matching them carries no column/function-name ambiguity (unlike is_admin,
-  // which also exists as the owners.is_admin column).
+  // (public.roles, public.user_roles, grant_role(), revoke_role(), has_role(),
+  // has_any_role()). Lower-numbered migrations reference them — the EARLIEST
+  // executable dependent is audit_log, whose RLS policies call has_role('admin');
+  // later ones revoke execute on grant_role/revoke_role and index public.user_roles.
+  // Applied in numeric order, a migration cannot reference an object a higher-numbered
+  // migration has not created yet, so a fresh `supabase db reset` aborts. All of these
+  // names are defined ONLY in role_system, so matching them carries no
+  // column/function-name ambiguity (unlike is_admin, which also exists as the
+  // owners.is_admin column, so it is deliberately excluded here).
   it('role_system applies before every migration that uses its exclusive objects', () => {
     const files = readdirSync(MIGRATIONS_DIR)
       .filter((name) => name.endsWith('.sql'))
@@ -69,7 +71,7 @@ describe('supabase migration filenames', () => {
     expect(definer, 'expected a *_role_system.sql migration to exist').toBeTruthy()
     const defPrefix = prefixOf(definer as string)
 
-    const usesRoleSystem = /\b(?:grant_role|revoke_role)\s*\(|\bpublic\.(?:roles|user_roles)\b/i
+    const usesRoleSystem = /\b(?:grant_role|revoke_role|has_role|has_any_role)\s*\(|\bpublic\.(?:roles|user_roles)\b/i
     const violations = files
       .filter((f) => f !== definer && prefixOf(f) < defPrefix)
       .filter((f) =>
