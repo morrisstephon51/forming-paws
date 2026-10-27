@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 // Supabase migrations are applied in numeric-prefix order by a hand-run runner
@@ -21,6 +21,12 @@ function migrationPrefixes(): { file: string; prefix: string }[] {
     })
 }
 
+const prefixOf = (file: string): string => file.match(/^(\d+)_/)?.[1] ?? ''
+
+// Strip SQL comments so a reference inside `-- ...` or `/* ... */` never counts.
+const stripSqlComments = (sql: string): string =>
+  sql.replace(/\/\*[\s\S]*?\*\//g, '').replace(/--[^\n]*/g, '')
+
 describe('supabase migration filenames', () => {
   it('every .sql migration starts with a numeric NNNN_ prefix', () => {
     const malformed = migrationPrefixes()
@@ -41,6 +47,39 @@ describe('supabase migration filenames', () => {
     expect(
       collisions,
       `duplicate migration prefixes (undefined apply order on the hand-run Supabase runner):\n${collisions.join('\n')}`,
+    ).toEqual([])
+  })
+
+  // Dependency-order guard. Unique prefixes (above) are necessary but NOT
+  // sufficient: a renumber can give every file a distinct prefix yet still move a
+  // migration to a position where it runs AFTER a migration that depends on it.
+  // role_system is the SOLE definer of the role tables/functions
+  // (public.roles, public.user_roles, grant_role(), revoke_role()). Lower-numbered
+  // migrations reference them — 0029 revokes execute on grant_role/revoke_role,
+  // 0034 indexes public.user_roles. Applied in numeric order, a migration cannot
+  // reference an object a higher-numbered migration has not created yet, so a fresh
+  // `supabase db reset` aborts. These four names are defined ONLY in role_system,
+  // so matching them carries no column/function-name ambiguity (unlike is_admin,
+  // which also exists as the owners.is_admin column).
+  it('role_system applies before every migration that uses its exclusive objects', () => {
+    const files = readdirSync(MIGRATIONS_DIR)
+      .filter((name) => name.endsWith('.sql'))
+      .sort()
+    const definer = files.find((f) => /role_system/.test(f))
+    expect(definer, 'expected a *_role_system.sql migration to exist').toBeTruthy()
+    const defPrefix = prefixOf(definer as string)
+
+    const usesRoleSystem = /\b(?:grant_role|revoke_role)\s*\(|\bpublic\.(?:roles|user_roles)\b/i
+    const violations = files
+      .filter((f) => f !== definer && prefixOf(f) < defPrefix)
+      .filter((f) =>
+        usesRoleSystem.test(stripSqlComments(readFileSync(join(MIGRATIONS_DIR, f), 'utf8'))),
+      )
+      .map((f) => `${f} references a role_system object (roles/user_roles/grant_role/revoke_role) but sorts BEFORE the definer ${definer}`)
+    expect(
+      violations,
+      `role_system (${definer}) must apply before every migration that uses its objects — ` +
+        `moving it later breaks a fresh \`supabase db reset\`:\n${violations.join('\n')}`,
     ).toEqual([])
   })
 })
