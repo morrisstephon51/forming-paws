@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { hasRole } from '@/lib/auth/roles'
+import { recordAuditEvent } from '@/lib/auth/audit'
 
 const STATUSES = new Set(['open', 'reviewing', 'resolved', 'dismissed'])
 
@@ -25,5 +26,12 @@ export async function setReportStatus(reportId: string, status: string, notes: s
     .eq('id', reportId)
 
   if (error) throw error
+
+  await recordAuditEvent({
+    action: `match_report.${status}`,
+    targetType: 'match_report',
+    targetId: reportId,
+    detail: notes ? { notes } : {},
+  })
   revalidatePath('/admin/reports')
 }
