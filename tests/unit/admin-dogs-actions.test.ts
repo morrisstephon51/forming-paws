@@ -180,6 +180,21 @@ describe('updateDogAction', () => {
     expect(mocks.update).not.toHaveBeenCalled()
   })
 
+  it('rejects a birth_date in the future before writing', async () => {
+    mocks.createClient.mockResolvedValue(client({ user: 'admin1', roles: ['admin'] }))
+    const { updateDogAction } = await import('@/app/admin/dogs/actions')
+    // The member-facing create form guards birth_date against the future via
+    // dogSchema/isBirthDateNotInFuture; the admin edit path must agree, or an
+    // admin edit reintroduces the future birth_date age.ts assumes cannot exist.
+    // "tomorrow" in UTC is always strictly after today in the members' (Chicago)
+    // calendar, since UTC runs ahead of Chicago -- same construction PR #71 uses.
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+    await expect(
+      updateDogAction(fd({ dogId: 'dog-3', name: 'Rex', breedId: '4', sex: 'male', birthDate: tomorrow })),
+    ).rejects.toThrow('Birth date cannot be in the future')
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
   it('refuses a non-admin without reporting input problems', async () => {
     mocks.createClient.mockResolvedValue(client({ user: 'plain1', roles: [] }))
     const { updateDogAction } = await import('@/app/admin/dogs/actions')
