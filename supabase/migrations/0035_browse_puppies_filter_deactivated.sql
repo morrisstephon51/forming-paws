@@ -8,7 +8,8 @@
 -- receive a reply until the owner reactivates.
 --
 -- Fix: add `o.deactivated_at is null` to browse_puppies, matching the guard
--- browse_dogs has carried since 0022.
+-- browse_dogs has carried since 0022. The restatement also preserves the
+-- `d.removed_at is null` guard 0028 added, so admin-removed listings stay hidden.
 
 create or replace function public.browse_puppies(
   p_breed_id bigint default null,
@@ -56,6 +57,12 @@ as $$
   where d.litter_id is not null
     and d.owner_id <> auth.uid()
     and o.deactivated_at is null
+    -- Carried forward from 0028. browse_puppies is defined by CREATE OR REPLACE,
+    -- and 0028 added `d.removed_at is null` so admin-removed dogs/litters stay
+    -- out of the marketplace. This restatement runs AFTER 0028, so omitting the
+    -- line would silently un-hide every removed puppy again. Keep it on every
+    -- restatement (same rule 0028 states for browse_dogs).
+    and d.removed_at is null
     and (p_breed_id is null or d.breed_id = p_breed_id)
     and (
       p_radius_miles is null
