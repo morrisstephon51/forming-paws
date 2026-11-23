@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { calendarDateInMemberZone, formatCalendarDate } from '@/lib/dates'
 
 /**
  * Kept out of the 'use server' action file: a module with 'use server' may only
@@ -47,4 +48,16 @@ export function purgeDateFrom(deactivatedAt: Date): Date {
   const due = new Date(deactivatedAt)
   due.setUTCDate(due.getUTCDate() + PURGE_GRACE_DAYS)
   return due
+}
+
+/**
+ * The permanent-deletion date to show a deactivated member, e.g. "1 December 2026".
+ *
+ * Read in the members' timezone, not UTC. The purge runs from pg_cron at 04:10
+ * UTC (about 10pm the previous day in Chicago), so for a member who deactivated
+ * in the evening the UTC date of `purgeDateFrom` is one day later than the
+ * evening their account is actually deleted.
+ */
+export function purgeDateLabel(deactivatedAt: Date): string {
+  return formatCalendarDate(calendarDateInMemberZone(purgeDateFrom(deactivatedAt)))
 }

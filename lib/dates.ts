@@ -73,13 +73,27 @@ const MEMBER_TIME_ZONE = 'America/Chicago'
  * `now` is injectable purely so the boundary can be pinned in tests.
  */
 export function todayInMemberZone(now: Date = new Date()): string {
+  return calendarDateInMemberZone(now)
+}
+
+/**
+ * The calendar date an instant falls on in the members' timezone, as
+ * "YYYY-MM-DD".
+ *
+ * For showing a member WHEN something will happen. `instant.toISOString()`
+ * gives the UTC date instead, which runs a day ahead of Chicago from about 7pm
+ * onward. That matters for the account-deletion date: the purge cron fires at
+ * 04:10 UTC, which is the previous evening in Chicago, so a UTC date promises
+ * the member a day they do not actually have.
+ */
+export function calendarDateInMemberZone(instant: Date): string {
   // en-CA renders a date as "YYYY-MM-DD".
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: MEMBER_TIME_ZONE,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(now)
+  }).format(instant)
 }
 
 /**

@@ -3,8 +3,7 @@ import { loginRedirectPath } from '@/lib/auth/login-redirect'
 import { createClient } from '@/lib/supabase/server'
 import SiteFooter from '@/components/SiteFooter'
 import ReactivateForm from './ReactivateForm'
-import { purgeDateFrom, PURGE_GRACE_DAYS } from '@/lib/validators/settings'
-import { formatCalendarDate } from '@/lib/dates'
+import { purgeDateLabel, PURGE_GRACE_DAYS } from '@/lib/validators/settings'
 import { pageMetadata } from '@/lib/seo'
 
 export const metadata = pageMetadata({
@@ -36,7 +35,7 @@ export default async function ReactivatePage() {
   // offers to undo something that never happened.
   if (!owner?.deactivated_at) redirect('/home')
 
-  const purgeOn = purgeDateFrom(new Date(owner.deactivated_at))
+  const purgeOn = purgeDateLabel(new Date(owner.deactivated_at))
 
   return (
     <div className="mx-auto max-w-xl px-6 py-4">
@@ -54,7 +53,7 @@ export default async function ReactivatePage() {
             Permanent deletion
           </p>
           <p className="mt-1 font-display text-xl font-bold text-ink">
-            {formatCalendarDate(purgeOn.toISOString().slice(0, 10))}
+            {purgeOn}
           </p>
         </div>
 
